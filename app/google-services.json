@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "644203574463",
+    "project_id": "registeractivity-202dd",
+    "storage_bucket": "registeractivity-202dd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644203574463:android:1210150f82c2cd541e420a",
+        "android_client_info": {
+          "package_name": "com.example.registeractivity"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFiLdotlF3AHmIr623b0SVp8GaXjLyiiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
