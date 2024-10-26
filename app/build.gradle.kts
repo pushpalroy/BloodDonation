@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.registeractivity"
+    namespace = "com.example.blooddonation"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.registeractivity"
+        applicationId = "com.example.blooddonation"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

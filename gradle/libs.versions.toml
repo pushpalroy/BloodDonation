@@ -40,12 +40,11 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
-firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebase" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebase-storage" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx", version.ref = "firebase-messaging" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics", version = "22.1.2" }
-
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

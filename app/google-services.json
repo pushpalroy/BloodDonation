@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:644203574463:android:1210150f82c2cd541e420a",
+        "mobilesdk_app_id": "1:644203574463:android:0466ae0aa39467f01e420a",
         "android_client_info": {
-          "package_name": "com.example.registeractivity"
+          "package_name": "com.example.blooddonation"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "644203574463-g14petb1q6ao1cim946at6iqstdaqcp0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCFiLdotlF3AHmIr623b0SVp8GaXjLyiiA"
@@ -20,7 +25,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "644203574463-g14petb1q6ao1cim946at6iqstdaqcp0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644203574463:android:1210150f82c2cd541e420a",
+        "android_client_info": {
+          "package_name": "com.example.blooddonation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "644203574463-g14petb1q6ao1cim946at6iqstdaqcp0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFiLdotlF3AHmIr623b0SVp8GaXjLyiiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "644203574463-g14petb1q6ao1cim946at6iqstdaqcp0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

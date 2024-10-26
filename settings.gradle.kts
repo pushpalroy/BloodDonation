@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RegisterActivity"
+rootProject.name = "BloodDonation"
 include(":app")
