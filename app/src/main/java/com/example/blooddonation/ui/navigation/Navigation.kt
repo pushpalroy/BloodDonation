@@ -1,4 +1,4 @@
-package com.example.registeractivity
+package com.example.blooddonation.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -8,6 +8,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.blooddonation.ui.dashboard.DashboardScreen
+import com.example.blooddonation.ui.profile.ProfileCreationScreen
+import com.example.blooddonation.ui.registration.RegistrationScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
