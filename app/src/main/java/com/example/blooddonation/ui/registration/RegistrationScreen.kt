@@ -45,10 +45,10 @@ import kotlinx.coroutines.tasks.await
 
 @Composable
 fun RegistrationScreen(navController: NavHostController) {
-    var name by remember { mutableStateOf("Pushpal Roy") }
-    var email by remember { mutableStateOf("pushpalroy2007@gmail.com") }
-    var phoneNumber by remember { mutableStateOf("9007727246") }
-    var password by remember { mutableStateOf("Pushpal12345") }
+    var name by remember { mutableStateOf("Tulia Dasgupta") }
+    var email by remember { mutableStateOf("tuliadasgupta@gmail.com") }
+    var phoneNumber by remember { mutableStateOf("9877676554") }
+    var password by remember { mutableStateOf("Tulia12345") }
     var bloodGroup by remember { mutableStateOf("B+") }
     var expanded by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
