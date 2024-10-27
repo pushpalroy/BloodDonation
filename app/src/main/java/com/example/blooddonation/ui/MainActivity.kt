@@ -14,6 +14,14 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
         setContent {
+
+            /**
+             * TODO: Tasks:
+             * 1. Implement MVVM architecture for the project (https://developer.android.com/topic/architecture)
+             * 2. ViewModels for Register, Profile, Dashboard
+             * 3. Dependency injection using Hilt (https://developer.android.com/training/dependency-injection)
+             */
+
             BloodBankApp(auth.currentUser)
         }
     }
