@@ -11,12 +11,16 @@ import androidx.navigation.navArgument
 import com.example.blooddonation.ui.dashboard.DashboardScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
+import com.example.blooddonation.ui.registration.UserViewModel
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(navController: NavHostController,userViewModel: UserViewModel) {
     NavHost(navController = navController, startDestination = "registration") {
         composable("registration") {
-            RegistrationScreen(navController)
+            // Pass userViewModel to RegistrationScreen
+            RegistrationScreen(userViewModel = userViewModel) {
+                navController.navigate("profile")
+            }
         }
         composable("profile") {
             ProfileCreationScreen(navController)

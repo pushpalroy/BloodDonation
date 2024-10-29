@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,30 +33,33 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import androidx.compose.runtime.livedata.observeAsState
+
 
 @Composable
-fun RegistrationScreen(navController: NavHostController) {
+fun RegistrationScreen(
+    userViewModel: UserViewModel,
+    onNavigateToProfile: () -> Unit
+) {
     var name by remember { mutableStateOf("Tulia Dasgupta") }
     var email by remember { mutableStateOf("tuliadasgupta@gmail.com") }
-    var phoneNumber by remember { mutableStateOf("9877676554") }
+    var phoneNumber by remember { mutableStateOf("8420059821") }
     var password by remember { mutableStateOf("Tulia12345") }
-    var bloodGroup by remember { mutableStateOf("B+") }
+    var bloodGroup by remember { mutableStateOf("A+") }
     var expanded by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
 
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
-    val auth = FirebaseAuth.getInstance()
+    // Observe registration status
+    val isLoading by userViewModel.isLoading.observeAsState(false)
+    val isRegistered by userViewModel.isRegistered.observeAsState(false)
+    val registrationError by userViewModel.registrationError.observeAsState(null)
+
+    // Navigate to Profile screen upon successful registration
+    if (isRegistered) {
+        onNavigateToProfile()
+    }
 
     Column(
         modifier = Modifier
@@ -76,37 +78,14 @@ fun RegistrationScreen(navController: NavHostController) {
         )
 
         // UI elements for name, email, phone, password, and blood group
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Full Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        TextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
-        )
+        TextField(value = email, onValueChange = { email = it}, label = { Text("Email") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), modifier = Modifier.fillMaxWidth())
+        Log.d("RegistrationScreen", "Email input: '$email'")
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
-            label = { Text("Phone Number") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth()
-        )
+        TextField(value = phoneNumber, onValueChange = { phoneNumber = it }, label = { Text("Phone Number") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
+        TextField(value = password, onValueChange = { password = it }, label = { Text("Password") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
 
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -115,82 +94,22 @@ fun RegistrationScreen(navController: NavHostController) {
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 bloodGroups.forEach { group ->
-                    DropdownMenuItem(
-                        text = { Text(text = group) },
-                        onClick = {
-                            bloodGroup = group
-                            expanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(text = group) }, onClick = {
+                        bloodGroup = group
+                        expanded = false
+                    })
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Register button with Firebase Authentication and Firestore logic
+        // Register button to trigger ViewModel registration
         Button(
             onClick = {
-                if (name.isNotEmpty() && email.isNotEmpty() &&
-                    phoneNumber.isNotEmpty() && password.isNotEmpty() &&
-                    bloodGroup.isNotEmpty()
-                ) {
-                    isLoading = true
-                    coroutineScope.launch {
-                        try {
-                            // Create user in Firebase Auth
-                            val authResult =
-                                auth.createUserWithEmailAndPassword(email, password).await()
-                            val userId =
-                                authResult.user?.uid ?: throw Exception("Failed to get user ID")
-
-                            // Create user document in Firestore
-                            val user = hashMapOf(
-                                "name" to name,
-                                "email" to email,
-                                "phoneNumber" to phoneNumber,
-                                "bloodGroup" to bloodGroup
-                            )
-
-                            val db = Firebase.firestore
-                            db.collection("users")
-                                .document(userId)
-                                .set(user)
-                                .await()
-
-                            // Important: Reset loading state and navigate AFTER successful registration
-                            isLoading = false
-
-                            // Show success message
-                            Toast.makeText(context, "Registration Successful!", Toast.LENGTH_SHORT)
-                                .show()
-
-                            // Navigate to profile screen
-                            navController.navigate("profile") {
-                                popUpTo("registration") { inclusive = true }
-                            }
-
-                        } catch (e: FirebaseAuthWeakPasswordException) {
-                            isLoading = false
-                            Toast.makeText(
-                                context,
-                                "Password should be at least 6 characters",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } catch (e: FirebaseAuthUserCollisionException) {
-                            isLoading = false
-                            Toast.makeText(context, "Email already exists", Toast.LENGTH_LONG)
-                                .show()
-                        } catch (e: Exception) {
-                            isLoading = false
-                            Log.e("Registration", "Error during registration", e)
-                            Toast.makeText(
-                                context,
-                                "Registration failed: ${e.localizedMessage}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
+                if (name.isNotEmpty() && email.isNotEmpty() && phoneNumber.isNotEmpty() && password.isNotEmpty() && bloodGroup.isNotEmpty()) {
+                    val user = User(name, email, phoneNumber, bloodGroup)
+                    userViewModel.registerUser(user,password)
                 } else {
                     Toast.makeText(context, "Please fill all details", Toast.LENGTH_SHORT).show()
                 }
@@ -201,14 +120,15 @@ fun RegistrationScreen(navController: NavHostController) {
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
         ) {
             if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
-                )
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
             } else {
                 Text(text = "Register", color = Color.White)
             }
+        }
+
+        // Show registration error if any
+        registrationError?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 }

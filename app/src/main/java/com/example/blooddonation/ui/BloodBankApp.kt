@@ -3,8 +3,10 @@ package com.example.blooddonation.ui
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.blooddonation.ui.navigation.AppNavigation
+import com.example.blooddonation.ui.registration.UserViewModel
 import com.example.blooddonation.ui.theme.BloodBankTheme
 import com.google.firebase.auth.FirebaseUser
 
@@ -12,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser
 fun BloodBankApp(currentUser: FirebaseUser?) {
     BloodBankTheme {
         val navController = rememberNavController()
+        val userViewModel: UserViewModel = viewModel()
 
         LaunchedEffect(Unit) {
             if (currentUser != null) {
@@ -28,6 +31,6 @@ fun BloodBankApp(currentUser: FirebaseUser?) {
             }
         }
 
-        AppNavigation(navController)
+        AppNavigation(navController, userViewModel)
     }
 }
