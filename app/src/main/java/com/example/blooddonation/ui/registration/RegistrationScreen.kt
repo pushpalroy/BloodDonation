@@ -81,7 +81,7 @@ fun RegistrationScreen(
         TextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(8.dp))
         TextField(value = email, onValueChange = { email = it}, label = { Text("Email") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), modifier = Modifier.fillMaxWidth())
-        Log.d("RegistrationScreen", "Email input: '$email'")
+        Log.d("RegistrationScreen", "Name: $name, Email: $email, Phone: $phoneNumber, Blood Group: $bloodGroup")
         Spacer(modifier = Modifier.height(8.dp))
         TextField(value = phoneNumber, onValueChange = { phoneNumber = it }, label = { Text("Phone Number") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))

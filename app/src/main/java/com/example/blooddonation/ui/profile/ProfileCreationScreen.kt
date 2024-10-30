@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 
+
 @Composable
 fun ProfileCreationScreen(navController: NavHostController) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -165,7 +166,9 @@ fun ProfileCreationScreen(navController: NavHostController) {
                         "ProfileCreationScreen",
                         "Navigating to dashboard with username: $username, imageUri: ${imageUri.toString()}"
                     )
-                    navController.navigate("dashboard/${username}/${Uri.encode(imageUri.toString())}")
+                    navController.navigate("dashboard/${username}/${Uri.encode(imageUri.toString())}"){
+                        popUpTo("registration") { inclusive = true }
+                    }
                 } else {
                     Log.e("ProfileCreationScreen", "Username or ImageUri is null!")
                 }
@@ -183,3 +186,6 @@ fun ProfileCreationScreen(navController: NavHostController) {
         }
     }
 }
+
+
+

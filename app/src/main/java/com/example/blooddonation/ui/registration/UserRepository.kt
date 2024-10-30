@@ -7,7 +7,7 @@ class UserRepository {
     private val db = Firebase.firestore
 
     fun registerUser(user: User, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
-        db.collection("users").document(user.uid)
+        db.collection("users").document(user.name)
             .set(user)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { exception -> onError(exception) }
