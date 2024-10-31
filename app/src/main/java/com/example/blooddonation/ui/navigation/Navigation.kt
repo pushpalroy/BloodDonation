@@ -2,6 +2,7 @@ package com.example.blooddonation.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -14,7 +15,8 @@ import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
 
 @Composable
-fun AppNavigation(navController: NavHostController,userViewModel: UserViewModel) {
+fun AppNavigation(navController: NavHostController) {
+    val userViewModel: UserViewModel = viewModel()
     NavHost(navController = navController, startDestination = "registration") {
         composable("registration") {
             // Pass userViewModel to RegistrationScreen

@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +34,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.persistentListOf
 
 
 @Composable
@@ -47,18 +49,22 @@ fun RegistrationScreen(
     var password by remember { mutableStateOf("Tulia12345") }
     var bloodGroup by remember { mutableStateOf("A+") }
     var expanded by remember { mutableStateOf(false) }
-
-    val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+    val bloodGroups = remember {
+        persistentListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+    }
     val context = LocalContext.current
 
     // Observe registration status
-    val isLoading by userViewModel.isLoading.observeAsState(false)
-    val isRegistered by userViewModel.isRegistered.observeAsState(false)
-    val registrationError by userViewModel.registrationError.observeAsState(null)
+    val isLoading by userViewModel.isLoading.collectAsStateWithLifecycle()
+    val isRegistered by userViewModel.isRegistered.collectAsStateWithLifecycle()
+    val registrationError by userViewModel.registrationError.collectAsStateWithLifecycle()
 
-    // Navigate to Profile screen upon successful registration
-    if (isRegistered) {
-        onNavigateToProfile()
+    LaunchedEffect(key1 = isRegistered) {
+        // Navigate to Profile screen upon successful registration
+        if (isRegistered) {
+            Log.d("RegistrationScreen", "Navigating to Profile screen")
+            onNavigateToProfile()
+        }
     }
 
     Column(
@@ -81,7 +87,6 @@ fun RegistrationScreen(
         TextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(8.dp))
         TextField(value = email, onValueChange = { email = it}, label = { Text("Email") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), modifier = Modifier.fillMaxWidth())
-        Log.d("RegistrationScreen", "Name: $name, Email: $email, Phone: $phoneNumber, Blood Group: $bloodGroup")
         Spacer(modifier = Modifier.height(8.dp))
         TextField(value = phoneNumber, onValueChange = { phoneNumber = it }, label = { Text("Phone Number") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(16.dp))
@@ -127,7 +132,7 @@ fun RegistrationScreen(
         }
 
         // Show registration error if any
-        registrationError?.let {
+        registrationError.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }

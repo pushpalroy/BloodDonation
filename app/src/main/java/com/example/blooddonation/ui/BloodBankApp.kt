@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseUser
 fun BloodBankApp(currentUser: FirebaseUser?) {
     BloodBankTheme {
         val navController = rememberNavController()
-        val userViewModel: UserViewModel = viewModel()
 
         LaunchedEffect(Unit) {
             if (currentUser != null) {
@@ -31,6 +30,6 @@ fun BloodBankApp(currentUser: FirebaseUser?) {
             }
         }
 
-        AppNavigation(navController, userViewModel)
+        AppNavigation(navController)
     }
 }

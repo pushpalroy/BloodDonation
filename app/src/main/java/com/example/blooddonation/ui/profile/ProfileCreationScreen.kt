@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun ProfileCreationScreen(navController: NavHostController) {
@@ -48,7 +48,9 @@ fun ProfileCreationScreen(navController: NavHostController) {
     var bio by remember { mutableStateOf("") }
     var bloodGroup by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+    val bloodGroups = remember {
+        persistentListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+    }
 
     Column(
         modifier = Modifier

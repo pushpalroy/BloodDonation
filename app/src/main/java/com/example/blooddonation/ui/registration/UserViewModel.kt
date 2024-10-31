@@ -1,20 +1,21 @@
 package com.example.blooddonation.ui.registration
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class UserViewModel : ViewModel() {
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _isRegistered = MutableLiveData<Boolean>()
-    val isRegistered: LiveData<Boolean> get() = _isRegistered
+    private val _isRegistered = MutableStateFlow(false)
+    val isRegistered: StateFlow<Boolean> = _isRegistered.asStateFlow()
 
-    private val _registrationError = MutableLiveData<String?>()
-    val registrationError: LiveData<String?> get() = _registrationError
+    private val _registrationError = MutableStateFlow("")
+    val registrationError: StateFlow<String> = _registrationError.asStateFlow()
 
     fun registerUser(user: User, password: String) {
         _isLoading.value = true
@@ -40,12 +41,12 @@ class UserViewModel : ViewModel() {
                             }
                             .addOnFailureListener { e ->
                                 _isLoading.value = false
-                                _registrationError.value = e.localizedMessage
+                                _registrationError.value = e.localizedMessage?.toString() ?: ""
                             }
                     }
                 } else {
                     _isLoading.value = false
-                    _registrationError.value = task.exception?.localizedMessage
+                    _registrationError.value = task.exception?.localizedMessage.toString()
                 }
             }
     }}
