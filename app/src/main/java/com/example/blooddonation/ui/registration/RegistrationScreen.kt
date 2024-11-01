@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +36,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.collections.immutable.persistentListOf
+
 
 
 @Composable
@@ -49,9 +50,8 @@ fun RegistrationScreen(
     var password by remember { mutableStateOf("Tulia12345") }
     var bloodGroup by remember { mutableStateOf("A+") }
     var expanded by remember { mutableStateOf(false) }
-    val bloodGroups = remember {
-        persistentListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
-    }
+    val bloodGroups = remember { mutableStateListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-") }
+
     val context = LocalContext.current
 
     // Observe registration status
