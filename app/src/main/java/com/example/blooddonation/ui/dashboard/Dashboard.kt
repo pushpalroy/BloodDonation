@@ -50,7 +50,7 @@ fun DashboardScreen(
         onSecondary = whiteColor,
         surface = whiteColor,
         onSurface = blackColor,
-        background = blackColor,
+        background = whiteColor,
         onBackground = whiteColor
     )
 
@@ -114,18 +114,18 @@ fun DashboardScreen(
                         Column {
                             Text(
                                 text = "Welcome,",
-                                style = MaterialTheme.typography.titleMedium.copy(color = whiteColor)
+                                style = MaterialTheme.typography.titleMedium.copy(color = blackColor)
                             )
                             Text(
                                 text = username.ifEmpty { "User" },
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = whiteColor
+                                    color = blackColor
                                 )
                             )
                         }
                     }
-
+                    Spacer(modifier = Modifier.height(48.dp))
                     // Grid with navigation cards
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -147,7 +147,7 @@ fun DashboardScreen(
                             DashboardCard(
                                 title = "Request Blood",
                                 icon = Icons.Default.Favorite,
-                                backgroundColor = blackColor,
+                                backgroundColor = redColor,
                                 iconColor = whiteColor
                             ) {
                                 navController.navigate("request_blood") // ✅ Navigates to RequestBloodScreen
@@ -167,7 +167,7 @@ fun DashboardScreen(
                             DashboardCard(
                                 title = "Settings",
                                 icon = Icons.Default.Settings,
-                                backgroundColor = blackColor,
+                                backgroundColor = redColor,
                                 iconColor = whiteColor
                             ) {
                                 navController.navigate("settings")
@@ -179,6 +179,8 @@ fun DashboardScreen(
         )
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
