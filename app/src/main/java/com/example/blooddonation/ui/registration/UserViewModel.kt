@@ -8,48 +8,50 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class UserViewModel : ViewModel() {
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _isRegistered = MutableStateFlow(false)
-    val isRegistered: StateFlow<Boolean> = _isRegistered.asStateFlow()
+    val isRegistered: StateFlow<Boolean> = _isRegistered
 
-    private val _registrationError = MutableStateFlow("")
-    val registrationError: StateFlow<String> = _registrationError.asStateFlow()
+    private val _registrationError = MutableStateFlow<String?>(null)
+    val registrationError: StateFlow<String?> = _registrationError
 
     fun registerUser(user: User, password: String) {
         _isLoading.value = true
+        _registrationError.value = null
+        _isRegistered.value = false
 
-        // Trim and log email immediately
-        val trimmedEmail = user.email.trim()
-        Log.d(
-            "UserViewModel",
-            "Trimmed Email entered: $trimmedEmail"
-        ) // Log email input for debugging
-
-
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(trimmedEmail, password)
+        auth.createUserWithEmailAndPassword(user.email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val userId = FirebaseAuth.getInstance().currentUser?.uid
-                    userId?.let {
-                        FirebaseFirestore.getInstance().collection("users").document(it)
-                            .set(user)
-                            .addOnSuccessListener {
-                                _isLoading.value = false
-                                _isRegistered.value = true
-                            }
-                            .addOnFailureListener { e ->
-                                _isLoading.value = false
-                                _registrationError.value = e.localizedMessage?.toString() ?: ""
-                            }
-                    }
+                    val uid = auth.currentUser?.uid ?: ""
+                    val newUser = user.copy(uid = uid)
+
+                    // Save user to Firestore
+                    firestore.collection("users")
+                        .document(uid)
+                        .set(newUser)
+                        .addOnSuccessListener {
+                            _isRegistered.value = true
+                            _isLoading.value = false
+                        }
+                        .addOnFailureListener { e ->
+                            _registrationError.value = "Failed to save user: ${e.message}"
+                            _isLoading.value = false
+                        }
                 } else {
+                    _registrationError.value = task.exception?.localizedMessage ?: "Registration failed"
                     _isLoading.value = false
-                    _registrationError.value = task.exception?.localizedMessage.toString()
                 }
             }
-    }}
+    }
+}
+
 
 
 

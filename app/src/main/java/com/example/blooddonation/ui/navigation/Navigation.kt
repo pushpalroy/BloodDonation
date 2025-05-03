@@ -13,20 +13,41 @@ import com.example.blooddonation.ui.dashboard.DashboardScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
+import com.example.blooddonation.ui.splashscreen.SplashScreen
+import requestblood.RequestBloodScreen
+import signin.SignInScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val userViewModel: UserViewModel = viewModel()
-    NavHost(navController = navController, startDestination = "registration") {
-        composable("registration") {
-            // Pass userViewModel to RegistrationScreen
-            RegistrationScreen(userViewModel = userViewModel) {
-                navController.navigate("profile")
-            }
+
+    NavHost(navController = navController, startDestination = "splash") {
+
+        // Splash Screen
+        composable("splash") {
+            SplashScreen(navController = navController)
         }
+
+        // Registration Screen
+        composable("registration") {
+            RegistrationScreen(
+                userViewModel = userViewModel,
+                onNavigateToProfile = { navController.navigate("profile") },
+                onSignInClick = { navController.navigate("signin") }
+            )
+        }
+
+        // Sign In Screen (you can implement this screen next)
+        composable("signin") {
+            SignInScreen(navController = navController)
+        }
+
+        // Profile Creation Screen
         composable("profile") {
             ProfileCreationScreen(navController)
         }
+
+        // Dashboard Screen
         composable(
             route = "dashboard/{name}/{imageUri}",
             arguments = listOf(
@@ -40,6 +61,8 @@ fun AppNavigation(navController: NavHostController) {
                 DashboardScreen(navController, name, imageUri)
             }
         }
+
+        // Other screens
         composable("view_donors") {
             ViewDonorsScreen(navController)
         }
@@ -49,8 +72,11 @@ fun AppNavigation(navController: NavHostController) {
         composable("settings") {
             SettingsScreen(navController)
         }
+
     }
 }
+
+
 
 
 @Composable
@@ -59,14 +85,10 @@ fun ViewDonorsScreen(navController: NavController) {
     Text("View Donors Screen")
 }
 
-@Composable
-fun RequestBloodScreen(navController: NavController) {
-    // Your UI for the Request Blood screen
-    Text("Request Blood Screen")
-}
 
 @Composable
 fun SettingsScreen(navController: NavController) {
     // Your UI for the Settings screen
     Text("Settings Screen")
 }
+
