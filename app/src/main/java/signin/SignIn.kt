@@ -141,9 +141,8 @@ fun SignInScreen(navController: NavController) {
                                             val name = doc.getString("name") ?: "User"
                                             val imageUri = doc.getString("imageUri") ?: "default"
 
-                                            navController.navigate(
-                                                "dashboard/${Uri.encode(name)}/${Uri.encode(imageUri)}/${Uri.encode(uid)}"
-                                            )
+                                            navController.navigate("dashboard/$uid")
+
                                         }
                                         .addOnFailureListener {
                                             error = "Failed to load profile: ${it.message}"

@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
@@ -49,7 +50,8 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
     var bio by remember { mutableStateOf("") }
     var bloodGroup by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    val bloodGroups = remember { mutableStateListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-") }
+    val bloodGroups =
+        remember { mutableStateListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-") }
 
     Column(
         modifier = Modifier
@@ -159,17 +161,28 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Submit Button
+        // Submit Button
         Button(
             onClick = {
-                // Ensure imageUri is not null before navigating
                 if (imageUri != null && username.isNotBlank()) {
-                    Log.d(
-                        "ProfileCreationScreen",
-                        "Navigating to dashboard with username: $username, imageUri: ${imageUri.toString()}"
+                    val userMap = hashMapOf(
+                        "name" to username,
+                        "bio" to bio,
+                        "bloodGroup" to bloodGroup,
+                        "imageUri" to imageUri.toString()
                     )
-                    navController.navigate("dashboard/${username}/${Uri.encode(imageUri.toString())}/$uid") {
-                        popUpTo("registration") { inclusive = true }
-                    }
+
+                    val firestore = FirebaseFirestore.getInstance()
+                    firestore.collection("users").document(uid)
+                        .set(userMap)
+                        .addOnSuccessListener {
+                            navController.navigate("dashboard/$uid") {
+                                popUpTo("registration") { inclusive = true }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("ProfileCreationScreen", "Error saving profile", e)
+                        }
                 } else {
                     Log.e("ProfileCreationScreen", "Username or ImageUri is null!")
                 }
@@ -187,7 +200,4 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
         }
     }
 }
-
-
-
 

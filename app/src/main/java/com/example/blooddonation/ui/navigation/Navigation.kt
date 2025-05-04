@@ -36,7 +36,7 @@ fun AppNavigation(navController: NavHostController) {
             RegistrationScreen(
                 userViewModel = userViewModel,
                 onNavigateToProfile = { uid ->
-                    navController.navigate("profile/$uid")  // Navigating to Profile Creation screen with UID
+                    navController.navigate("profile/$uid")
                 },
                 onSignInClick = { navController.navigate("signin") }
             )
@@ -55,22 +55,15 @@ fun AppNavigation(navController: NavHostController) {
 
         // Dashboard Screen
         composable(
-            route = "dashboard/{name}/{imageUri}/{uid}",
+            route = "dashboard/{uid}",
             arguments = listOf(
-                navArgument("name") { type = NavType.StringType },
-                navArgument("imageUri") { type = NavType.StringType },
                 navArgument("uid") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("name") ?: "User"
-            val imageUri = backStackEntry.arguments?.getString("imageUri") ?: ""
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-
             DashboardScreen(
                 navController = navController,
-                uid = uid,
-                name = name,
-                imageUri = imageUri
+                uid = uid
             )
         }
 
@@ -86,6 +79,7 @@ fun AppNavigation(navController: NavHostController) {
         }
     }
 }
+
 
 
 @Composable

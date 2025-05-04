@@ -1,5 +1,6 @@
 package com.example.blooddonation.ui.dashboard
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -37,9 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun DashboardScreen(
     navController: NavController,
-    uid: String,
-    name: String,
-    imageUri: String
+    uid: String
 ) {
     val redColor = Color(0xFFB71C1C)  // Crimson Red
     val whiteColor = Color(0xFFFFFFFF)  // White
@@ -56,20 +55,30 @@ fun DashboardScreen(
         onBackground = whiteColor
     )
 
-    var username by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("User") }
     var imageUri by remember { mutableStateOf<String?>(null) }
 
-    // Fetch user data from Firestore
-    LaunchedEffect(uid) {
-        val firestore = FirebaseFirestore.getInstance()
-        firestore.collection("users").document(uid).get()
-            .addOnSuccessListener { doc ->
-                username = doc.getString("name") ?: "User"
-                imageUri = doc.getString("imageUri")
+    val firestore = FirebaseFirestore.getInstance()
+    val userDocRef = firestore.collection("users").document(uid)
+
+    DisposableEffect(uid) {
+        val listenerRegistration = userDocRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.e("DashboardScreen", "Listen failed.", error)
+                return@addSnapshotListener
             }
-            .addOnFailureListener {
-                // Handle error
+
+            if (snapshot != null && snapshot.exists()) {
+                username = snapshot.getString("name") ?: "User"
+                imageUri = snapshot.getString("imageUri")
+            } else {
+                Log.d("DashboardScreen", "Current data: null")
             }
+        }
+
+        onDispose {
+            listenerRegistration.remove()
+        }
     }
 
     MaterialTheme(colorScheme = customColors) {
@@ -135,7 +144,7 @@ fun DashboardScreen(
                                 style = MaterialTheme.typography.titleMedium.copy(color = blackColor)
                             )
                             Text(
-                                text = username.ifEmpty { "User" },
+                                text = username,
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = blackColor
@@ -143,7 +152,9 @@ fun DashboardScreen(
                             )
                         }
                     }
+
                     Spacer(modifier = Modifier.height(48.dp))
+
                     // Grid with navigation cards
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -168,7 +179,7 @@ fun DashboardScreen(
                                 backgroundColor = redColor,
                                 iconColor = whiteColor
                             ) {
-                                navController.navigate("request_blood") // ✅ Navigates to RequestBloodScreen
+                                navController.navigate("request_blood")
                             }
                         }
                         item {
@@ -197,6 +208,7 @@ fun DashboardScreen(
         )
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
