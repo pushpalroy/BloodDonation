@@ -43,14 +43,13 @@ import coil.compose.rememberAsyncImagePainter
 
 
 @Composable
-fun ProfileCreationScreen(navController: NavHostController) {
+fun ProfileCreationScreen(navController: NavHostController, uid: String) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var username by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
     var bloodGroup by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val bloodGroups = remember { mutableStateListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-") }
-
 
     Column(
         modifier = Modifier
@@ -168,7 +167,7 @@ fun ProfileCreationScreen(navController: NavHostController) {
                         "ProfileCreationScreen",
                         "Navigating to dashboard with username: $username, imageUri: ${imageUri.toString()}"
                     )
-                    navController.navigate("dashboard/${username}/${Uri.encode(imageUri.toString())}"){
+                    navController.navigate("dashboard/${username}/${Uri.encode(imageUri.toString())}/$uid") {
                         popUpTo("registration") { inclusive = true }
                     }
                 } else {
@@ -188,6 +187,7 @@ fun ProfileCreationScreen(navController: NavHostController) {
         }
     }
 }
+
 
 
 

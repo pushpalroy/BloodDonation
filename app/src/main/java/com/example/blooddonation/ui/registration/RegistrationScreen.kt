@@ -53,7 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun RegistrationScreen(
     userViewModel: UserViewModel,
-    onNavigateToProfile: () -> Unit,
+    onNavigateToProfile: (String) -> Unit,
     onSignInClick: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -67,9 +67,14 @@ fun RegistrationScreen(
     val isLoading by userViewModel.isLoading.collectAsStateWithLifecycle()
     val isRegistered by userViewModel.isRegistered.collectAsStateWithLifecycle()
     val registrationError by userViewModel.registrationError.collectAsStateWithLifecycle()
+    val currentUid by userViewModel.currentUid.collectAsStateWithLifecycle()  // Collect the currentUid state
 
+    // Check if registration is successful
     LaunchedEffect(isRegistered) {
-        if (isRegistered) onNavigateToProfile()
+        if (isRegistered && currentUid != null) {
+            // Pass the UID to navigate to Profile screen
+            onNavigateToProfile(currentUid!!)
+        }
     }
 
     Box(
@@ -97,6 +102,7 @@ fun RegistrationScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
+                // Registration Fields
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -159,6 +165,7 @@ fun RegistrationScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Registration Button
                 Button(
                     onClick = {
                         if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && role.isNotEmpty()) {
@@ -182,6 +189,7 @@ fun RegistrationScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Sign In Option
                 Row {
                     Text("Already have an account? ")
                     Text(
@@ -195,10 +203,12 @@ fun RegistrationScreen(
         }
     }
 
+    // Show error if registration failed
     registrationError?.let {
         LaunchedEffect(it) {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 }
+
 

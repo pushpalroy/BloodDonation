@@ -30,14 +30,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.R
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     navController: NavController,
-    username: String,
-    imageUri: String?
+    uid: String,
+    name: String,
+    imageUri: String
 ) {
     val redColor = Color(0xFFB71C1C)  // Crimson Red
     val whiteColor = Color(0xFFFFFFFF)  // White
@@ -53,6 +55,22 @@ fun DashboardScreen(
         background = whiteColor,
         onBackground = whiteColor
     )
+
+    var username by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<String?>(null) }
+
+    // Fetch user data from Firestore
+    LaunchedEffect(uid) {
+        val firestore = FirebaseFirestore.getInstance()
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                username = doc.getString("name") ?: "User"
+                imageUri = doc.getString("imageUri")
+            }
+            .addOnFailureListener {
+                // Handle error
+            }
+    }
 
     MaterialTheme(colorScheme = customColors) {
         Scaffold(
@@ -179,7 +197,6 @@ fun DashboardScreen(
         )
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)

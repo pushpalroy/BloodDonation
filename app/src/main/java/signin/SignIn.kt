@@ -142,7 +142,7 @@ fun SignInScreen(navController: NavController) {
                                             val imageUri = doc.getString("imageUri") ?: "default"
 
                                             navController.navigate(
-                                                "dashboard/${Uri.encode(name)}/${Uri.encode(imageUri)}"
+                                                "dashboard/${Uri.encode(name)}/${Uri.encode(imageUri)}/${Uri.encode(uid)}"
                                             )
                                         }
                                         .addOnFailureListener {
@@ -184,6 +184,8 @@ fun SignInScreen(navController: NavController) {
         }
     }
 }
+
+
 
 
 

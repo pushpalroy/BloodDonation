@@ -1,5 +1,6 @@
 package com.example.blooddonation.ui.navigation
 
+import android.net.Uri
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,6 +18,8 @@ import com.example.blooddonation.ui.splashscreen.SplashScreen
 import requestblood.RequestBloodScreen
 import signin.SignInScreen
 
+
+
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val userViewModel: UserViewModel = viewModel()
@@ -32,34 +35,43 @@ fun AppNavigation(navController: NavHostController) {
         composable("registration") {
             RegistrationScreen(
                 userViewModel = userViewModel,
-                onNavigateToProfile = { navController.navigate("profile") },
+                onNavigateToProfile = { uid ->
+                    navController.navigate("profile/$uid")  // Navigating to Profile Creation screen with UID
+                },
                 onSignInClick = { navController.navigate("signin") }
             )
         }
 
-        // Sign In Screen (you can implement this screen next)
+        // Sign In Screen
         composable("signin") {
             SignInScreen(navController = navController)
         }
 
         // Profile Creation Screen
-        composable("profile") {
-            ProfileCreationScreen(navController)
+        composable("profile/{uid}") { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            ProfileCreationScreen(navController = navController, uid = uid)
         }
 
         // Dashboard Screen
         composable(
-            route = "dashboard/{name}/{imageUri}",
+            route = "dashboard/{name}/{imageUri}/{uid}",
             arguments = listOf(
                 navArgument("name") { type = NavType.StringType },
-                navArgument("imageUri") { type = NavType.StringType }
+                navArgument("imageUri") { type = NavType.StringType },
+                navArgument("uid") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("name")
-            val imageUri = backStackEntry.arguments?.getString("imageUri")
-            if (name != null && imageUri != null) {
-                DashboardScreen(navController, name, imageUri)
-            }
+            val name = backStackEntry.arguments?.getString("name") ?: "User"
+            val imageUri = backStackEntry.arguments?.getString("imageUri") ?: ""
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+
+            DashboardScreen(
+                navController = navController,
+                uid = uid,
+                name = name,
+                imageUri = imageUri
+            )
         }
 
         // Other screens
@@ -72,11 +84,8 @@ fun AppNavigation(navController: NavHostController) {
         composable("settings") {
             SettingsScreen(navController)
         }
-
     }
 }
-
-
 
 
 @Composable
