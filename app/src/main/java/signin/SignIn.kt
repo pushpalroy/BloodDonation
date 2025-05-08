@@ -47,7 +47,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavController) {
+fun SignInScreen(
+    navController: NavController,
+    onSignInSuccess: (String) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -138,16 +141,15 @@ fun SignInScreen(navController: NavController) {
                                     val uid = result.user?.uid.orEmpty()
                                     firestore.collection("users").document(uid).get()
                                         .addOnSuccessListener { doc ->
-                                            val name = doc.getString("name") ?: "User"
-                                            val imageUri = doc.getString("imageUri") ?: "default"
-
-                                            navController.navigate("dashboard/$uid")
-
+                                            isLoading = false
+                                            if (doc.exists()) {
+                                                onSignInSuccess(uid)
+                                            } else {
+                                                navController.navigate("profile/$uid")
+                                            }
                                         }
                                         .addOnFailureListener {
                                             error = "Failed to load profile: ${it.message}"
-                                        }
-                                        .addOnCompleteListener {
                                             isLoading = false
                                         }
                                 }
@@ -183,6 +185,8 @@ fun SignInScreen(navController: NavController) {
         }
     }
 }
+
+
 
 
 

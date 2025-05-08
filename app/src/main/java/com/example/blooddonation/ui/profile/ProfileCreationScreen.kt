@@ -1,7 +1,7 @@
 package com.example.blooddonation.ui.profile
 
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -28,30 +28,45 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.firestore.FirebaseFirestore
+import java.io.File
+import java.io.FileOutputStream
 
 
 @Composable
-fun ProfileCreationScreen(navController: NavHostController, uid: String) {
+fun ProfileCreationScreen(
+    navController: NavHostController,
+    uid: String,
+    onProfileCreated: (String, String) -> Unit
+
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var username by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
     var bloodGroup by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    val bloodGroups =
-        remember { mutableStateListOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-") }
+    val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri -> imageUri = uri }
+    )
 
     Column(
         modifier = Modifier
@@ -65,14 +80,9 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
 
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent(),
-            onResult = { uri: Uri? -> imageUri = uri }
-        )
-
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Profile Picture Selector
+        // Profile Image
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -81,42 +91,34 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
             contentAlignment = Alignment.Center
         ) {
             imageUri?.let {
-                // Display the selected image
                 Image(
                     painter = rememberAsyncImagePainter(it),
-                    contentDescription = "Profile Picture",
+                    contentDescription = null,
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
                 )
-            } ?: run {
-                // Display default icon if no image selected
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Default Profile Picture",
-                    modifier = Modifier.size(80.dp),
-                    tint = Color.White
-                )
-            }
+            } ?: Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = Modifier.size(80.dp),
+                tint = Color.White
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Button to select image from gallery
         Button(
-            onClick = {
-                launcher.launch("image/*")  // Open gallery to select image
-            },
+            onClick = { launcher.launch("image/*") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text(text = "Select Profile Picture")
+            Text("Select Profile Picture")
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Username Field
         TextField(
             value = username,
             onValueChange = { username = it },
@@ -126,7 +128,6 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Bio Field
         TextField(
             value = bio,
             onValueChange = { bio = it },
@@ -136,21 +137,16 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Dropdown for BloodGroup
         Box(modifier = Modifier.fillMaxWidth()) {
             Button(onClick = { expanded = !expanded }) {
-                Text(text = if (bloodGroup.isEmpty()) "Select Blood Group" else bloodGroup)
+                Text(if (bloodGroup.isEmpty()) "Select Blood Group" else bloodGroup)
             }
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                bloodGroups.forEach { group ->
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                bloodGroups.forEach {
                     DropdownMenuItem(
-                        text = { Text(text = group) },
+                        text = { Text(it) },
                         onClick = {
-                            bloodGroup = group
+                            bloodGroup = it
                             expanded = false
                         }
                     )
@@ -160,31 +156,48 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Submit Button
-        // Submit Button
         Button(
             onClick = {
-                if (imageUri != null && username.isNotBlank()) {
-                    val userMap = hashMapOf(
-                        "name" to username,
-                        "bio" to bio,
-                        "bloodGroup" to bloodGroup,
-                        "imageUri" to imageUri.toString()
-                    )
-
-                    val firestore = FirebaseFirestore.getInstance()
-                    firestore.collection("users").document(uid)
-                        .set(userMap)
-                        .addOnSuccessListener {
-                            navController.navigate("dashboard/$uid") {
-                                popUpTo("registration") { inclusive = true }
+                if (imageUri != null && username.isNotBlank() && bloodGroup.isNotBlank()) {
+                    // Save the image locally in the app's cache directory
+                    val imageFile = File(context.cacheDir, "$uid.jpg")
+                    try {
+                        context.contentResolver.openInputStream(imageUri!!)?.use { inputStream ->
+                            FileOutputStream(imageFile).use { outputStream ->
+                                inputStream.copyTo(outputStream)
                             }
                         }
-                        .addOnFailureListener { e ->
-                            Log.e("ProfileCreationScreen", "Error saving profile", e)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    // Save the profile info to Firestore along with the local image path
+                    val userProfile = mapOf(
+                        "username" to username,
+                        "bio" to bio,
+                        "bloodGroup" to bloodGroup,
+                        "profileImagePath" to imageFile.absolutePath
+                    )
+
+                    FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(uid)
+                        .set(userProfile)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Profile Created!", Toast.LENGTH_SHORT).show()
+                            navController.navigate("dashboard/$username/${Uri.encode(imageFile.absolutePath)}/$uid") {
+                                popUpTo("registration") { inclusive = true }
+                            }
+                            onProfileCreated(username, imageFile.absolutePath)
+
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed to save profile", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    Log.e("ProfileCreationScreen", "Username or ImageUri is null!")
+                    Toast.makeText(context, "Please fill all fields & select image", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier
@@ -192,12 +205,13 @@ fun ProfileCreationScreen(navController: NavHostController, uid: String) {
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
         ) {
-            Text(
-                text = "Create Profile",
-                color = Color.White,
-                style = MaterialTheme.typography.labelLarge
-            )
+            Text("Create Profile", color = Color.White)
         }
     }
 }
+
+
+
+
+
 

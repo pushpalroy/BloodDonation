@@ -70,7 +70,7 @@ fun RegistrationScreen(
     val currentUid by userViewModel.currentUid.collectAsStateWithLifecycle()  // Collect the currentUid state
 
     // Check if registration is successful
-    LaunchedEffect(isRegistered) {
+    LaunchedEffect(isRegistered, currentUid) {
         if (isRegistered && currentUid != null) {
             // Pass the UID to navigate to Profile screen
             onNavigateToProfile(currentUid!!)

@@ -15,8 +15,10 @@ import com.example.blooddonation.ui.profile.ProfileCreationScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
 import com.example.blooddonation.ui.splashscreen.SplashScreen
-import requestblood.RequestBloodScreen
+import com.example.blooddonation.ui.requestblood.RequestBloodScreen
 import signin.SignInScreen
+
+
 
 
 
@@ -26,34 +28,56 @@ fun AppNavigation(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = "splash") {
 
-        // Splash Screen
         composable("splash") {
             SplashScreen(navController = navController)
         }
 
-        // Registration Screen
         composable("registration") {
             RegistrationScreen(
                 userViewModel = userViewModel,
                 onNavigateToProfile = { uid ->
-                    navController.navigate("profile/$uid")
+                    navController.navigate("profile/$uid") {
+                        popUpTo("registration") { inclusive = true }
+                    }
                 },
-                onSignInClick = { navController.navigate("signin") }
+                onSignInClick = {
+                    navController.navigate("signin") {
+                        launchSingleTop = true
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
             )
         }
 
-        // Sign In Screen
         composable("signin") {
-            SignInScreen(navController = navController)
+            SignInScreen(
+                navController = navController,
+                onSignInSuccess = { uid ->
+                    navController.navigate("dashboard/$uid") {
+                        popUpTo("signin") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
-        // Profile Creation Screen
-        composable("profile/{uid}") { backStackEntry ->
+        composable(
+            route = "profile/{uid}",
+            arguments = listOf(navArgument("uid") { type = NavType.StringType })
+        ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            ProfileCreationScreen(navController = navController, uid = uid)
+            ProfileCreationScreen(
+                navController = navController,
+                uid = uid
+            ) { username, imageUri ->
+                val encodedUri = Uri.encode(imageUri.toString())
+                navController.navigate("dashboard/$username/$encodedUri/$uid") {
+                    popUpTo("profile/$uid") { inclusive = true }
+                }
+            }
         }
 
-        // Dashboard Screen
+        // Simplified Dashboard route for SignIn
         composable(
             route = "dashboard/{uid}",
             arguments = listOf(
@@ -61,13 +85,24 @@ fun AppNavigation(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            DashboardScreen(
-                navController = navController,
-                uid = uid
-            )
+            DashboardScreen(navController, uid)
         }
 
-        // Other screens
+        // Full Dashboard route after Profile Creation
+        composable(
+            route = "dashboard/{username}/{imageUriEncoded}/{uid}",
+            arguments = listOf(
+                navArgument("username") { type = NavType.StringType },
+                navArgument("imageUriEncoded") { type = NavType.StringType },
+                navArgument("uid") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            DashboardScreen(navController, uid)
+        }
+
+
+// Other screens
         composable("view_donors") {
             ViewDonorsScreen(navController)
         }
@@ -79,7 +114,6 @@ fun AppNavigation(navController: NavHostController) {
         }
     }
 }
-
 
 
 @Composable
