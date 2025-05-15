@@ -1,10 +1,8 @@
-package signin
+package com.example.blooddonation.ui.signin
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +19,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -49,7 +46,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun SignInScreen(
     navController: NavController,
-    onSignInSuccess: (String) -> Unit
+    onSignInSuccess: (uid: String, isAdmin: Boolean) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -77,8 +74,7 @@ fun SignInScreen(
             elevation = CardDefaults.cardElevation(10.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp),
+                modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -143,7 +139,9 @@ fun SignInScreen(
                                         .addOnSuccessListener { doc ->
                                             isLoading = false
                                             if (doc.exists()) {
-                                                onSignInSuccess(uid)
+                                                val role = doc.getString("role") ?: ""
+                                                val isAdmin = role == "Admin"
+                                                onSignInSuccess(uid, isAdmin)
                                             } else {
                                                 navController.navigate("profile/$uid")
                                             }
@@ -185,10 +183,6 @@ fun SignInScreen(
         }
     }
 }
-
-
-
-
 
 
 

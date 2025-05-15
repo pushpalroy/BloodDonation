@@ -3,11 +3,9 @@ package com.example.blooddonation.ui.dashboard
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -24,7 +22,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -33,19 +30,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.R
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(
-    navController: NavController,
-    uid: String
-) {
-    val redColor = Color(0xFFB71C1C)  // Crimson Red
+fun DashboardScreen(navController: NavController, uid: String) {
+    val redColor = Color(0xFFB71C1C)
     val whiteColor = Color(0xFFFFFFFF)
     val blackColor = Color(0xFF000000)
 
@@ -57,7 +51,7 @@ fun DashboardScreen(
         surface = whiteColor,
         onSurface = blackColor,
         background = whiteColor,
-        onBackground = blackColor  // Fixed color scheme
+        onBackground = blackColor
     )
 
     var username by remember { mutableStateOf("") }
@@ -68,12 +62,15 @@ fun DashboardScreen(
     val firestore = FirebaseFirestore.getInstance()
     val userDocRef = firestore.collection("users").document(uid)
 
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(uid) {
         userDocRef.get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    username = document.getString("name") ?: "User"
-                    imageUri = document.getString("profileImagePath")  // Get local image path from Firestore
+                    username = document.getString("name") ?: ""
+                    imageUri = document.getString("profileImagePath")
                     isLoading = false
                 } else {
                     errorMessage = "User profile not found"
@@ -88,86 +85,145 @@ fun DashboardScreen(
     }
 
     MaterialTheme(colorScheme = customColors) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("CrimsonSync", color = whiteColor) },
-                    navigationIcon = {
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = whiteColor)
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "CrimsonSync",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Divider()
+                    NavigationDrawerItem(
+                        label = { Text("About Us") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("about_us")
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = redColor)
-                )
-            },
-            content = { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            color = redColor
-                        )
-                    } else if (errorMessage != null) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = errorMessage ?: "An error occurred",
-                                color = redColor,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Button(onClick = {
-                                navController.navigate("signin") {
-                                    popUpTo("dashboard") { inclusive = true }
-                                }
-                            }) {
-                                Text("Go to Sign In")
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Our Work") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("our_work")
+                        }
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Help") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("help")
+                        }
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Logout") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate("signin") {
+                                popUpTo("dashboard") { inclusive = true }
                             }
                         }
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        ) {
-                            Row(
+                    )
+                }
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("CrimsonSync", color = whiteColor) },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = whiteColor)
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = redColor)
+                    )
+                },
+                content = { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center),
+                                color = redColor
+                            )
+                        } else if (errorMessage != null) {
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Box(
+                                Text(
+                                    text = errorMessage ?: "An error occurred",
+                                    color = redColor,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Button(onClick = {
+                                    navController.navigate("signin") {
+                                        popUpTo("dashboard") { inclusive = true }
+                                    }
+                                }) {
+                                    Text("Go to Sign In")
+                                }
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                            ) {
+                                Row(
                                     modifier = Modifier
-                                        .size(80.dp)
-                                        .clip(CircleShape)
-                                        .border(2.dp, redColor, CircleShape)
-                                        .background(whiteColor),
-                                    contentAlignment = Alignment.Center
+                                        .fillMaxWidth()
+                                        .padding(bottom = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    if (!imageUri.isNullOrEmpty()) {
-                                        // Load image from local storage path
-                                        val imageFile = File(imageUri!!)
-                                        if (imageFile.exists()) {
-                                            AsyncImage(
-                                                model = Uri.fromFile(imageFile),
-                                                contentDescription = "Profile Picture",
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .clip(CircleShape),
-                                                contentScale = ContentScale.Crop,
-                                                error = painterResource(id = android.R.drawable.ic_menu_gallery)
-                                            )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .clip(CircleShape)
+                                            .border(2.dp, redColor, CircleShape)
+                                            .background(whiteColor),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (!imageUri.isNullOrEmpty()) {
+                                            val imageFile = File(imageUri!!)
+                                            if (imageFile.exists()) {
+                                                AsyncImage(
+                                                    model = Uri.fromFile(imageFile),
+                                                    contentDescription = "Profile Picture",
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .clip(CircleShape),
+                                                    contentScale = ContentScale.Crop,
+                                                    error = painterResource(id = android.R.drawable.ic_menu_gallery)
+                                                )
+                                            } else {
+                                                Icon(
+                                                    imageVector = Icons.Default.Person,
+                                                    contentDescription = "Default Profile Picture",
+                                                    modifier = Modifier.size(50.dp),
+                                                    tint = blackColor
+                                                )
+                                            }
                                         } else {
                                             Icon(
                                                 imageVector = Icons.Default.Person,
@@ -176,87 +232,216 @@ fun DashboardScreen(
                                                 tint = blackColor
                                             )
                                         }
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = "Default Profile Picture",
-                                            modifier = Modifier.size(50.dp),
-                                            tint = blackColor
+                                    }
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                    Column {
+                                        Text(
+                                            text = "Welcome,",
+                                            style = MaterialTheme.typography.titleMedium.copy(color = blackColor)
+                                        )
+                                        Text(
+                                            text = username,
+                                            style = MaterialTheme.typography.titleLarge.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                color = blackColor
+                                            )
                                         )
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.height(48.dp))
 
-                                Column {
-                                    Text(
-                                        text = "Welcome,",
-                                        style = MaterialTheme.typography.titleMedium.copy(color = blackColor)
-                                    )
-                                    Text(
-                                        text = username,
-                                        style = MaterialTheme.typography.titleLarge.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            color = blackColor
-                                        )
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(48.dp))
-
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                contentPadding = PaddingValues(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                item {
-                                    DashboardCard(
-                                        title = "View Donors",
-                                        icon = Icons.Default.Person,
-                                        backgroundColor = redColor,
-                                        iconColor = whiteColor
-                                    ) {
-                                        navController.navigate("view_donors")
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(2),
+                                    contentPadding = PaddingValues(8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    item {
+                                        DashboardCard(
+                                            title = "View Donors",
+                                            icon = Icons.Default.Person,
+                                            backgroundColor = redColor,
+                                            iconColor = whiteColor
+                                        ) {
+                                            navController.navigate("view_donors")
+                                        }
                                     }
-                                }
-                                item {
-                                    DashboardCard(
-                                        title = "Request Blood",
-                                        icon = Icons.Default.Favorite,
-                                        backgroundColor = redColor,
-                                        iconColor = whiteColor
-                                    ) {
-                                        navController.navigate("request_blood")
+                                    item {
+                                        DashboardCard(
+                                            title = "Request Blood",
+                                            icon = Icons.Default.Favorite,
+                                            backgroundColor = redColor,
+                                            iconColor = whiteColor
+                                        ) {
+                                            navController.navigate("request_blood")
+                                        }
                                     }
-                                }
-                                item {
-                                    DashboardCard(
-                                        title = "My Profile",
-                                        icon = Icons.Default.Person,
-                                        backgroundColor = redColor,
-                                        iconColor = whiteColor
-                                    ) {
-                                        navController.navigate("profile/$uid")
+                                    item {
+                                        DashboardCard(
+                                            title = "My Profile",
+                                            icon = Icons.Default.Person,
+                                            backgroundColor = redColor,
+                                            iconColor = whiteColor
+                                        ) {
+                                            navController.navigate("profile/$uid")
+                                        }
                                     }
-                                }
-                                item {
-                                    DashboardCard(
-                                        title = "Settings",
-                                        icon = Icons.Default.Settings,
-                                        backgroundColor = redColor,
-                                        iconColor = whiteColor
-                                    ) {
-                                        navController.navigate("settings")
+                                    item {
+                                        DashboardCard(
+                                            title = "Settings",
+                                            icon = Icons.Default.Settings,
+                                            backgroundColor = redColor,
+                                            iconColor = whiteColor
+                                        ) {
+                                            navController.navigate("settings")
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        )
+            )
+        }
+    }
+}
+
+@Composable
+fun AboutUsScreen() {
+    val redColor = Color(0xFFB71C1C)
+    val whiteColor = Color(0xFFFFFFFF)
+    val blackColor = Color(0xFF000000)
+
+    Surface(color = whiteColor) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.aboutus),
+                contentDescription = "About Us",
+                modifier = Modifier
+                    .height(220.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "About CrimsonSync",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = redColor,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "CrimsonSync is a community-powered platform dedicated to connecting blood donors with recipients quickly and efficiently. Our mission is to save lives by building a trustworthy and fast blood donation ecosystem.",
+                style = MaterialTheme.typography.bodyLarge.copy(color = blackColor),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+@Composable
+fun OurWorkScreen() {
+    val redColor = Color(0xFFB71C1C)
+    val whiteColor = Color(0xFFFFFFFF)
+    val blackColor = Color(0xFF000000)
+
+    Surface(color = whiteColor) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ourwork),
+                contentDescription = "Our Work",
+                modifier = Modifier
+                    .height(220.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "What Drives Us",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = redColor,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "\"Every drop counts. We connect hearts to help save lives.\"\n\nCrimsonSync works to make blood donation seamless, reliable, and community-driven.",
+                style = MaterialTheme.typography.bodyLarge.copy(color = blackColor),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun HelpScreen() {
+    val redColor = Color(0xFFB71C1C)
+    val whiteColor = Color(0xFFFFFFFF)
+    val blackColor = Color(0xFF000000)
+
+    Surface(color = whiteColor) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.helpus),
+                contentDescription = "Help",
+                modifier = Modifier
+                    .height(220.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Need Help?",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = redColor,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "For any queries or assistance, feel free to reach out to us at:\n\ncrimsonsync@gmail.com\n\nOur team is here to support you 24/7.",
+                style = MaterialTheme.typography.bodyLarge.copy(color = blackColor),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 

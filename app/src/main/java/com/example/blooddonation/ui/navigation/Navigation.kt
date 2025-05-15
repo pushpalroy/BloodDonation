@@ -10,13 +10,18 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.blooddonation.ui.admin.AdminDashboardScreen
+import com.example.blooddonation.ui.admin.AdminViewModel
+import com.example.blooddonation.ui.dashboard.AboutUsScreen
 import com.example.blooddonation.ui.dashboard.DashboardScreen
+import com.example.blooddonation.ui.dashboard.HelpScreen
+import com.example.blooddonation.ui.dashboard.OurWorkScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
 import com.example.blooddonation.ui.splashscreen.SplashScreen
 import com.example.blooddonation.ui.requestblood.RequestBloodScreen
-import signin.SignInScreen
+import com.example.blooddonation.ui.signin.SignInScreen
 
 
 
@@ -25,6 +30,7 @@ import signin.SignInScreen
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val userViewModel: UserViewModel = viewModel()
+    val adminViewModel: AdminViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "splash") {
 
@@ -35,9 +41,15 @@ fun AppNavigation(navController: NavHostController) {
         composable("registration") {
             RegistrationScreen(
                 userViewModel = userViewModel,
-                onNavigateToProfile = { uid ->
-                    navController.navigate("profile/$uid") {
-                        popUpTo("registration") { inclusive = true }
+                onNavigateToProfile = { routeId ->
+                    if (routeId == "admin_dashboard") {
+                        navController.navigate("admin_dashboard") {
+                            popUpTo("registration") { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate("profile/$routeId") {
+                            popUpTo("registration") { inclusive = true }
+                        }
                     }
                 },
                 onSignInClick = {
@@ -52,10 +64,17 @@ fun AppNavigation(navController: NavHostController) {
         composable("signin") {
             SignInScreen(
                 navController = navController,
-                onSignInSuccess = { uid ->
-                    navController.navigate("dashboard/$uid") {
-                        popUpTo("signin") { inclusive = true }
-                        launchSingleTop = true
+                onSignInSuccess = { uid, isAdmin ->
+                    if (isAdmin) {
+                        navController.navigate("admin_dashboard") {
+                            popUpTo("signin") { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.navigate("dashboard/$uid") {
+                            popUpTo("signin") { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 }
             )
@@ -77,18 +96,14 @@ fun AppNavigation(navController: NavHostController) {
             }
         }
 
-        // Simplified Dashboard route for SignIn
         composable(
             route = "dashboard/{uid}",
-            arguments = listOf(
-                navArgument("uid") { type = NavType.StringType }
-            )
+            arguments = listOf(navArgument("uid") { type = NavType.StringType })
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             DashboardScreen(navController, uid)
         }
 
-        // Full Dashboard route after Profile Creation
         composable(
             route = "dashboard/{username}/{imageUriEncoded}/{uid}",
             arguments = listOf(
@@ -100,6 +115,39 @@ fun AppNavigation(navController: NavHostController) {
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             DashboardScreen(navController, uid)
         }
+
+        composable("admin_dashboard") {
+            AdminDashboardScreen(viewModel = adminViewModel)
+        }
+
+
+        // Static Screens
+        composable("about_us") {
+            AboutUsScreen()
+        }
+
+        composable("our_work") {
+            OurWorkScreen()
+        }
+
+        composable("help") {
+            HelpScreen()
+        }
+
+        // Static Screens for Drawer
+        composable("about_us") {
+            AboutUsScreen()
+        }
+
+        composable("our_work") {
+            OurWorkScreen()
+        }
+
+        composable("help") {
+            HelpScreen()
+        }
+
+
 
 
 // Other screens

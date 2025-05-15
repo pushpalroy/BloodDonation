@@ -67,13 +67,15 @@ fun RegistrationScreen(
     val isLoading by userViewModel.isLoading.collectAsStateWithLifecycle()
     val isRegistered by userViewModel.isRegistered.collectAsStateWithLifecycle()
     val registrationError by userViewModel.registrationError.collectAsStateWithLifecycle()
-    val currentUid by userViewModel.currentUid.collectAsStateWithLifecycle()  // Collect the currentUid state
+    val currentUid by userViewModel.currentUid.collectAsStateWithLifecycle()
 
-    // Check if registration is successful
     LaunchedEffect(isRegistered, currentUid) {
         if (isRegistered && currentUid != null) {
-            // Pass the UID to navigate to Profile screen
-            onNavigateToProfile(currentUid!!)
+            if (role == "Admin") {
+                onNavigateToProfile("admin_dashboard")
+            } else {
+                onNavigateToProfile(currentUid!!)
+            }
         }
     }
 
@@ -92,8 +94,7 @@ fun RegistrationScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp),
+                modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -102,7 +103,6 @@ fun RegistrationScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Registration Fields
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -165,7 +165,6 @@ fun RegistrationScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Registration Button
                 Button(
                     onClick = {
                         if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && role.isNotEmpty()) {
@@ -189,7 +188,6 @@ fun RegistrationScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Sign In Option
                 Row {
                     Text("Already have an account? ")
                     Text(
@@ -203,12 +201,13 @@ fun RegistrationScreen(
         }
     }
 
-    // Show error if registration failed
     registrationError?.let {
         LaunchedEffect(it) {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 }
+
+
 
 
