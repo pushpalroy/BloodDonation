@@ -16,6 +16,7 @@ import com.example.blooddonation.ui.dashboard.AboutUsScreen
 import com.example.blooddonation.ui.dashboard.DashboardScreen
 import com.example.blooddonation.ui.dashboard.HelpScreen
 import com.example.blooddonation.ui.dashboard.OurWorkScreen
+import com.example.blooddonation.ui.events.BloodCampListScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
@@ -157,11 +158,14 @@ fun AppNavigation(navController: NavHostController) {
         composable("request_blood") {
             RequestBloodScreen(navController)
         }
-        composable("settings") {
-            SettingsScreen(navController)
+        composable("blood_camp_list") {
+            BloodCampListScreen()
         }
+
     }
 }
+
+
 
 
 @Composable
@@ -171,9 +175,5 @@ fun ViewDonorsScreen(navController: NavController) {
 }
 
 
-@Composable
-fun SettingsScreen(navController: NavController) {
-    // Your UI for the Settings screen
-    Text("Settings Screen")
-}
+
 

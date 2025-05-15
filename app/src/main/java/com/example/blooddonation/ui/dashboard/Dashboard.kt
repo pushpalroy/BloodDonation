@@ -17,9 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -262,7 +264,7 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                     item {
                                         DashboardCard(
                                             title = "View Donors",
-                                            icon = Icons.Default.Person,
+                                            icon = Icons.Default.Face,
                                             backgroundColor = redColor,
                                             iconColor = whiteColor
                                         ) {
@@ -291,12 +293,12 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                     }
                                     item {
                                         DashboardCard(
-                                            title = "Settings",
-                                            icon = Icons.Default.Settings,
+                                            title = "Events",
+                                            icon = Icons.Default.Search,
                                             backgroundColor = redColor,
                                             iconColor = whiteColor
                                         ) {
-                                            navController.navigate("settings")
+                                            navController.navigate("blood_camp_list")
                                         }
                                     }
                                 }

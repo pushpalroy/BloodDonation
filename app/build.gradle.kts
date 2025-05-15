@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.animation)
     implementation(libs.compose.runtime.livedata)
+    implementation(libs.firebase.database.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

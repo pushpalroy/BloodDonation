@@ -23,6 +23,7 @@ lifecycleRuntimeComposeAndroid = "2.8.7"
 compose = "1.6.0"
 material3 = "1.2.0"
 kotlinCompilerExtension = "1.6.0"
+firebaseDatabaseKtx = "21.0.0"
 
 
 
@@ -61,6 +62,7 @@ compose-foundation = { group = "androidx.compose.foundation", name = "foundation
 compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "compose" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

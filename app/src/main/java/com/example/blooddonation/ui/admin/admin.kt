@@ -1,5 +1,6 @@
 package com.example.blooddonation.ui.admin
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,10 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,6 +45,11 @@ import com.example.blooddonation.R
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
@@ -108,15 +116,18 @@ fun CampItem(camp: BloodCamp, onEdit: (BloodCamp) -> Unit, onDelete: (BloodCamp)
         Column(modifier = Modifier.padding(16.dp)) {
             // Load and display local image
             if (camp.imageUrl.isNotEmpty()) {
-                Image(
-                    painter = rememberAsyncImagePainter(model = camp.imageUrl),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                val imageFile = File(camp.imageUrl)
+                if (imageFile.exists()) {
+                    Image(
+                        painter = rememberAsyncImagePainter(imageFile),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
 
             Text(text = camp.name, style = MaterialTheme.typography.titleLarge, color = redColor)
@@ -145,6 +156,7 @@ fun CampItem(camp: BloodCamp, onEdit: (BloodCamp) -> Unit, onDelete: (BloodCamp)
 }
 
 
+
 @Composable
 fun CampDialog(
     initialCamp: BloodCamp?,
@@ -160,11 +172,23 @@ fun CampDialog(
     var date by remember { mutableStateOf(initialCamp?.date ?: "") }
     var description by remember { mutableStateOf(initialCamp?.description ?: "") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var savedImagePath by remember { mutableStateOf(initialCamp?.imageUrl ?: "") }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        imageUri = uri
+        uri?.let {
+            imageUri = it
+            scope.launch {
+                val path = saveImageToInternalStorage(context, it)
+                if (path != null) {
+                    savedImagePath = path
+                }
+            }
+        }
     }
 
     AlertDialog(
@@ -212,10 +236,10 @@ fun CampDialog(
                     Text("Choose Image", color = whiteColor)
                 }
 
-                imageUri?.let {
+                if (savedImagePath.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Image(
-                        painter = rememberAsyncImagePainter(it),
+                        painter = rememberAsyncImagePainter(File(savedImagePath)),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -234,7 +258,7 @@ fun CampDialog(
                         location = location,
                         date = date,
                         description = description,
-                        imageUrl = imageUri?.toString() ?: "" // storing local URI as string
+                        imageUrl = savedImagePath
                     )
                     onSave(camp)
                 },
@@ -255,5 +279,22 @@ fun CampDialog(
 }
 
 
+suspend fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val fileName = "camp_image_${System.currentTimeMillis()}.jpg"
+            val file = File(context.filesDir, fileName)
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
 
 
