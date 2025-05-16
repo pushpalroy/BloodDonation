@@ -1,4 +1,4 @@
-package com.example.blooddonation.ui.events
+package com.example.blooddonation.domain
 
 data class BloodCamp(
     val id: String,

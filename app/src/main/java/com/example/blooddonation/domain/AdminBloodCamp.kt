@@ -1,6 +1,6 @@
-package com.example.blooddonation.ui.admin
+package com.example.blooddonation.domain
 
-data class BloodCamp(
+data class AdminBloodCamp(
     val id: String = "",
     val name: String = "",
     val location: String = "",

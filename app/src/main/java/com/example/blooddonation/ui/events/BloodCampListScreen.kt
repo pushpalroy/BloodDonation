@@ -17,20 +17,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
-import java.io.File
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.blooddonation.domain.BloodCamp
 
 @Composable
 fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
-    val camps by viewModel.camps.collectAsState()
-    val registeredCampIds by viewModel.registeredCampIds.collectAsState()
+    val camps by viewModel.camps.collectAsStateWithLifecycle()
+    val registeredCampIds by viewModel.registeredCampIds.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier
@@ -39,6 +39,7 @@ fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
     ) {
         items(camps) { camp ->
             BloodCampItem(
+                modifier = Modifier.fillMaxWidth(),
                 camp = camp,
                 isRegistered = registeredCampIds.contains(camp.id),
                 onRegisterClick = { viewModel.registerForCamp(camp.id) }
@@ -50,6 +51,7 @@ fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
 
 @Composable
 fun BloodCampItem(
+    modifier: Modifier = Modifier,
     camp: BloodCamp,
     isRegistered: Boolean,
     onRegisterClick: () -> Unit
@@ -59,7 +61,7 @@ fun BloodCampItem(
     val whiteColor = Color.White
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = whiteColor),
         elevation = CardDefaults.cardElevation()
     ) {

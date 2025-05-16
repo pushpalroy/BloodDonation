@@ -3,10 +3,8 @@ package com.example.blooddonation.ui
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.blooddonation.ui.navigation.AppNavigation
-import com.example.blooddonation.ui.registration.UserViewModel
+import com.example.blooddonation.navigation.AppNavigation
 import com.example.blooddonation.ui.theme.BloodBankTheme
 import com.google.firebase.auth.FirebaseUser
 

@@ -1,4 +1,4 @@
-package com.example.blooddonation.ui.registration
+package com.example.blooddonation.domain
 
 data class User(
     val uid: String = "",

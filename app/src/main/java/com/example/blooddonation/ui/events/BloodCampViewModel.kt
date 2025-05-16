@@ -1,14 +1,8 @@
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.blooddonation.ui.events.BloodCamp
+import com.example.blooddonation.domain.BloodCamp
 import com.google.firebase.database.*
-import com.google.firebase.database.DatabaseReference
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class BloodCampViewModel : ViewModel() {
 

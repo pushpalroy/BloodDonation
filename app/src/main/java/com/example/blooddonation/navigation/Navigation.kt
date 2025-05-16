@@ -1,4 +1,4 @@
-package com.example.blooddonation.ui.navigation
+package com.example.blooddonation.navigation
 
 import android.net.Uri
 import androidx.compose.material3.Text
@@ -25,16 +25,12 @@ import com.example.blooddonation.ui.requestblood.RequestBloodScreen
 import com.example.blooddonation.ui.signin.SignInScreen
 
 
-
-
-
 @Composable
 fun AppNavigation(navController: NavHostController) {
     val userViewModel: UserViewModel = viewModel()
     val adminViewModel: AdminViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "splash") {
-
         composable("splash") {
             SplashScreen(navController = navController)
         }
@@ -149,8 +145,6 @@ fun AppNavigation(navController: NavHostController) {
         }
 
 
-
-
 // Other screens
         composable("view_donors") {
             ViewDonorsScreen(navController)
@@ -164,8 +158,6 @@ fun AppNavigation(navController: NavHostController) {
 
     }
 }
-
-
 
 
 @Composable

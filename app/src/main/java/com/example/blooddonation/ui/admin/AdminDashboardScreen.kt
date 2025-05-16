@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,10 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.blooddonation.R
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
+import com.example.blooddonation.domain.AdminBloodCamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,9 +51,9 @@ import java.io.FileOutputStream
 
 @Composable
 fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
-    val camps = viewModel.camps
-    var showDialog by remember { mutableStateOf(false) }
-    var selectedCamp by remember { mutableStateOf<BloodCamp?>(null) }
+    val camps = remember { viewModel.camps }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedCamp by rememberSaveable { mutableStateOf<AdminBloodCamp?>(null) }
 
     Scaffold(
         floatingActionButton = {
@@ -68,7 +66,7 @@ fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
-            items(items = camps, key = { it.id }) { camp: BloodCamp ->
+            items(items = camps, key = { it.id }) { camp: AdminBloodCamp ->
                 CampItem(
                     camp = camp,
                     onEdit = {
@@ -101,10 +99,10 @@ fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
 
 
 @Composable
-fun CampItem(camp: BloodCamp, onEdit: (BloodCamp) -> Unit, onDelete: (BloodCamp) -> Unit) {
-    val redColor = Color(0xFFD32F2F)
-    val blackColor = Color.Black
-    val whiteColor = Color.White
+fun CampItem(camp: AdminBloodCamp, onEdit: (AdminBloodCamp) -> Unit, onDelete: (AdminBloodCamp) -> Unit) {
+    val redColor = rememberSaveable { Color(0xFFD32F2F) }
+    val blackColor = rememberSaveable { Color.Black }
+    val whiteColor = rememberSaveable { Color.White }
 
     Card(
         modifier = Modifier
@@ -116,7 +114,7 @@ fun CampItem(camp: BloodCamp, onEdit: (BloodCamp) -> Unit, onDelete: (BloodCamp)
         Column(modifier = Modifier.padding(16.dp)) {
             // Load and display local image
             if (camp.imageUrl.isNotEmpty()) {
-                val imageFile = File(camp.imageUrl)
+                val imageFile = rememberSaveable { File(camp.imageUrl) }
                 if (imageFile.exists()) {
                     Image(
                         painter = rememberAsyncImagePainter(imageFile),
@@ -156,13 +154,14 @@ fun CampItem(camp: BloodCamp, onEdit: (BloodCamp) -> Unit, onDelete: (BloodCamp)
 }
 
 
-
 @Composable
 fun CampDialog(
-    initialCamp: BloodCamp?,
+    initialCamp: AdminBloodCamp?,
     onDismiss: () -> Unit,
-    onSave: (BloodCamp) -> Unit
+    onSave: (AdminBloodCamp) -> Unit
 ) {
+
+    // TODO: Add rememberSaveable
     val redColor = Color(0xFFD32F2F)
     val blackColor = Color.Black
     val whiteColor = Color.White
@@ -252,7 +251,7 @@ fun CampDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val camp = BloodCamp(
+                    val camp = AdminBloodCamp(
                         id = initialCamp?.id ?: "",
                         name = name,
                         location = location,

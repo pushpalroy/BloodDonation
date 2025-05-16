@@ -1,5 +1,6 @@
-package com.example.blooddonation.ui.registration
+package com.example.blooddonation.data
 
+import com.example.blooddonation.domain.User
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 
