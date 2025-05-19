@@ -18,10 +18,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +40,6 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
     navController: NavController,
@@ -95,11 +92,6 @@ fun SignInScreen(
                         .fillMaxWidth()
                         .border(1.dp, PureBlack, RoundedCornerShape(8.dp)),
                     textStyle = TextStyle(color = PureBlack),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        unfocusedBorderColor = PureBlack,
-                        focusedBorderColor = CrimsonRed,
-                        cursorColor = CrimsonRed
-                    )
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -114,11 +106,6 @@ fun SignInScreen(
                         .fillMaxWidth()
                         .border(1.dp, PureBlack, RoundedCornerShape(8.dp)),
                     textStyle = TextStyle(color = PureBlack),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        unfocusedBorderColor = PureBlack,
-                        focusedBorderColor = CrimsonRed,
-                        cursorColor = CrimsonRed
-                    )
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -156,7 +143,8 @@ fun SignInScreen(
                                     isLoading = false
                                 }
                         } else {
-                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     },
                     modifier = Modifier

@@ -7,10 +7,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class UserViewModel : ViewModel() {
+open class UserViewModel : ViewModel() {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -21,7 +21,6 @@ class UserViewModel : ViewModel() {
     private val _registrationError = MutableStateFlow<String?>(null)
     val registrationError: StateFlow<String?> = _registrationError
 
-    // Store the current UID after successful registration
     private val _currentUid = MutableStateFlow<String?>(null)
     val currentUid: StateFlow<String?> = _currentUid
 
@@ -33,12 +32,9 @@ class UserViewModel : ViewModel() {
         auth.createUserWithEmailAndPassword(user.email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid ?: ""
-                    _currentUid.value = uid // Update the currentUid
-
+                    val uid = auth.currentUser?.uid.orEmpty()
+                    _currentUid.value = uid
                     val newUser = user.copy(uid = uid)
-
-                    // Save user to Firestore
                     firestore.collection("users")
                         .document(uid)
                         .set(newUser)
@@ -58,9 +54,3 @@ class UserViewModel : ViewModel() {
             }
     }
 }
-
-
-
-
-
-

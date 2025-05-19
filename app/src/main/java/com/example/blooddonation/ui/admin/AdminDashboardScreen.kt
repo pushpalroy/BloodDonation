@@ -52,8 +52,8 @@ import java.io.FileOutputStream
 @Composable
 fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
     val camps = remember { viewModel.camps }
-    var showDialog by rememberSaveable { mutableStateOf(false) }
-    var selectedCamp by rememberSaveable { mutableStateOf<AdminBloodCamp?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedCamp by remember { mutableStateOf<AdminBloodCamp?>(null) }
 
     Scaffold(
         floatingActionButton = {
@@ -100,9 +100,9 @@ fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
 
 @Composable
 fun CampItem(camp: AdminBloodCamp, onEdit: (AdminBloodCamp) -> Unit, onDelete: (AdminBloodCamp) -> Unit) {
-    val redColor = rememberSaveable { Color(0xFFD32F2F) }
-    val blackColor = rememberSaveable { Color.Black }
-    val whiteColor = rememberSaveable { Color.White }
+    val redColor = remember { Color(0xFFD32F2F) }
+    val blackColor = remember { Color.Black }
+    val whiteColor = remember { Color.White }
 
     Card(
         modifier = Modifier

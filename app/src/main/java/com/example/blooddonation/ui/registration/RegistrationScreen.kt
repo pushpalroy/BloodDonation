@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.blooddonation.domain.User
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
@@ -57,7 +56,6 @@ fun RegistrationScreen(
     var role by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
-    // TODO: Remember
     val roles = listOf("Donor", "Receiver", "Admin")
 
     val context = LocalContext.current
@@ -204,7 +202,3 @@ fun RegistrationScreen(
         }
     }
 }
-
-
-
-
