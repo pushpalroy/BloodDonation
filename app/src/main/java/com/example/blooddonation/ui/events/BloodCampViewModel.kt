@@ -1,10 +1,13 @@
 import androidx.lifecycle.ViewModel
 import com.example.blooddonation.domain.BloodCamp
 import com.google.firebase.database.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class BloodCampViewModel : ViewModel() {
+    private val db = Firebase.firestore
 
     private val _camps = MutableStateFlow<List<BloodCamp>>(emptyList())
     val camps: StateFlow<List<BloodCamp>> = _camps
@@ -12,29 +15,22 @@ class BloodCampViewModel : ViewModel() {
     private val _registeredCampIds = MutableStateFlow<List<String>>(emptyList())
     val registeredCampIds: StateFlow<List<String>> = _registeredCampIds
 
-    private val databaseReference = FirebaseDatabase.getInstance().getReference("bloodCamps")
-
     init {
         loadCamps()
     }
 
     private fun loadCamps() {
-        databaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val campList = mutableListOf<BloodCamp>()
-                for (campSnapshot in snapshot.children) {
-                    val camp = campSnapshot.getValue(BloodCamp::class.java)
-                    camp?.let {
-                        campList.add(it.copy(id = campSnapshot.key ?: ""))
+        db.collection("blood_camps")
+            .addSnapshotListener { snapshot, _ ->
+                snapshot?.let {
+                    val campList = mutableListOf<BloodCamp>()
+                    for (doc in it.documents) {
+                        val camp = doc.toObject(BloodCamp::class.java)
+                        camp?.let { c -> campList.add(c.copy(id = doc.id)) }
                     }
+                    _camps.value = campList
                 }
-                _camps.value = campList
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle error
-            }
-        })
     }
 
     fun registerForCamp(campId: String) {

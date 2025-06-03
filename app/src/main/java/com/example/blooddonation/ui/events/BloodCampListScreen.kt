@@ -2,6 +2,8 @@ package com.example.blooddonation.ui.events
 
 import BloodCampViewModel
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,19 +34,22 @@ fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
     val camps by viewModel.camps.collectAsStateWithLifecycle()
     val registeredCampIds by viewModel.registeredCampIds.collectAsStateWithLifecycle()
 
-    LazyColumn(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.Black) // Set background color to black
             .padding(16.dp)
     ) {
-        items(camps) { camp ->
-            BloodCampItem(
-                modifier = Modifier.fillMaxWidth(),
-                camp = camp,
-                isRegistered = registeredCampIds.contains(camp.id),
-                onRegisterClick = { viewModel.registerForCamp(camp.id) }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn {
+            items(camps) { camp ->
+                BloodCampItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    camp = camp,
+                    isRegistered = registeredCampIds.contains(camp.id),
+                    onRegisterClick = { viewModel.registerForCamp(camp.id) }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

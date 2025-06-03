@@ -20,9 +20,11 @@ import com.example.blooddonation.ui.events.BloodCampListScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
+import com.example.blooddonation.ui.requestblood.BloodRequestViewModel
 import com.example.blooddonation.ui.splashscreen.SplashScreen
 import com.example.blooddonation.ui.requestblood.RequestBloodScreen
 import com.example.blooddonation.ui.signin.SignInScreen
+import com.example.blooddonation.ui.viewdonors.ViewDonorsScreen
 
 
 @Composable
@@ -131,27 +133,36 @@ fun AppNavigation(navController: NavHostController) {
             HelpScreen()
         }
 
-        // Static Screens for Drawer
-        composable("about_us") {
-            AboutUsScreen()
-        }
-
-        composable("our_work") {
-            OurWorkScreen()
-        }
-
-        composable("help") {
-            HelpScreen()
-        }
 
 
 // Other screens
-        composable("view_donors") {
-            ViewDonorsScreen(navController)
+        // Add NavType.StringType argument for currentUserId in both routes
+        composable(
+            route = "view_donors/{currentUserId}",
+            arguments = listOf(navArgument("currentUserId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
+            val bloodRequestViewModel: BloodRequestViewModel = viewModel()
+            ViewDonorsScreen(
+                navController = navController,
+                viewModel = bloodRequestViewModel,
+                currentUserId = currentUserId
+            )
         }
-        composable("request_blood") {
-            RequestBloodScreen(navController)
+
+        composable(
+            route = "request_blood/{currentUserId}",
+            arguments = listOf(navArgument("currentUserId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
+            val bloodRequestViewModel: BloodRequestViewModel = viewModel()
+            RequestBloodScreen(
+                navController = navController,
+                viewModel = bloodRequestViewModel,
+                currentUserId = currentUserId
+            )
         }
+
         composable("blood_camp_list") {
             BloodCampListScreen()
         }
@@ -159,12 +170,6 @@ fun AppNavigation(navController: NavHostController) {
     }
 }
 
-
-@Composable
-fun ViewDonorsScreen(navController: NavController) {
-    // Your UI for the View Donors screen
-    Text("View Donors Screen")
-}
 
 
 

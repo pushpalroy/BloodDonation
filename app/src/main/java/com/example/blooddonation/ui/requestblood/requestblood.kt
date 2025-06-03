@@ -1,5 +1,6 @@
 package com.example.blooddonation.ui.requestblood
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,14 +12,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,23 +39,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.blooddonation.R
+import com.example.blooddonation.domain.BloodRequest
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun RequestBloodScreen(navController: NavController) {
+fun RequestBloodScreen(
+    navController: NavController,
+    viewModel: BloodRequestViewModel = viewModel(),
+    currentUserId: String
+) {
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
     var selectedBloodGroup by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
-    // Load background image from drawable
-    val backgroundImage = painterResource(id = R.drawable.blood_background) // Rename the image as needed
+    val backgroundImage = painterResource(id = R.drawable.blood_background)
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -69,7 +81,6 @@ fun RequestBloodScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Background image
             Image(
                 painter = backgroundImage,
                 contentDescription = null,
@@ -77,7 +88,6 @@ fun RequestBloodScreen(navController: NavController) {
                 modifier = Modifier.matchParentSize()
             )
 
-            // Foreground UI
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -131,7 +141,8 @@ fun RequestBloodScreen(navController: NavController) {
                     value = location,
                     onValueChange = { location = it },
                     placeholder = { Text("Enter the Location") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     textStyle = TextStyle(color = Color.Black)
                 )
@@ -140,17 +151,51 @@ fun RequestBloodScreen(navController: NavController) {
 
                 Button(
                     onClick = {
-                        // Add search logic here
+                        if (selectedBloodGroup.isNotBlank() && location.isNotBlank() && !isLoading) {
+                            isLoading = true
+
+                            val newRequest = BloodRequest(
+                                requesterId = currentUserId,
+                                bloodGroup = selectedBloodGroup,
+                                location = location,
+                                status = "pending"
+                            )
+
+                            viewModel.addRequest(newRequest) { success ->
+                                isLoading = false
+                                if (success) {
+                                    selectedBloodGroup = ""
+                                    location = ""
+                                    Toast.makeText(context, "Request added", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Failed to add request. Try again.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } else if (isLoading) {
+                            Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Please select blood group and location", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !isLoading
                 ) {
-                    Text("Search Donor", color = Color.White)
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Search Donor", color = Color.White)
+                    }
                 }
             }
         }
     }
 }
+
