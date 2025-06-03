@@ -17,7 +17,9 @@ import com.example.blooddonation.ui.dashboard.DashboardScreen
 import com.example.blooddonation.ui.dashboard.HelpScreen
 import com.example.blooddonation.ui.dashboard.OurWorkScreen
 import com.example.blooddonation.ui.events.BloodCampListScreen
+import com.example.blooddonation.ui.profile.MyProfileScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
+import com.example.blooddonation.ui.profile.SettingsScreen
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
 import com.example.blooddonation.ui.requestblood.BloodRequestViewModel
@@ -166,6 +168,26 @@ fun AppNavigation(navController: NavHostController) {
         composable("blood_camp_list") {
             BloodCampListScreen()
         }
+
+        composable(route = "my_profile") {
+            MyProfileScreen(
+                onBack = { navController.popBackStack() },
+                onEditClick = { navController.navigate("settings") }
+            )
+        }
+
+
+        composable(
+            route = "settings",
+        ) {
+            SettingsScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+
 
     }
 }
