@@ -2,6 +2,7 @@ package com.example.blooddonation.ui.dashboard
 
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -73,6 +74,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -80,6 +82,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
@@ -357,7 +360,7 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                             backgroundColor = redColor,
                                             iconColor = whiteColor
                                         ) {
-                                            navController.navigate("my_profile")
+                                            navController.navigate("my_profile/{uid}")
                                         }
                                     }
                                     item {
@@ -434,141 +437,116 @@ fun DashboardScreen(navController: NavController, uid: String) {
 
 
 
+/* ---------- shared palette ---------- */
+private val Crimson   = Color(0xFFB71C1C)
+private val OnCrimson = Color.White
+private val JetBlack  = Color(0xFF000000)
+
+/* ---------- reusable template ---------- */
 @Composable
-fun AboutUsScreen() {
-    val redColor = Color(0xFFB71C1C)
-    val whiteColor = Color(0xFFFFFFFF)
-    val blackColor = Color(0xFF000000)
-
-    Surface(color = whiteColor) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.aboutus),
-                contentDescription = "About Us",
-                modifier = Modifier
-                    .height(220.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "About CrimsonSync",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = redColor,
-                    fontWeight = FontWeight.Bold
+private fun StaticInfoScreen(
+    @DrawableRes hero: Int,
+    title: String,
+    body: String
+) {
+    /* full-screen gradient */
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Crimson, JetBlack),
+                    startY = 0f,
+                    endY   = Float.POSITIVE_INFINITY
                 )
-            )
+            ),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        /* card that floats above gradient */
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            colors = CardDefaults.cardColors(containerColor = OnCrimson),
+            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(24.dp)
+            ) {
+                /* hero image */
+                Image(
+                    painter = painterResource(id = hero),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                /* slim accent under image */
+                Spacer(
+                    modifier = Modifier
+                        .height(4.dp)
+                        .fillMaxWidth()
+                        .background(Crimson, RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp))
+                )
 
-            Text(
-                text = "CrimsonSync is a community-powered platform dedicated to connecting blood donors with recipients quickly and efficiently. Our mission is to save lives by building a trustworthy and fast blood donation ecosystem.",
-                style = MaterialTheme.typography.bodyLarge.copy(color = blackColor),
-                textAlign = TextAlign.Center
-            )
+                Spacer(Modifier.height(24.dp))
+
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        color       = Crimson,
+                        fontWeight  = FontWeight.Bold
+                    ),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(
+                    text = body,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color     = JetBlack,
+                        lineHeight = 22.sp
+                    ),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
 
+/* ---------- individual screens ---------- */
 
 @Composable
-fun OurWorkScreen() {
-    val redColor = Color(0xFFB71C1C)
-    val whiteColor = Color(0xFFFFFFFF)
-    val blackColor = Color(0xFF000000)
-
-    Surface(color = whiteColor) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ourwork),
-                contentDescription = "Our Work",
-                modifier = Modifier
-                    .height(220.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "What Drives Us",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = redColor,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "\"Every drop counts. We connect hearts to help save lives.\"\n\nCrimsonSync works to make blood donation seamless, reliable, and community-driven.",
-                style = MaterialTheme.typography.bodyLarge.copy(color = blackColor),
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
+fun AboutUsScreen() = StaticInfoScreen(
+    hero  = R.drawable.aboutus,
+    title = "About CrimsonSync",
+    body  = "CrimsonSync is a community-powered platform dedicated to connecting blood donors "
+            + "with recipients quickly and efficiently. Our mission is to save lives by building "
+            + "a trustworthy and fast blood-donation ecosystem."
+)
 
 @Composable
-fun HelpScreen() {
-    val redColor = Color(0xFFB71C1C)
-    val whiteColor = Color(0xFFFFFFFF)
-    val blackColor = Color(0xFF000000)
+fun OurWorkScreen() = StaticInfoScreen(
+    hero  = R.drawable.ourwork,
+    title = "What Drives Us",
+    body  = "“Every drop counts. We connect hearts to help save lives.”\n\n"
+            + "CrimsonSync works to make blood donation seamless, reliable, and community-driven."
+)
 
-    Surface(color = whiteColor) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.helpus),
-                contentDescription = "Help",
-                modifier = Modifier
-                    .height(220.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Need Help?",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = redColor,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "For any queries or assistance, feel free to reach out to us at:\n\ncrimsonsync@gmail.com\n\nOur team is here to support you 24/7.",
-                style = MaterialTheme.typography.bodyLarge.copy(color = blackColor),
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
+@Composable
+fun HelpScreen() = StaticInfoScreen(
+    hero  = R.drawable.helpus,
+    title = "Need Help?",
+    body  = "For any queries or assistance, reach out to us at:\n\n"
+            + "crimsonsync@gmail.com\n\n"
+            + "Our team is here to support you 24 × 7."
+)
 
 
 @Composable

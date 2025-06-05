@@ -7,7 +7,9 @@ data class BloodRequest(
     val requesterId: String = "",
     val bloodGroup: String = "",
     val location: String = "",
-    val status: String = "pending"
+    val status: String = "pending",
+    val acceptedBy: String? = null,
+    val chatId: String? = null
 )
 
 data class Acceptance(

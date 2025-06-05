@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.blooddonation.chat.ChatScreen
 import com.example.blooddonation.ui.admin.AdminDashboardScreen
 import com.example.blooddonation.ui.admin.AdminViewModel
 import com.example.blooddonation.ui.dashboard.AboutUsScreen
@@ -19,7 +20,7 @@ import com.example.blooddonation.ui.dashboard.OurWorkScreen
 import com.example.blooddonation.ui.events.BloodCampListScreen
 import com.example.blooddonation.ui.profile.MyProfileScreen
 import com.example.blooddonation.ui.profile.ProfileCreationScreen
-import com.example.blooddonation.ui.profile.SettingsScreen
+
 import com.example.blooddonation.ui.registration.RegistrationScreen
 import com.example.blooddonation.ui.registration.UserViewModel
 import com.example.blooddonation.ui.requestblood.BloodRequestViewModel
@@ -169,24 +170,30 @@ fun AppNavigation(navController: NavHostController) {
             BloodCampListScreen()
         }
 
-        composable(route = "my_profile") {
-            MyProfileScreen(
-                onBack = { navController.popBackStack() },
-                onEditClick = { navController.navigate("settings") }
-            )
-        }
-
-
         composable(
-            route = "settings",
-        ) {
-            SettingsScreen(
-                onBack = {
-                    navController.popBackStack()
-                }
+            route = "my_profile/{uid}",
+            arguments = listOf(navArgument("uid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            MyProfileScreen(
+                navController = navController,
+                uid = uid
             )
         }
 
+
+
+        composable("chat/{chatId}/{currentUserId}/{otherUserId}") { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
+            val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
+            val otherUserId = backStackEntry.arguments?.getString("otherUserId") ?: ""
+
+            ChatScreen(
+                chatId = chatId,
+                currentUserId = currentUserId,
+                otherUserId = otherUserId
+            )
+        }
 
 
     }

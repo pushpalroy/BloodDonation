@@ -31,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.blooddonation.R
+import com.example.blooddonation.chat.generateChatId
 import com.example.blooddonation.domain.BloodRequest
 
 
@@ -63,6 +65,15 @@ fun RequestBloodScreen(
 
     val backgroundImage = painterResource(id = R.drawable.blood_background)
     val context = LocalContext.current
+    val requests by viewModel.requests.collectAsState()
+
+    // Get the accepted request (if any) for this user
+    val acceptedRequest = requests.find {
+        it.requesterId == currentUserId && it.status == "accepted"
+    }
+
+    val chatId = acceptedRequest?.chatId
+    val donorId = acceptedRequest?.acceptedBy
 
     Scaffold(
         topBar = {
@@ -194,8 +205,27 @@ fun RequestBloodScreen(
                         Text("Search Donor", color = Color.White)
                     }
                 }
+
+                // Show "Go to Chat" if accepted
+                if (chatId != null && donorId != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            navController.navigate("chat/$chatId/$currentUserId/$donorId")
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Go to Chat", color = Color.White)
+                    }
+                }
             }
         }
     }
 }
+
+
 
