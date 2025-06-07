@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -168,6 +169,7 @@ fun DashboardScreen(
                         selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
+                            FirebaseAuth.getInstance().signOut()
                             navController.navigate("signin") {
                                 popUpTo("dashboard") { inclusive = true }
                             }
