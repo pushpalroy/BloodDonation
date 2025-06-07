@@ -252,7 +252,8 @@ fun AppNavigation(navController: NavHostController) {
             ChatScreen(
                 chatId = chatId,
                 currentUserId = currentUserId,
-                otherUserId = otherUserId
+                otherUserId = otherUserId,
+                onBack = { navController.popBackStack() },
             )
         }
     }

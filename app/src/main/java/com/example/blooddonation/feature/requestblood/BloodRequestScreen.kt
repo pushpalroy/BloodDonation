@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -79,7 +80,12 @@ fun BloodRequestScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
     ) { padding ->
@@ -166,15 +172,24 @@ fun BloodRequestScreen(
                                 if (success) {
                                     selectedBloodGroup = ""
                                     location = ""
-                                    Toast.makeText(context, "Request added", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Request added", Toast.LENGTH_SHORT)
+                                        .show()
                                 } else {
-                                    Toast.makeText(context, "Failed to add request. Try again.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to add request. Try again.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         } else if (isLoading) {
                             Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Please select blood group and location", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Please select blood group and location",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),

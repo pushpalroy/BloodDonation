@@ -40,6 +40,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,22 +61,19 @@ fun ViewDonorsScreen(
     onBack: () -> Unit,
     viewModel: BloodRequestViewModel = viewModel(),
     currentUserId: String
-)
-{
+) {
     val requests by viewModel.requests.collectAsState()
     var showMedicalFormForRequest by remember { mutableStateOf<BloodRequest?>(null) }
+    var selectedTab by remember { mutableIntStateOf(0) }
 
-    // Filter out current user's own requests & keep only pending ones
-    val filteredRequests = remember(requests, currentUserId) {
-        requests.filter { it.requesterId != currentUserId && it.status == "pending" }
-    }
+    val tabTitles = listOf("Pending", "Accepted", "Rejected")
 
-    // Donor's accepted requests (where donor is current user)
-    val donorsAcceptedRequests = remember(requests, currentUserId) {
-        requests.filter { it.acceptedBy == currentUserId && it.status == "accepted" }
-    }
+    // --- Tab filtering logic ---
+    val pendingRequests = requests.filter { it.status == "pending" }
+    val acceptedRequests = requests.filter { it.status == "accepted" }
+    val rejectedRequests = requests.filter { it.status == "rejected" }
 
-    // Medical form dialog for accepting requests
+    // Show medical dialog if needed
     showMedicalFormForRequest?.let { request ->
         MedicalFormDialog(
             request = request,
@@ -84,7 +82,6 @@ fun ViewDonorsScreen(
             onSubmit = { requestId, donorId, medicalInfo ->
                 viewModel.acceptRequest(requestId, donorId, medicalInfo) { chatId, requesterId ->
                     showMedicalFormForRequest = null
-                    // Navigate to ChatScreen with both user IDs
                     onNavigateToChat(chatId, currentUserId, requesterId)
                 }
             }
@@ -113,59 +110,132 @@ fun ViewDonorsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
-            if (donorsAcceptedRequests.isNotEmpty()) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Your Accepted Requests - Chats",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+            // ---- Tab Bar ----
+            androidx.compose.material3.TabRow(
+                selectedTabIndex = selectedTab
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    androidx.compose.material3.Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = { Text(title) }
                     )
-                    Spacer(Modifier.height(8.dp))
-
-                    donorsAcceptedRequests.forEach { acceptedRequest ->
-                        val chatId = acceptedRequest.chatId ?: ""
-                        val requesterId = acceptedRequest.requesterId
-
-                        if (chatId.isNotBlank()) {
-                            Button(
-                                onClick = { onNavigateToChat(chatId, currentUserId, requesterId) },
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                                    .height(50.dp),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(
-                                    "Go to Chat with $requesterId",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
-                        }
-                    }
-                    Spacer(Modifier.height(16.dp))
                 }
             }
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(filteredRequests, key = { it.id }) { request ->
-                    RequestCard(
-                        bloodRequest = request,
-                        onAccept = { showMedicalFormForRequest = request },
-                        onReject = { viewModel.rejectRequest(request.id) }
-                    )
-                    Spacer(Modifier.height(12.dp))
-                }
+            Spacer(Modifier.height(8.dp))
+
+            when (selectedTab) {
+                0 -> PendingTab(
+                    requests = pendingRequests,
+                    onAccept = { showMedicalFormForRequest = it },
+                    onReject = { viewModel.rejectRequest(it.id) }
+                )
+
+                1 -> AcceptedTab(
+                    requests = acceptedRequests,
+                    currentUserId = currentUserId,
+                    onNavigateToChat = onNavigateToChat
+                )
+
+                2 -> RejectedTab(requests = rejectedRequests)
             }
         }
     }
 }
 
+// ---------- Pending Tab ----------
+@Composable
+private fun PendingTab(
+    requests: List<BloodRequest>,
+    onAccept: (BloodRequest) -> Unit,
+    onReject: (BloodRequest) -> Unit
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(requests, key = { it.id }) { request ->
+            RequestCard(
+                bloodRequest = request,
+                onAccept = { onAccept(request) },
+                onReject = { onReject(request) }
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+    }
+}
 
+// ---------- Accepted Tab ----------
+@Composable
+private fun AcceptedTab(
+    requests: List<BloodRequest>,
+    currentUserId: String,
+    onNavigateToChat: (chatId: String, currentUserId: String, requesterId: String) -> Unit
+) {
+    if (requests.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No accepted requests.")
+        }
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(requests, key = { it.id }) { request ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
+                        Text("Location: ${request.location}")
+                        if (!request.chatId.isNullOrEmpty()) {
+                            Spacer(Modifier.height(8.dp))
+                            Button(
+                                onClick = {
+                                    onNavigateToChat(
+                                        request.chatId,
+                                        currentUserId,
+                                        request.requesterId
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
+                                Text("Go to Chat", color = MaterialTheme.colorScheme.onPrimary)
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
+        }
+    }
+}
 
-
+// ---------- Rejected Tab ----------
+@Composable
+private fun RejectedTab(requests: List<BloodRequest>) {
+    if (requests.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No rejected requests.")
+        }
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(requests, key = { it.id }) { request ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
+                        Text("Location: ${request.location}")
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
+        }
+    }
+}
 
 @Composable
 fun RequestCard(
