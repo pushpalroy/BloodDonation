@@ -149,7 +149,8 @@ fun DashboardScreen(
                         scope.launch { drawerState.close() }
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate("signin") {
-                            popUpTo("dashboard") { inclusive = true }
+                            popUpTo("splash") { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )

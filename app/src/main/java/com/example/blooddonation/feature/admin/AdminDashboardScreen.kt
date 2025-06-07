@@ -228,7 +228,8 @@ fun AdminDashboardScreen(
                     onClick = {
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate("signin") {
-                            popUpTo("admin_dashboard") { inclusive = true }
+                            popUpTo("splash") { inclusive = true }
+                            launchSingleTop = true
                         }
                         showLogoutDialog = false
                     },
