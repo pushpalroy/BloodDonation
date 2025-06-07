@@ -63,7 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+
 import coil.compose.rememberAsyncImagePainter
 import java.io.File
 import androidx.lifecycle.ViewModelProvider
@@ -74,7 +74,7 @@ import com.example.blooddonation.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProfileScreen(
-    navController: NavHostController,
+    onBack: () -> Unit,
     uid: String,
     viewModel: ProfileViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
@@ -121,7 +121,7 @@ fun MyProfileScreen(
             TopAppBar(
                 title = { Text("My Profile") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },

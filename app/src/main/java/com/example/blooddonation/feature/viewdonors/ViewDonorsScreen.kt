@@ -49,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavController
 import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -57,7 +56,7 @@ import com.example.blooddonation.R
 
 @Composable
 fun ViewDonorsScreen(
-    navController: NavController,
+    onNavigateToChat: (chatId: String, currentUserId: String, requesterId: String) -> Unit,
     viewModel: BloodRequestViewModel = viewModel(),
     currentUserId: String
 )
@@ -85,7 +84,7 @@ fun ViewDonorsScreen(
                 viewModel.acceptRequest(requestId, donorId, medicalInfo) { chatId, requesterId ->
                     showMedicalFormForRequest = null
                     // Navigate to ChatScreen with both user IDs
-                    navController.navigate("chat/$chatId/$currentUserId/$requesterId")
+                    onNavigateToChat(chatId, currentUserId, requesterId)
                 }
             }
         )
@@ -127,7 +126,7 @@ fun ViewDonorsScreen(
                         if (chatId.isNotBlank()) {
                             Button(
                                 onClick = {
-                                    navController.navigate("chat/$chatId/$currentUserId/$requesterId")
+                                    onNavigateToChat(chatId, currentUserId, requesterId)
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 modifier = Modifier

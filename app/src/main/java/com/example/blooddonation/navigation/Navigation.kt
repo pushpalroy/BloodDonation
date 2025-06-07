@@ -33,7 +33,23 @@ fun AppNavigation(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") {
-            SplashScreen(navController = navController)
+            SplashScreen(
+                onNavigateToAdminDashboard = {
+                    navController.navigate("admin_dashboard") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                },
+                onNavigateToDashboard = { uid ->
+                    navController.navigate("dashboard/$uid") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                },
+                onNavigateToSignup = {
+                    navController.navigate("signup") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable("signup") {
@@ -61,7 +77,13 @@ fun AppNavigation(navController: NavHostController) {
 
         composable("signin") {
             SignInScreen(
-                navController = navController,
+                onNavigateToProfile = { uid -> navController.navigate("profile/$uid") },
+                onNavigateToSignup = {
+                    navController.navigate("signup") {
+                        launchSingleTop = true
+                        popUpTo("splash") { inclusive = true }
+                    }
+                },
                 onSignInSuccess = { uid, isAdmin ->
                     if (isAdmin) {
                         navController.navigate("admin_dashboard") {
@@ -100,7 +122,22 @@ fun AppNavigation(navController: NavHostController) {
             arguments = listOf(navArgument("uid") { type = NavType.StringType })
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            DashboardScreen(navController, uid)
+            DashboardScreen(
+                uid = uid,
+                onAboutUs = { navController.navigate("about_us") },
+                onOurWork = { navController.navigate("our_work") },
+                onHelp = { navController.navigate("help") },
+                onLogout = {
+                    navController.navigate("signin") {
+                        popUpTo("dashboard/$uid") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onViewDonors = { navController.navigate("view_donors/$uid") },
+                onRequestBlood = { navController.navigate("request_blood/$uid") },
+                onMyProfile = { navController.navigate("my_profile/$uid") },
+                onBloodCampList = { navController.navigate("blood_camp_list") }
+            )
         }
 
         composable(
@@ -112,12 +149,33 @@ fun AppNavigation(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            DashboardScreen(navController, uid)
+            DashboardScreen(
+                uid = uid,
+                onAboutUs = { navController.navigate("about_us") },
+                onOurWork = { navController.navigate("our_work") },
+                onHelp = { navController.navigate("help") },
+                onLogout = {
+                    navController.navigate("signin") {
+                        popUpTo("dashboard/$uid") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onViewDonors = { navController.navigate("view_donors/$uid") },
+                onRequestBlood = { navController.navigate("request_blood/$uid") },
+                onMyProfile = { navController.navigate("my_profile/$uid") },
+                onBloodCampList = { navController.navigate("blood_camp_list") }
+            )
         }
 
         composable("admin_dashboard") {
             AdminDashboardScreen(
-                navController = navController,
+                onBack = { navController.popBackStack() },
+                onLogout = {
+                    navController.navigate("signin") {
+                        popUpTo("splash") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 viewModel = adminViewModel
             )
         }
@@ -146,7 +204,9 @@ fun AppNavigation(navController: NavHostController) {
             val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
             ViewDonorsScreen(
-                navController = navController,
+                onNavigateToChat = { chatId, currentId, requesterId ->
+                    navController.navigate("chat/$chatId/$currentId/$requesterId")
+                },
                 viewModel = bloodRequestViewModel,
                 currentUserId = currentUserId
             )
@@ -159,7 +219,10 @@ fun AppNavigation(navController: NavHostController) {
             val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
             BloodRequestScreen(
-                navController = navController,
+                onBack = { navController.popBackStack() },
+                onNavigateToChat = { chatId, currentId, donorId ->
+                    navController.navigate("chat/$chatId/$currentId/$donorId")
+                },
                 viewModel = bloodRequestViewModel,
                 currentUserId = currentUserId
             )
@@ -175,7 +238,7 @@ fun AppNavigation(navController: NavHostController) {
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             MyProfileScreen(
-                navController = navController,
+                onBack = { navController.popBackStack() },
                 uid = uid
             )
         }

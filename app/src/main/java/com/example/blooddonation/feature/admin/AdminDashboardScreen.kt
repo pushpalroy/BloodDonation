@@ -58,7 +58,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+
 import com.google.firebase.auth.FirebaseAuth
 import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.domain.AdminBloodCamp
@@ -87,7 +87,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardScreen(
-    navController: NavController,
+    onBack: () -> Unit,
+    onLogout: () -> Unit,
     viewModel: AdminViewModel = viewModel()
 ) {
     val camps = viewModel.camps
@@ -123,12 +124,7 @@ fun AdminDashboardScreen(
             CenterAlignedTopAppBar(
                 title = { Text("Admin Dashboard") },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        // Fix for back button: if cannot pop, finish activity
-                        if (!navController.popBackStack()) {
-                            (context as? Activity)?.finish()
-                        }
-                    }) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -227,10 +223,7 @@ fun AdminDashboardScreen(
                 Button(
                     onClick = {
                         FirebaseAuth.getInstance().signOut()
-                        navController.navigate("signin") {
-                            popUpTo("splash") { inclusive = true }
-                            launchSingleTop = true
-                        }
+                        onLogout()
                         showLogoutDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)

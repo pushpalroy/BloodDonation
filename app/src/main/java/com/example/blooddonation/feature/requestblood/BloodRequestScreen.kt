@@ -44,7 +44,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.blooddonation.R
 import com.example.blooddonation.domain.BloodRequest
 
@@ -52,7 +51,8 @@ import com.example.blooddonation.domain.BloodRequest
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun BloodRequestScreen(
-    navController: NavController,
+    onBack: () -> Unit,
+    onNavigateToChat: (chatId: String, currentUserId: String, donorId: String) -> Unit,
     viewModel: BloodRequestViewModel = viewModel(),
     currentUserId: String
 ) {
@@ -78,7 +78,7 @@ fun BloodRequestScreen(
             TopAppBar(
                 title = { Text("Request Blood") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -209,7 +209,7 @@ fun BloodRequestScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            navController.navigate("chat/$chatId/$currentUserId/$donorId")
+                            onNavigateToChat(chatId, currentUserId, donorId)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier

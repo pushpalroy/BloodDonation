@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.blooddonation.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,7 +21,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(
+    onNavigateToAdminDashboard: () -> Unit,
+    onNavigateToDashboard: (String) -> Unit,
+    onNavigateToSignup: () -> Unit
+) {
     var startAnimation by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
@@ -46,24 +49,16 @@ fun SplashScreen(navController: NavController) {
                 .addOnSuccessListener { doc ->
                     val role = doc.getString("role") ?: ""
                     if (role == "Admin") {
-                        navController.navigate("admin_dashboard") {
-                            popUpTo("splash") { inclusive = true }
-                        }
+                        onNavigateToAdminDashboard()
                     } else {
-                        navController.navigate("dashboard/${currentUser.uid}") {
-                            popUpTo("splash") { inclusive = true }
-                        }
+                        onNavigateToDashboard(currentUser.uid)
                     }
                 }
                 .addOnFailureListener {
-                    navController.navigate("signup") {
-                        popUpTo("splash") { inclusive = true }
-                    }
+                    onNavigateToSignup()
                 }
         } else {
-            navController.navigate("signup") {
-                popUpTo("splash") { inclusive = true }
-            }
+            onNavigateToSignup()
         }
     }
 
