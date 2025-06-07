@@ -70,7 +70,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
 import com.google.firebase.auth.FirebaseAuth
@@ -80,8 +79,15 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    navController: NavController,
     uid: String,
+    onAboutUs: () -> Unit,
+    onOurWork: () -> Unit,
+    onHelp: () -> Unit,
+    onLogout: () -> Unit,
+    onViewDonors: () -> Unit,
+    onRequestBlood: () -> Unit,
+    onMyProfile: () -> Unit,
+    onBloodCampList: () -> Unit,
     viewModel: DashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -124,7 +130,7 @@ fun DashboardScreen(
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
-                        navController.navigate("about_us")
+                        onAboutUs()
                     }
                 )
                 NavigationDrawerItem(
@@ -132,7 +138,7 @@ fun DashboardScreen(
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
-                        navController.navigate("our_work")
+                        onOurWork()
                     }
                 )
                 NavigationDrawerItem(
@@ -140,7 +146,7 @@ fun DashboardScreen(
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
-                        navController.navigate("help")
+                        onHelp()
                     }
                 )
                 NavigationDrawerItem(
@@ -208,10 +214,7 @@ fun DashboardScreen(
                                 onClick = {
                                     FirebaseAuth.getInstance().signOut()
                                     showLogoutDialog = false
-                                    navController.navigate("signin") {
-                                        popUpTo("dashboard/$uid") { inclusive = true }
-                                        launchSingleTop = true
-                                    }
+                                    onLogout()
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
                             ) {
@@ -251,11 +254,7 @@ fun DashboardScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Button(onClick = {
-                                navController.navigate("signin") {
-                                    popUpTo("dashboard") { inclusive = true }
-                                }
-                            }) {
+                            Button(onClick = onLogout) {
                                 Text("Go to Sign In")
                             }
                         }
@@ -333,28 +332,28 @@ fun DashboardScreen(
                                     DashboardCard(
                                         title = "View Donors",
                                         icon = Icons.Default.Face,
-                                        onClick = { navController.navigate("view_donors/$uid") }
+                                        onClick = onViewDonors
                                     )
                                 }
                                 item {
                                     DashboardCard(
                                         title = "Request Blood",
                                         icon = Icons.Default.Favorite,
-                                        onClick = { navController.navigate("request_blood/$uid") }
+                                        onClick = onRequestBlood
                                     )
                                 }
                                 item {
                                     DashboardCard(
                                         title = "My Profile",
                                         icon = Icons.Default.Person,
-                                        onClick = { navController.navigate("my_profile/$uid") }
+                                        onClick = onMyProfile
                                     )
                                 }
                                 item {
                                     DashboardCard(
                                         title = "Events",
                                         icon = Icons.Default.Search,
-                                        onClick = { navController.navigate("blood_camp_list") }
+                                        onClick = onBloodCampList
                                     )
                                 }
                             }

@@ -34,11 +34,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+
 
 @Composable
 fun SignInScreen(
-    navController: NavController,
+    onNavigateToProfile: (String) -> Unit,
+    onNavigateToSignup: () -> Unit,
     onSignInSuccess: (uid: String, isAdmin: Boolean) -> Unit,
     viewModel: SignInViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
@@ -96,7 +97,7 @@ fun SignInScreen(
                             if (profileExists) {
                                 onSignInSuccess(uid, isAdmin)
                             } else {
-                                navController.navigate("profile/$uid")
+                                onNavigateToProfile(uid)
                             }
                         }
                     } else {
@@ -127,12 +128,7 @@ fun SignInScreen(
                     modifier = Modifier
                         .padding(start = 4.dp)
                         .alignByBaseline()
-                        .clickable {
-                            navController.navigate("signup") {
-                                launchSingleTop = true
-                                popUpTo("splash") { inclusive = true }
-                            }
-                        }
+                        .clickable { onNavigateToSignup() }
                 )
             }
 
