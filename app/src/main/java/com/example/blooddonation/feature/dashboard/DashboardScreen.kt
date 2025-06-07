@@ -87,6 +87,7 @@ fun DashboardScreen(
     val colorScheme = MaterialTheme.colorScheme
 
     var showBotDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -146,12 +147,8 @@ fun DashboardScreen(
                     label = { Text("Logout") },
                     selected = false,
                     onClick = {
+                        showLogoutDialog = true
                         scope.launch { drawerState.close() }
-                        FirebaseAuth.getInstance().signOut()
-                        navController.navigate("signin") {
-                            popUpTo("splash") { inclusive = true }
-                            launchSingleTop = true
-                        }
                     }
                 )
             }
@@ -190,6 +187,44 @@ fun DashboardScreen(
                 }
             },
             content = { innerPadding ->
+                if (showLogoutDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showLogoutDialog = false },
+                        title = {
+                            Text(
+                                "Confirm Logout",
+                                color = colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            Text(
+                                "Are you sure you want to logout?",
+                                color = colorScheme.onSurface
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    FirebaseAuth.getInstance().signOut()
+                                    showLogoutDialog = false
+                                    navController.navigate("signin") {
+                                        popUpTo("dashboard/$uid") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                            ) {
+                                Text("Logout", color = colorScheme.onPrimary)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showLogoutDialog = false }) {
+                                Text("Cancel", color = colorScheme.primary)
+                            }
+                        }
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
