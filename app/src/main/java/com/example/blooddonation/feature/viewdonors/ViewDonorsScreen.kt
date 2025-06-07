@@ -1,10 +1,8 @@
 package com.example.blooddonation.feature.viewdonors
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,9 +30,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,9 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -52,11 +52,12 @@ import androidx.compose.ui.window.Dialog
 import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.blooddonation.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewDonorsScreen(
     onNavigateToChat: (chatId: String, currentUserId: String, requesterId: String) -> Unit,
+    onBack: () -> Unit,
     viewModel: BloodRequestViewModel = viewModel(),
     currentUserId: String
 )
@@ -65,13 +66,13 @@ fun ViewDonorsScreen(
     var showMedicalFormForRequest by remember { mutableStateOf<BloodRequest?>(null) }
 
     // Filter out current user's own requests & keep only pending ones
-    val filteredRequests = requests.filter {
-        it.requesterId != currentUserId && it.status == "pending"
+    val filteredRequests = remember(requests, currentUserId) {
+        requests.filter { it.requesterId != currentUserId && it.status == "pending" }
     }
 
     // Donor's accepted requests (where donor is current user)
-    val donorsAcceptedRequests = requests.filter {
-        it.acceptedBy == currentUserId && it.status == "accepted"
+    val donorsAcceptedRequests = remember(requests, currentUserId) {
+        requests.filter { it.acceptedBy == currentUserId && it.status == "accepted" }
     }
 
     // Medical form dialog for accepting requests
@@ -90,44 +91,46 @@ fun ViewDonorsScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Background image
-        Image(
-            painter = painterResource(id = R.drawable.blood_background), // Replace with your drawable image name
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-
-        // Your UI content on top
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        topBar = {
+            TopAppBar(
+                title = { Text("View Requests") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f)) // Optional: add semi-transparent overlay for readability
+                .padding(padding)
                 .padding(16.dp)
         ) {
-            // Show donor's accepted requests chat buttons
             if (donorsAcceptedRequests.isNotEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Your Accepted Requests - Chats",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White // Text color to contrast background
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(8.dp))
 
                     donorsAcceptedRequests.forEach { acceptedRequest ->
-                        val chatId = acceptedRequest.chatId ?: "" // assuming chatId stored in request
+                        val chatId = acceptedRequest.chatId ?: ""
                         val requesterId = acceptedRequest.requesterId
 
                         if (chatId.isNotBlank()) {
                             Button(
-                                onClick = {
-                                    onNavigateToChat(chatId, currentUserId, requesterId)
-                                },
+                                onClick = { onNavigateToChat(chatId, currentUserId, requesterId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -135,7 +138,10 @@ fun ViewDonorsScreen(
                                     .height(50.dp),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text("Go to Chat with $requesterId", color = MaterialTheme.colorScheme.onPrimary)
+                                Text(
+                                    "Go to Chat with $requesterId",
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
                             }
                         }
                     }
@@ -143,11 +149,8 @@ fun ViewDonorsScreen(
                 }
             }
 
-            // Show list of pending requests for donor to accept/reject
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(filteredRequests) { request ->
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(filteredRequests, key = { it.id }) { request ->
                     RequestCard(
                         bloodRequest = request,
                         onAccept = { showMedicalFormForRequest = request },
