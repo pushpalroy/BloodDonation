@@ -67,10 +67,10 @@ fun SplashScreen(navController: NavController) {
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.firstscreen),
-            contentDescription = "App Icon",
+            painter = painterResource(id = R.drawable.ic_crimson_sync_logo),
+            contentDescription = "Crimson Sync Logo",
             modifier = Modifier
-                .size(180.dp)
+                .size(120.dp)
                 .graphicsLayer(scaleX = scale.value, scaleY = scale.value)
         )
     }

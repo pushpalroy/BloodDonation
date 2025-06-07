@@ -115,7 +115,10 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable("admin_dashboard") {
-            AdminDashboardScreen(viewModel = adminViewModel)
+            AdminDashboardScreen(
+                navController = navController,
+                viewModel = adminViewModel
+            )
         }
 
 
