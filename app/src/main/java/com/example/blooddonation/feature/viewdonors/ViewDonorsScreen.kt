@@ -1,5 +1,6 @@
 package com.example.blooddonation.feature.viewdonors
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
@@ -127,29 +128,33 @@ fun ViewDonorsScreen(
 
             Spacer(Modifier.height(8.dp))
 
+            // Tab bar logic (unchanged)
             when (selectedTab) {
                 0 -> PendingTab(
                     requests = pendingRequests,
+                    currentUserId = currentUserId,
                     onAccept = { showMedicalFormForRequest = it },
                     onReject = { viewModel.rejectRequest(it.id) }
                 )
-
                 1 -> AcceptedTab(
                     requests = acceptedRequests,
                     currentUserId = currentUserId,
                     onNavigateToChat = onNavigateToChat
                 )
-
-                2 -> RejectedTab(requests = rejectedRequests)
+                2 -> RejectedTab(
+                    requests = rejectedRequests,
+                    currentUserId = currentUserId
+                )
             }
+
         }
     }
 }
 
-// ---------- Pending Tab ----------
 @Composable
 private fun PendingTab(
     requests: List<BloodRequest>,
+    currentUserId: String,
     onAccept: (BloodRequest) -> Unit,
     onReject: (BloodRequest) -> Unit
 ) {
@@ -157,6 +162,7 @@ private fun PendingTab(
         items(requests, key = { it.id }) { request ->
             RequestCard(
                 bloodRequest = request,
+                currentUserId = currentUserId,
                 onAccept = { onAccept(request) },
                 onReject = { onReject(request) }
             )
@@ -165,7 +171,6 @@ private fun PendingTab(
     }
 }
 
-// ---------- Accepted Tab ----------
 @Composable
 private fun AcceptedTab(
     requests: List<BloodRequest>,
@@ -187,7 +192,21 @@ private fun AcceptedTab(
                     Column(Modifier.padding(16.dp)) {
                         Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
                         Text("Location: ${request.location}")
-                        if (!request.chatId.isNullOrEmpty()) {
+                        if (request.requesterId == currentUserId) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "Raised by you",
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                        if (!request.chatId.isNullOrEmpty() && request.requesterId != currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Button(
                                 onClick = {
@@ -198,9 +217,9 @@ private fun AcceptedTab(
                                     )
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                             ) {
-                                Text("Go to Chat", color = MaterialTheme.colorScheme.onPrimary)
+                                Text("Go to Chat", color = MaterialTheme.colorScheme.onTertiaryContainer)
                             }
                         }
                     }
@@ -211,9 +230,8 @@ private fun AcceptedTab(
     }
 }
 
-// ---------- Rejected Tab ----------
 @Composable
-private fun RejectedTab(requests: List<BloodRequest>) {
+private fun RejectedTab(requests: List<BloodRequest>, currentUserId: String) {
     if (requests.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No rejected requests.")
@@ -229,6 +247,20 @@ private fun RejectedTab(requests: List<BloodRequest>) {
                     Column(Modifier.padding(16.dp)) {
                         Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
                         Text("Location: ${request.location}")
+                        if (request.requesterId == currentUserId) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "Raised by you",
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -237,12 +269,16 @@ private fun RejectedTab(requests: List<BloodRequest>) {
     }
 }
 
+
 @Composable
 fun RequestCard(
     bloodRequest: BloodRequest,
-    onAccept: () -> Unit,
-    onReject: () -> Unit
+    currentUserId: String,
+    onAccept: (() -> Unit)? = null, // Optional
+    onReject: (() -> Unit)? = null  // Optional
 ) {
+    val isRaisedByMe = bloodRequest.requesterId == currentUserId
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -254,23 +290,43 @@ fun RequestCard(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(text = "Location: ${bloodRequest.location}")
+
+            if (isRaisedByMe) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Raised by you",
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+
             Spacer(Modifier.height(8.dp))
-            Row {
-                Button(
-                    onClick = onAccept,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) { Text("Accept") }
 
-                Spacer(Modifier.width(16.dp))
+            if (!isRaisedByMe && onAccept != null && onReject != null) {
+                Row {
+                    Button(
+                        onClick = onAccept,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                    ) { Text("Accept") }
 
-                Button(
-                    onClick = onReject,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Reject") }
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(
+                        onClick = onReject,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) { Text("Reject") }
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun MedicalFormDialog(
@@ -281,15 +337,11 @@ fun MedicalFormDialog(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(8.dp),
             tonalElevation = 4.dp,
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .wrapContentHeight()
+            modifier = Modifier.wrapContentHeight()
         ) {
             val scrollState = rememberScrollState()
-
-            /* === form state === */
             var age by remember { mutableStateOf("") }
             var weight by remember { mutableStateOf("") }
             var hadIllness by remember { mutableStateOf("") }
@@ -301,7 +353,7 @@ fun MedicalFormDialog(
 
             Column(
                 modifier = Modifier
-                    .padding(20.dp)
+                    .padding(16.dp)
                     .verticalScroll(scrollState)
             ) {
                 Text(
@@ -310,8 +362,6 @@ fun MedicalFormDialog(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 Spacer(Modifier.height(16.dp))
-
-                /* ---------- numeric inputs ---------- */
                 OutlinedTextField(
                     value = age,
                     onValueChange = { age = it.filter(Char::isDigit) },
@@ -331,8 +381,6 @@ fun MedicalFormDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
-
-                /* ---------- yes / no questions ---------- */
                 YesNoDropdown(
                     label = "Had illness in the last 7 days?",
                     selected = hadIllness,
@@ -374,8 +422,6 @@ fun MedicalFormDialog(
                     onSelect = { exposedCovid = it }
                 )
                 Spacer(Modifier.height(24.dp))
-
-                /* ---------- buttons ---------- */
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
