@@ -24,7 +24,7 @@ class DashboardViewModel : ViewModel() {
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     _uiState.value = DashboardUiState(
-                        username = document.getString("name") ?: "",
+                        username = document.getString("username") ?: "",
                         imageUri = document.getString("profileImagePath"),
                         isLoading = false
                     )

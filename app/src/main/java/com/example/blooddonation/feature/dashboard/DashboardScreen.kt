@@ -265,15 +265,15 @@ fun DashboardScreen(
                                 .fillMaxSize()
                                 .padding(16.dp)
                         ) {
-                            Row(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(80.dp)
+                                        .size(120.dp)
                                         .clip(CircleShape)
                                         .background(colorScheme.surface),
                                     contentAlignment = Alignment.Center
@@ -308,13 +308,17 @@ fun DashboardScreen(
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                Column {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     Text(
-                                        text = "Welcome, ${uiState.username}",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = "Welcome\n${uiState.username}",
+                                        textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.titleLarge.copy(
-                                            fontWeight = FontWeight.Bold,
                                             color = colorScheme.onBackground
                                         )
                                     )
