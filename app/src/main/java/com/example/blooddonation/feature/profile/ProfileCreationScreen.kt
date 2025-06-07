@@ -50,7 +50,7 @@ import java.io.FileOutputStream
 @Composable
 fun ProfileCreationScreen(
     uid: String,
-    onNavigateToDashboard: (username: String, imageUri: String, uid: String) -> Unit
+    onNavigateToDashboard: (String, String, String) -> Unit
 ) {
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
