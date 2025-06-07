@@ -71,7 +71,6 @@ import coil.request.ImageRequest
 import com.example.blooddonation.R
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProfileScreen(
@@ -273,6 +272,7 @@ fun MyProfileScreen(
 
                 Spacer(Modifier.height(28.dp))
 
+                @Composable
                 fun Modifier.field() = this
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.05f), RoundedCornerShape(18.dp))

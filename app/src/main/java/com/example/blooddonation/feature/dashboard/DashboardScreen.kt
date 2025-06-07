@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -60,12 +58,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -73,14 +69,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
-import com.example.blooddonation.feature.theme.md_theme_light_primary
-import com.example.blooddonation.feature.theme.md_theme_light_onBackground
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.io.File
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -244,8 +239,7 @@ fun DashboardScreen(
                                     modifier = Modifier
                                         .size(80.dp)
                                         .clip(CircleShape)
-                                        .border(2.dp, colorScheme.primary, CircleShape)
-                                        .background(colorScheme.background),
+                                        .background(colorScheme.surface),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (!uiState.imageUri.isNullOrEmpty()) {
@@ -265,7 +259,7 @@ fun DashboardScreen(
                                                 imageVector = Icons.Default.Person,
                                                 contentDescription = "Default Profile Picture",
                                                 modifier = Modifier.size(50.dp),
-                                                tint = colorScheme.onBackground
+                                                tint = colorScheme.onSurface
                                             )
                                         }
                                     } else {
@@ -273,7 +267,7 @@ fun DashboardScreen(
                                             imageVector = Icons.Default.Person,
                                             contentDescription = "Default Profile Picture",
                                             modifier = Modifier.size(50.dp),
-                                            tint = colorScheme.onBackground
+                                            tint = colorScheme.onSurface
                                         )
                                     }
                                 }
@@ -303,41 +297,29 @@ fun DashboardScreen(
                                     DashboardCard(
                                         title = "View Donors",
                                         icon = Icons.Default.Face,
-                                        backgroundColor = colorScheme.primary,
-                                        iconColor = colorScheme.onPrimary
-                                    ) {
-                                        navController.navigate("view_donors/$uid")
-                                    }
+                                        onClick = { navController.navigate("view_donors/$uid") }
+                                    )
                                 }
                                 item {
                                     DashboardCard(
                                         title = "Request Blood",
                                         icon = Icons.Default.Favorite,
-                                        backgroundColor = colorScheme.primary,
-                                        iconColor = colorScheme.onPrimary
-                                    ) {
-                                        navController.navigate("request_blood/$uid")
-                                    }
+                                        onClick = { navController.navigate("request_blood/$uid") }
+                                    )
                                 }
                                 item {
                                     DashboardCard(
                                         title = "My Profile",
                                         icon = Icons.Default.Person,
-                                        backgroundColor = colorScheme.primary,
-                                        iconColor = colorScheme.onPrimary
-                                    ) {
-                                        navController.navigate("my_profile/$uid")
-                                    }
+                                        onClick = { navController.navigate("my_profile/$uid") }
+                                    )
                                 }
                                 item {
                                     DashboardCard(
                                         title = "Events",
                                         icon = Icons.Default.Search,
-                                        backgroundColor = colorScheme.primary,
-                                        iconColor = colorScheme.onPrimary
-                                    ) {
-                                        navController.navigate("blood_camp_list")
-                                    }
+                                        onClick = { navController.navigate("blood_camp_list") }
+                                    )
                                 }
                             }
                         }
@@ -400,35 +382,31 @@ fun DashboardScreen(
     }
 }
 
-/* ---------- shared palette ---------- */
-/* Removed color aliases; use theme colors directly */
-
-/* ---------- reusable template ---------- */
+// ---------- reusable template ----------
 @Composable
 private fun StaticInfoScreen(
     @DrawableRes hero: Int,
     title: String,
     body: String
 ) {
-    /* full-screen gradient */
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(md_theme_light_primary, md_theme_light_onBackground),
+                    colors = listOf(colorScheme.primary, colorScheme.onBackground),
                     startY = 0f,
                     endY = Float.POSITIVE_INFINITY
                 )
             ),
         contentAlignment = Alignment.TopCenter
     ) {
-        /* card that floats above gradient */
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
             shape = RoundedCornerShape(24.dp)
         ) {
@@ -436,7 +414,6 @@ private fun StaticInfoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(24.dp)
             ) {
-                /* hero image */
                 Image(
                     painter = painterResource(id = hero),
                     contentDescription = null,
@@ -447,12 +424,14 @@ private fun StaticInfoScreen(
                     contentScale = ContentScale.Crop
                 )
 
-                /* slim accent under image */
                 Spacer(
                     modifier = Modifier
                         .height(4.dp)
                         .fillMaxWidth()
-                        .background(md_theme_light_primary, RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp))
+                        .background(
+                            colorScheme.primary,
+                            RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp)
+                        )
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -460,7 +439,7 @@ private fun StaticInfoScreen(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        color = md_theme_light_primary,
+                        color = colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     ),
                     textAlign = TextAlign.Center
@@ -471,7 +450,7 @@ private fun StaticInfoScreen(
                 Text(
                     text = body,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = md_theme_light_onBackground,
+                        color = colorScheme.onBackground,
                         lineHeight = 22.sp
                     ),
                     textAlign = TextAlign.Center
@@ -481,48 +460,45 @@ private fun StaticInfoScreen(
     }
 }
 
-/* ---------- individual screens ---------- */
-
+// ---------- individual screens ----------
 @Composable
 fun AboutUsScreen() = StaticInfoScreen(
     hero = R.drawable.aboutus,
     title = "About CrimsonSync",
-    body = "CrimsonSync is a community-powered platform dedicated to connecting blood donors "
-            + "with recipients quickly and efficiently. Our mission is to save lives by building "
-            + "a trustworthy and fast blood-donation ecosystem."
+    body = "CrimsonSync is a community-powered platform dedicated to connecting blood donors " +
+            "with recipients quickly and efficiently. Our mission is to save lives by building " +
+            "a trustworthy and fast blood-donation ecosystem."
 )
 
 @Composable
 fun OurWorkScreen() = StaticInfoScreen(
     hero = R.drawable.ourwork,
     title = "What Drives Us",
-    body = "“Every drop counts. We connect hearts to help save lives.”\n\n"
-            + "CrimsonSync works to make blood donation seamless, reliable, and community-driven."
+    body = "“Every drop counts. We connect hearts to help save lives.”\n\n" +
+            "CrimsonSync works to make blood donation seamless, reliable, and community-driven."
 )
 
 @Composable
 fun HelpScreen() = StaticInfoScreen(
     hero = R.drawable.helpus,
     title = "Need Help?",
-    body = "For any queries or assistance, reach out to us at:\n\n"
-            + "crimsonsync@gmail.com\n\n"
-            + "Our team is here to support you 24 × 7."
+    body = "For any queries or assistance, reach out to us at:\n\n" +
+            "crimsonsync@gmail.com\n\n" +
+            "Our team is here to support you 24 × 7."
 )
-
 
 @Composable
 fun DashboardCard(
     title: String,
     icon: ImageVector,
-    backgroundColor: Color,
-    iconColor: Color,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = Modifier
             .height(140.dp)
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primary),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -536,13 +512,13 @@ fun DashboardCard(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = iconColor,
+                tint = colorScheme.onPrimary,
                 modifier = Modifier.size(48.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = title,
-                color = iconColor,
+                color = colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge
@@ -550,13 +526,3 @@ fun DashboardCard(
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

@@ -84,15 +84,16 @@ fun AppNavigation(navController: NavHostController) {
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             ProfileCreationScreen(
-                navController = navController,
-                uid = uid
-            ) { username, imageUri ->
-                val encodedUri = Uri.encode(imageUri.toString())
-                navController.navigate("dashboard/$username/$encodedUri/$uid") {
-                    popUpTo("profile/$uid") { inclusive = true }
+                uid = uid,
+                onNavigateToDashboard = { username, imageUri, uid ->
+                    val encodedUri = Uri.encode(imageUri)
+                    navController.navigate("dashboard/$username/$encodedUri/$uid") {
+                        popUpTo("profile/$uid") { inclusive = true }
+                    }
                 }
-            }
+            )
         }
+
 
         composable(
             route = "dashboard/{uid}",

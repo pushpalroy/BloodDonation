@@ -30,17 +30,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.blooddonation.feature.theme.BloodBankTheme
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.File
 import java.io.FileOutputStream
@@ -48,14 +49,10 @@ import java.io.FileOutputStream
 
 @Composable
 fun ProfileCreationScreen(
-    navController: NavHostController,
     uid: String,
-    onProfileCreated: (String, String) -> Unit
-
+    onNavigateToDashboard: (username: String, imageUri: String, uid: String) -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var username by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
@@ -93,9 +90,10 @@ fun ProfileCreationScreen(
             imageUri?.let {
                 Image(
                     painter = rememberAsyncImagePainter(it),
+                    contentScale = ContentScale.Crop,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(160.dp)
                         .clip(CircleShape)
                 )
             } ?: Icon(
@@ -106,7 +104,7 @@ fun ProfileCreationScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = { launcher.launch("image/*") },
@@ -187,17 +185,18 @@ fun ProfileCreationScreen(
                         .set(userProfile)
                         .addOnSuccessListener {
                             Toast.makeText(context, "Profile Created!", Toast.LENGTH_SHORT).show()
-                            navController.navigate("dashboard/$username/${Uri.encode(imageFile.absolutePath)}/$uid") {
-                                popUpTo("signup") { inclusive = true }
-                            }
-                            onProfileCreated(username, imageFile.absolutePath)
-
+                            onNavigateToDashboard(username, imageFile.absolutePath, uid)
                         }
                         .addOnFailureListener {
-                            Toast.makeText(context, "Failed to save profile", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Failed to save profile", Toast.LENGTH_SHORT)
+                                .show()
                         }
                 } else {
-                    Toast.makeText(context, "Please fill all fields & select image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Please fill all fields & select image",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             },
             modifier = Modifier
@@ -210,8 +209,13 @@ fun ProfileCreationScreen(
     }
 }
 
-
-
-
-
-
+@Preview()
+@Composable
+fun PreviewProfileCreationScreen() {
+    BloodBankTheme(dynamicColor = false) {
+        ProfileCreationScreen(
+            uid = "sample_uid",
+            onNavigateToDashboard = { _, _, _ -> /* No-op for preview */ }
+        )
+    }
+}
