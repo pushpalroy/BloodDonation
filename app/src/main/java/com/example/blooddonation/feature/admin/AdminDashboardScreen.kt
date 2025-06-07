@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -48,6 +50,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.domain.AdminBloodCamp
 import kotlinx.coroutines.Dispatchers
@@ -62,20 +66,21 @@ private val WhiteColor = Color.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
+fun AdminDashboardScreen(
+    navController: NavController,
+    viewModel: AdminViewModel = viewModel()
+) {
 
     val camps = viewModel.camps
     var searchQuery by remember { mutableStateOf("") }
     var sortAsc by remember { mutableStateOf(true) }
 
     /* ---------- derived list ---------- */
-    val shownCamps = remember(searchQuery, sortAsc, camps) {
-        camps
-            .filter { it.location.contains(searchQuery, ignoreCase = true) }
-            .let { list ->
-                if (sortAsc) list.sortedBy { it.date } else list.sortedByDescending { it.date }
-            }
-    }
+    val shownCamps = camps
+        .filter { it.location.contains(searchQuery, ignoreCase = true) }
+        .let { list ->
+            if (sortAsc) list.sortedBy { it.date } else list.sortedByDescending { it.date }
+        }
 
     /* ---------- add / edit dialog state ---------- */
     var showDialog by remember { mutableStateOf(false) }
@@ -83,7 +88,24 @@ fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Admin Dashboard") })
+            CenterAlignedTopAppBar(
+                title = { Text("Admin Dashboard") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate("signin") {
+                            popUpTo("admin_dashboard") { inclusive = true }
+                        }
+                    }) {
+                        Icon(Icons.Default.Logout, contentDescription = "Logout")
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
