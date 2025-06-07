@@ -84,9 +84,9 @@ fun MyProfileScreen(
                 ProfileViewModel(uid) as T
         })
 ) {
-    val Crimson = Color(0xFFB71C1C)
-    val Snow = Color.White
-    val Jet = Color(0xFF111111)
+    val Crimson = MaterialTheme.colorScheme.primary
+    val Snow = MaterialTheme.colorScheme.onPrimary
+    val Jet = MaterialTheme.colorScheme.onBackground
 
     val profile by viewModel.profile.collectAsState()
     val ctx = LocalContext.current

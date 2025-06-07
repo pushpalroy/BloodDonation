@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -89,7 +90,7 @@ fun ChatScreen(
                     contentAlignment = if (isMe) Alignment.CenterEnd else Alignment.CenterStart
                 ) {
                     Surface(
-                        color = if (isMe) Color(0xFFD32F2F) else Color.LightGray,
+                        color = if (isMe) MaterialTheme.colorScheme.primary else Color.LightGray,
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.padding(4.dp)
                     ) {

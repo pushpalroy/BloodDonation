@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -91,7 +90,7 @@ fun SplashScreen(navController: NavController) {
             Text(
                 text = "Crimson Sync",
                 style = MaterialTheme.typography.headlineMedium.copy(
-                    color = Color(0xFFD32F2F), // Crimson red
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 ),
                 textAlign = TextAlign.Center,

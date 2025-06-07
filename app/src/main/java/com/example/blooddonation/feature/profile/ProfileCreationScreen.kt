@@ -203,9 +203,9 @@ fun ProfileCreationScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Text("Create Profile", color = Color.White)
+            Text("Create Profile", color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }
