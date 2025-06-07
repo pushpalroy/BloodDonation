@@ -9,8 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import android.app.Activity
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
+
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -59,6 +64,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import com.example.blooddonation.R
+
 
 private val RedColor = Color(0xFFD32F2F)
 private val BlackColor = Color.Black
@@ -70,39 +81,54 @@ fun AdminDashboardScreen(
     navController: NavController,
     viewModel: AdminViewModel = viewModel()
 ) {
-
     val camps = viewModel.camps
     var searchQuery by remember { mutableStateOf("") }
     var sortAsc by remember { mutableStateOf(true) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedCamp by remember { mutableStateOf<AdminBloodCamp?>(null) }
+    val context = LocalContext.current
 
-    /* ---------- derived list ---------- */
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    // Filter logic for both name and location
     val shownCamps = camps
-        .filter { it.location.contains(searchQuery, ignoreCase = true) }
+        .filter {
+            it.name.contains(searchQuery, ignoreCase = true) ||
+                    it.location.contains(searchQuery, ignoreCase = true)
+        }
         .let { list ->
             if (sortAsc) list.sortedBy { it.date } else list.sortedByDescending { it.date }
         }
 
-    /* ---------- add / edit dialog state ---------- */
-    var showDialog by remember { mutableStateOf(false) }
-    var selectedCamp by remember { mutableStateOf<AdminBloodCamp?>(null) }
+    // Scroll to top when sortAsc or searchQuery changes
+    LaunchedEffect(sortAsc, searchQuery) {
+        if (shownCamps.isNotEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Admin Dashboard") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        // Fix for back button: if cannot pop, finish activity
+                        if (!navController.popBackStack()) {
+                            (context as? Activity)?.finish()
+                        }
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        FirebaseAuth.getInstance().signOut()
-                        navController.navigate("signin") {
-                            popUpTo("admin_dashboard") { inclusive = true }
-                        }
-                    }) {
-                        Icon(Icons.Filled.AccountCircle, contentDescription = "Logout")
+                    IconButton(onClick = { showLogoutDialog = true }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_logout),
+                            contentDescription = "Logout"
+                        )
                     }
                 }
             )
@@ -114,10 +140,8 @@ fun AdminDashboardScreen(
             }) { Icon(Icons.Default.Add, contentDescription = "Add Camp") }
         }
     ) { padding ->
-
         Column(modifier = Modifier.padding(padding)) {
-
-            /* ----- search + sort row ----- */
+            // Search and Sort Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,22 +151,23 @@ fun AdminDashboardScreen(
                 TextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by location") },
+                    placeholder = { Text("Search by camp or location") },
                     modifier = Modifier.weight(1f),
                     singleLine = true
                 )
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = { sortAsc = !sortAsc }) {
+                IconButton(onClick = {
+                    sortAsc = !sortAsc
+                }) {
                     Icon(
-                        imageVector = if (sortAsc)
-                            Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
+                        imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Sort by date"
                     )
                 }
             }
 
-            /* ----- list ----- */
-            LazyColumn {
+            // Camp List
+            LazyColumn(state = listState) {
                 items(shownCamps, key = { it.id }) { camp ->
                     CampItem(
                         camp = camp,
@@ -170,7 +195,7 @@ fun AdminDashboardScreen(
         }
     }
 
-    /* ----- modal dialog ----- */
+    // Add/Edit Camp Dialog
     if (showDialog) {
         CampDialog(
             initialCamp = selectedCamp,
@@ -182,13 +207,46 @@ fun AdminDashboardScreen(
             }
         )
     }
+
+    // Logout Confirmation Dialog
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Confirm Logout", color = RedColor, fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to logout?", color = BlackColor) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate("signin") {
+                            popUpTo("admin_dashboard") { inclusive = true }
+                        }
+                        showLogoutDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = RedColor)
+                ) {
+                    Text("Logout", color = WhiteColor)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showLogoutDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = BlackColor)
+                ) {
+                    Text("Cancel", color = WhiteColor)
+                }
+            }
+        )
+    }
 }
 
 
-
 @Composable
-fun CampItem(camp: AdminBloodCamp, onEdit: (AdminBloodCamp) -> Unit, onDelete: (AdminBloodCamp) -> Unit) {
-
+fun CampItem(
+    camp: AdminBloodCamp,
+    onEdit: (AdminBloodCamp) -> Unit,
+    onDelete: (AdminBloodCamp) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,29 +254,52 @@ fun CampItem(camp: AdminBloodCamp, onEdit: (AdminBloodCamp) -> Unit, onDelete: (
         colors = CardDefaults.cardColors(containerColor = WhiteColor),
         elevation = CardDefaults.cardElevation()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Load and display local image
-            if (camp.imageUrl.isNotEmpty()) {
-                val imageFile = rememberSaveable { File(camp.imageUrl) }
-                if (imageFile.exists()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(imageFile),
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.Top
+            ) {
+                // Image on the left as a rounded image
+                if (camp.imageUrl.isNotEmpty()) {
+                    val imageFile = rememberSaveable { File(camp.imageUrl) }
+                    if (imageFile.exists()) {
+                        Image(
+                            painter = rememberAsyncImagePainter(imageFile),
+                            contentScale = ContentScale.Crop,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+                } else {
+                    // Placeholder (optional)
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
                         contentDescription = null,
+                        tint = RedColor,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
-                            .clip(MaterialTheme.shapes.medium)
+                            .size(72.dp)
+                            .clip(CircleShape)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                // Details and buttons
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = camp.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = RedColor
+                    )
+                    Text(text = "Location: ${camp.location}", color = BlackColor)
+                    Text(text = "Date: ${camp.date}", color = BlackColor)
+                    Text(text = camp.description, color = BlackColor, maxLines = 2)
                 }
             }
-
-            Text(text = camp.name, style = MaterialTheme.typography.titleLarge, color = RedColor)
-            Text(text = "Location: ${camp.location}", color = BlackColor)
-            Text(text = "Date: ${camp.date}", color = BlackColor)
-            Text(text = camp.description, color = BlackColor)
-
-            Spacer(modifier = Modifier.height(8.dp))
             Row {
                 Button(
                     onClick = { onEdit(camp) },

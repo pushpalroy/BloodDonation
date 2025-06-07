@@ -16,15 +16,19 @@ import com.example.blooddonation.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun SplashScreen(navController: NavController) {
-    // Use Animatable for more control, but animateFloatAsState with spring for bounce
     var startAnimation by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
         animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy, // bouncy drop!
+            dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
         ),
         label = "Logo Bounce"
@@ -70,15 +74,29 @@ fun SplashScreen(navController: NavController) {
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_crimson_sync_logo),
-            contentDescription = "Crimson Sync Logo",
-            modifier = Modifier
-                .size(120.dp)
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale
-                )
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_crimson_sync_logo),
+                contentDescription = "Crimson Sync Logo",
+                modifier = Modifier
+                    .size(120.dp)
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale
+                    )
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Crimson Sync",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    color = Color(0xFFD32F2F), // Crimson red
+                    fontWeight = FontWeight.Bold
+                ),
+                textAlign = TextAlign.Center,
+                fontSize = 28.sp
+            )
+        }
     }
 }
