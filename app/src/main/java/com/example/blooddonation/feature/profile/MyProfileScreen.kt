@@ -117,6 +117,7 @@ fun MyProfileScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
         topBar = {
             TopAppBar(
                 title = { Text("My Profile") },
@@ -137,7 +138,7 @@ fun MyProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.onBackground)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(pad)
             ) {
                 Box(
@@ -162,7 +163,7 @@ fun MyProfileScreen(
                             .align(Alignment.BottomCenter)
                             .offset(y = 78.dp)
                             .clip(CircleShape)
-                            .border(4.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
+                            .border(4.dp, MaterialTheme.colorScheme.onPrimaryContainer, CircleShape)
                             .shadow(12.dp, CircleShape)
                     ) {
                         Image(
@@ -182,11 +183,10 @@ fun MyProfileScreen(
                         .padding(horizontal = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Username:", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f))
                     Text(
                         user.username,
                         style = MaterialTheme.typography.headlineMedium.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontWeight = FontWeight.Bold
                         ),
                         textAlign = TextAlign.Center
@@ -194,11 +194,14 @@ fun MyProfileScreen(
 
                     Spacer(Modifier.height(12.dp))
 
-                    Text("Blood Group:", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f))
+                    Text(
+                        "Blood Group",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
                     Text(
                         user.bloodGroup,
                         style = MaterialTheme.typography.titleLarge.copy(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontWeight = FontWeight.SemiBold
                         ),
                         textAlign = TextAlign.Center
@@ -207,7 +210,11 @@ fun MyProfileScreen(
                     Spacer(Modifier.height(24.dp))
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                alpha = 0.1f
+                            )
+                        ),
                         elevation = CardDefaults.cardElevation(0.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -215,7 +222,7 @@ fun MyProfileScreen(
                             user.bio.ifBlank { "No bio added yet." },
                             modifier = Modifier.padding(20.dp),
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimary)
+                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer)
                         )
                     }
 
@@ -236,13 +243,13 @@ fun MyProfileScreen(
                     ) { Text("Edit Profile", color = MaterialTheme.colorScheme.onPrimary) }
                 }
             }
-        }  else {
+        } else {
             /* ---------------- EDIT MODE ---------------- */
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.onBackground)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(pad)
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -266,32 +273,21 @@ fun MyProfileScreen(
                             .background(Color.Black.copy(alpha = 0.35f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(
+                            Icons.Default.Edit,
+                            null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
 
                 Spacer(Modifier.height(28.dp))
-
-                @Composable
-                fun Modifier.field() = this
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.05f), RoundedCornerShape(18.dp))
 
                 OutlinedTextField(
                     value = tmpName,
                     onValueChange = { tmpName = it },
                     label = { Text("Username") },
                     singleLine = true,
-                    modifier = Modifier.field(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f),
-                        focusedLabelColor    = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor  = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-                        cursorColor          = MaterialTheme.colorScheme.primary,
-                        focusedTextColor     = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedTextColor   = MaterialTheme.colorScheme.onPrimary
-                    )
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -302,17 +298,7 @@ fun MyProfileScreen(
                     label = { Text("Bio") },
                     maxLines = 4,
                     modifier = Modifier
-                        .heightIn(min = 120.dp)
-                        .field(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f),
-                        focusedLabelColor    = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor  = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-                        cursorColor          = MaterialTheme.colorScheme.primary,
-                        focusedTextColor     = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedTextColor   = MaterialTheme.colorScheme.onPrimary
-                    )
+                        .heightIn(min = 120.dp),
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -322,16 +308,6 @@ fun MyProfileScreen(
                     onValueChange = { tmpGroup = it },
                     label = { Text("Blood Group") },
                     singleLine = true,
-                    modifier = Modifier.field(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f),
-                        focusedLabelColor    = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor  = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-                        cursorColor          = MaterialTheme.colorScheme.primary,
-                        focusedTextColor     = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedTextColor   = MaterialTheme.colorScheme.onPrimary
-                    )
                 )
 
                 Spacer(Modifier.height(40.dp))
@@ -350,17 +326,20 @@ fun MyProfileScreen(
                             pickedImage = null
                             editMode = false
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape  = RoundedCornerShape(32.dp),
-                        modifier = Modifier.weight(1f).height(52.dp)
-                    ) { Text("Save", color = MaterialTheme.colorScheme.onPrimary) }
+                        shape = RoundedCornerShape(32.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                    ) { Text("Save") }
 
                     OutlinedButton(
                         onClick = { editMode = false; pickedImage = null },
                         shape = RoundedCornerShape(32.dp),
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                        modifier = Modifier.weight(1f).height(52.dp)
-                    ) { Text("Cancel", color = MaterialTheme.colorScheme.primary) }
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimaryContainer),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                    ) { Text("Cancel", color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 }
             }
         }

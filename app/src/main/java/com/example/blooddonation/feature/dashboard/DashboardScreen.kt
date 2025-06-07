@@ -161,9 +161,10 @@ fun DashboardScreen(
         }
     ) {
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
             topBar = {
                 TopAppBar(
-                    title = { Text("Donor Dashboard", color = colorScheme.onPrimary) },
+                    title = { Text("Dashboard", color = colorScheme.onPrimary) },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {

@@ -65,7 +65,7 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -75,7 +75,7 @@ fun SplashScreen(
                 painter = painterResource(id = R.drawable.ic_crimson_sync_logo),
                 contentDescription = "Crimson Sync Logo",
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(200.dp)
                     .graphicsLayer(
                         scaleX = scale,
                         scaleY = scale
@@ -85,7 +85,7 @@ fun SplashScreen(
             Text(
                 text = "Crimson Sync",
                 style = MaterialTheme.typography.headlineMedium.copy(
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold
                 ),
                 textAlign = TextAlign.Center,

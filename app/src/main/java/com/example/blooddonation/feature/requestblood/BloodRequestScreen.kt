@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +21,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -40,15 +37,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.blooddonation.R
 import com.example.blooddonation.domain.BloodRequest
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BloodRequestScreen(
     onBack: () -> Unit,
@@ -60,8 +59,6 @@ fun BloodRequestScreen(
     var selectedBloodGroup by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-
-    val backgroundImage = painterResource(id = R.drawable.blood_background)
     val context = LocalContext.current
     val requests by viewModel.requests.collectAsState()
 
@@ -74,6 +71,7 @@ fun BloodRequestScreen(
     val donorId = acceptedRequest?.acceptedBy
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
         topBar = {
             TopAppBar(
                 title = { Text("Request Blood") },
@@ -90,13 +88,6 @@ fun BloodRequestScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Image(
-                painter = backgroundImage,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -113,7 +104,7 @@ fun BloodRequestScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 FlowRow(
-                    maxItemsInEachRow = 4,
+                    maxItemsInEachRow = 3,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -127,8 +118,8 @@ fun BloodRequestScreen(
                             ),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
-                                .width(72.dp)
-                                .height(48.dp)
+                                .width(120.dp)
+                                .height(60.dp)
                         ) {
                             Text(text = group)
                         }
@@ -211,7 +202,6 @@ fun BloodRequestScreen(
                         onClick = {
                             onNavigateToChat(chatId, currentUserId, donorId)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
