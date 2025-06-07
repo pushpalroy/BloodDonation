@@ -350,7 +350,7 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                             backgroundColor = redColor,
                                             iconColor = whiteColor
                                         ) {
-                                            navController.navigate("my_profile/{uid}")
+                                            navController.navigate("my_profile/$uid")
                                         }
                                     }
                                     item {
