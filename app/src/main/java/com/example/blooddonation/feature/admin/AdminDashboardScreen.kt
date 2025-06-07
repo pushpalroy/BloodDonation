@@ -62,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.domain.AdminBloodCamp
+import com.example.blooddonation.feature.theme.ThemeSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -129,6 +130,7 @@ fun AdminDashboardScreen(
                     }
                 },
                 actions = {
+                    ThemeSwitch()
                     IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_logout),

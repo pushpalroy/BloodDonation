@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.blooddonation.R
 import com.example.blooddonation.domain.BloodRequest
+import com.example.blooddonation.feature.theme.ThemeSwitch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,6 +81,9 @@ fun BloodRequestScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    ThemeSwitch()
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,

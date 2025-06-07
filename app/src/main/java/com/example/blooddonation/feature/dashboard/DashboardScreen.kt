@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
+import com.example.blooddonation.feature.theme.ThemeSwitch
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.io.File
@@ -177,6 +178,9 @@ fun DashboardScreen(
                                 tint = colorScheme.onPrimary
                             )
                         }
+                    },
+                    actions = {
+                        ThemeSwitch()
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.primary)
                 )
