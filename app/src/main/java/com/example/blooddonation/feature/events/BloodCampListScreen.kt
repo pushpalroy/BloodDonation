@@ -158,13 +158,10 @@ fun BloodCampItem(
     isRegistered: Boolean,
     onRegisterClick: () -> Unit
 ) {
-    val redColor = MaterialTheme.colorScheme.primary
-    val blackColor = MaterialTheme.colorScheme.onBackground
-    val whiteColor = MaterialTheme.colorScheme.onPrimary
 
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = whiteColor),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -180,22 +177,22 @@ fun BloodCampItem(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            Text(text = camp.name, style = MaterialTheme.typography.titleLarge, color = redColor)
-            Text(text = "Location: ${camp.location}", color = blackColor)
-            Text(text = "Date: ${camp.date}", color = blackColor)
-            Text(text = camp.description, color = blackColor)
+            Text(text = camp.name, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
+            Text(text = "Location: ${camp.location}", color = MaterialTheme.colorScheme.onBackground)
+            Text(text = "Date: ${camp.date}", color = MaterialTheme.colorScheme.onBackground)
+            Text(text = camp.description, color = MaterialTheme.colorScheme.onBackground)
 
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = onRegisterClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isRegistered) Color.Gray else redColor
+                    containerColor = if (isRegistered) Color.Gray else MaterialTheme.colorScheme.primary
                 ),
                 enabled = !isRegistered
             ) {
                 Text(
                     text = if (isRegistered) "Registered" else "Register",
-                    color = whiteColor
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }

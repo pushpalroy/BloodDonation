@@ -401,9 +401,7 @@ fun DashboardScreen(
 }
 
 /* ---------- shared palette ---------- */
-private val Crimson = md_theme_light_primary
-private val OnCrimson = Color.White
-private val JetBlack = md_theme_light_onBackground
+/* Removed color aliases; use theme colors directly */
 
 /* ---------- reusable template ---------- */
 @Composable
@@ -418,7 +416,7 @@ private fun StaticInfoScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Crimson, JetBlack),
+                    colors = listOf(md_theme_light_primary, md_theme_light_onBackground),
                     startY = 0f,
                     endY = Float.POSITIVE_INFINITY
                 )
@@ -430,7 +428,7 @@ private fun StaticInfoScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
-            colors = CardDefaults.cardColors(containerColor = OnCrimson),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
             shape = RoundedCornerShape(24.dp)
         ) {
@@ -454,7 +452,7 @@ private fun StaticInfoScreen(
                     modifier = Modifier
                         .height(4.dp)
                         .fillMaxWidth()
-                        .background(Crimson, RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp))
+                        .background(md_theme_light_primary, RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp))
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -462,7 +460,7 @@ private fun StaticInfoScreen(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        color = Crimson,
+                        color = md_theme_light_primary,
                         fontWeight = FontWeight.Bold
                     ),
                     textAlign = TextAlign.Center
@@ -473,7 +471,7 @@ private fun StaticInfoScreen(
                 Text(
                     text = body,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = JetBlack,
+                        color = md_theme_light_onBackground,
                         lineHeight = 22.sp
                     ),
                     textAlign = TextAlign.Center
