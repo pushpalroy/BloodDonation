@@ -39,7 +39,7 @@ val md_theme_light_outline            = Color(0xFFBDBDBD)
 // --- Dark theme colors ---
 val md_theme_dark_primary             = Color(0xFFFF6F60) // Red A200
 val md_theme_dark_onPrimary           = Color(0xFF3E2723)
-val md_theme_dark_primaryContainer    = Color(0xFFB71C1C) // Red 900
+val md_theme_dark_primaryContainer    = Color(0xFF751919) // Red 900
 val md_theme_dark_onPrimaryContainer  = Color(0xFFFFCDD2)
 
 val md_theme_dark_secondary           = Color(0xFFF48FB1) // Pink 200

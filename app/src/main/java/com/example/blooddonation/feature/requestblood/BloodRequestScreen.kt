@@ -1,7 +1,6 @@
 package com.example.blooddonation.feature.requestblood
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,14 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.blooddonation.R
 import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.theme.ThemeSwitch
 
@@ -79,7 +73,7 @@ fun BloodRequestScreen(
                 title = { Text("Request Blood") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -107,15 +101,14 @@ fun BloodRequestScreen(
                 Text(
                     text = "Choose Your Blood Type",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 FlowRow(
                     maxItemsInEachRow = 3,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     bloodGroups.forEach { group ->
@@ -123,8 +116,8 @@ fun BloodRequestScreen(
                         Button(
                             onClick = { selectedBloodGroup = group },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSelected) Color.Red else Color.White,
-                                contentColor = if (isSelected) Color.White else Color.Black
+                                containerColor = if (isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                             ),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -141,8 +134,7 @@ fun BloodRequestScreen(
                 Text(
                     text = "Location",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -151,10 +143,7 @@ fun BloodRequestScreen(
                     value = location,
                     onValueChange = { location = it },
                     placeholder = { Text("Enter the Location") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    textStyle = TextStyle(color = Color.Black)
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -196,7 +185,6 @@ fun BloodRequestScreen(
                             ).show()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -221,12 +209,13 @@ fun BloodRequestScreen(
                         onClick = {
                             onNavigateToChat(chatId, currentUserId, donorId)
                         },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Go to Chat", color = MaterialTheme.colorScheme.onPrimary)
+                        Text("Go to Chat", color = MaterialTheme.colorScheme.onTertiaryContainer)
                     }
                 }
             }

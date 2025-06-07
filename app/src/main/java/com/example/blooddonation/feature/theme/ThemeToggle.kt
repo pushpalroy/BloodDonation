@@ -4,8 +4,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 
-val LocalIsDarkTheme = compositionLocalOf { true }
-val LocalToggleTheme = compositionLocalOf<() -> Unit> { { } }
+val LocalIsDarkTheme = compositionLocalOf { false }
+val LocalToggleTheme = compositionLocalOf { { } }
 
 @Composable
 fun ThemeSwitch() {

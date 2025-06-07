@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseUser
 
 @Composable
 fun BloodBankApp(currentUser: FirebaseUser?) {
-    var isDarkTheme by remember { mutableStateOf(true) }
+    var isDarkTheme by remember { mutableStateOf(false) }
     CompositionLocalProvider(
         LocalIsDarkTheme provides isDarkTheme,
         LocalToggleTheme provides { isDarkTheme = !isDarkTheme }
