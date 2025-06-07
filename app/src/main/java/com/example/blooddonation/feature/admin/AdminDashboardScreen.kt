@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -55,16 +56,20 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
+private val RedColor = Color(0xFFD32F2F)
+private val BlackColor = Color.Black
+private val WhiteColor = Color.White
+
 @Composable
 fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
 
     /* ---------- UI state ---------- */
-    val camps = remember { viewModel.camps }          // backing list from VM
+    val camps = viewModel.camps
     var searchQuery by remember { mutableStateOf("") }
     var sortAsc by remember { mutableStateOf(true) }
 
     /* ---------- derived list ---------- */
-    val shownCamps = remember(camps, searchQuery, sortAsc) {
+    val shownCamps = remember(searchQuery, sortAsc, camps) {
         camps
             .filter { it.location.contains(searchQuery, ignoreCase = true) }
             .let { list ->
@@ -77,6 +82,9 @@ fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
     var selectedCamp by remember { mutableStateOf<AdminBloodCamp?>(null) }
 
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(title = { Text("Admin Dashboard") })
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 selectedCamp = null
@@ -158,15 +166,12 @@ fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
 
 @Composable
 fun CampItem(camp: AdminBloodCamp, onEdit: (AdminBloodCamp) -> Unit, onDelete: (AdminBloodCamp) -> Unit) {
-    val redColor = remember { Color(0xFFD32F2F) }
-    val blackColor = remember { Color.Black }
-    val whiteColor = remember { Color.White }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        colors = CardDefaults.cardColors(containerColor = whiteColor),
+        colors = CardDefaults.cardColors(containerColor = WhiteColor),
         elevation = CardDefaults.cardElevation()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -186,25 +191,25 @@ fun CampItem(camp: AdminBloodCamp, onEdit: (AdminBloodCamp) -> Unit, onDelete: (
                 }
             }
 
-            Text(text = camp.name, style = MaterialTheme.typography.titleLarge, color = redColor)
-            Text(text = "Location: ${camp.location}", color = blackColor)
-            Text(text = "Date: ${camp.date}", color = blackColor)
-            Text(text = camp.description, color = blackColor)
+            Text(text = camp.name, style = MaterialTheme.typography.titleLarge, color = RedColor)
+            Text(text = "Location: ${camp.location}", color = BlackColor)
+            Text(text = "Date: ${camp.date}", color = BlackColor)
+            Text(text = camp.description, color = BlackColor)
 
             Spacer(modifier = Modifier.height(8.dp))
             Row {
                 Button(
                     onClick = { onEdit(camp) },
-                    colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = RedColor)
                 ) {
-                    Text("Edit", color = whiteColor)
+                    Text("Edit", color = WhiteColor)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = { onDelete(camp) },
-                    colors = ButtonDefaults.buttonColors(containerColor = blackColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = BlackColor)
                 ) {
-                    Text("Delete", color = whiteColor)
+                    Text("Delete", color = WhiteColor)
                 }
             }
         }
@@ -220,9 +225,6 @@ fun CampDialog(
 ) {
 
     // TODO: Add rememberSaveable
-    val redColor = Color(0xFFD32F2F)
-    val blackColor = Color.Black
-    val whiteColor = Color.White
 
     var name by remember { mutableStateOf(initialCamp?.name ?: "") }
     var location by remember { mutableStateOf(initialCamp?.location ?: "") }
@@ -250,11 +252,11 @@ fun CampDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = whiteColor,
+        containerColor = WhiteColor,
         title = {
             Text(
                 text = if (initialCamp == null) "Add Camp" else "Edit Camp",
-                color = redColor
+                color = RedColor
             )
         },
         text = {
@@ -262,35 +264,35 @@ fun CampDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Camp Name", color = blackColor) },
-                    textStyle = TextStyle(color = blackColor)
+                    label = { Text("Camp Name", color = BlackColor) },
+                    textStyle = TextStyle(color = BlackColor)
                 )
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },
-                    label = { Text("Location", color = blackColor) },
-                    textStyle = TextStyle(color = blackColor)
+                    label = { Text("Location", color = BlackColor) },
+                    textStyle = TextStyle(color = BlackColor)
                 )
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
-                    label = { Text("Date", color = blackColor) },
-                    textStyle = TextStyle(color = blackColor)
+                    label = { Text("Date", color = BlackColor) },
+                    textStyle = TextStyle(color = BlackColor)
                 )
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description", color = blackColor) },
-                    textStyle = TextStyle(color = blackColor)
+                    label = { Text("Description", color = BlackColor) },
+                    textStyle = TextStyle(color = BlackColor)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
                     onClick = { launcher.launch("image/*") },
-                    colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = RedColor)
                 ) {
-                    Text("Choose Image", color = whiteColor)
+                    Text("Choose Image", color = WhiteColor)
                 }
 
                 if (savedImagePath.isNotEmpty()) {
@@ -319,17 +321,17 @@ fun CampDialog(
                     )
                     onSave(camp)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                colors = ButtonDefaults.buttonColors(containerColor = RedColor)
             ) {
-                Text("Save", color = whiteColor)
+                Text("Save", color = WhiteColor)
             }
         },
         dismissButton = {
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = blackColor)
+                colors = ButtonDefaults.buttonColors(containerColor = BlackColor)
             ) {
-                Text("Cancel", color = whiteColor)
+                Text("Cancel", color = WhiteColor)
             }
         }
     )
