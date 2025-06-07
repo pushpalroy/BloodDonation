@@ -2,15 +2,14 @@ package com.example.blooddonation.feature.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Light theme colors
+val md_theme_light_primary = Color(0xFFD32F2F) // Material Red 700
+val md_theme_light_onPrimary = Color.White
+val md_theme_light_background = Color.White
+val md_theme_light_onBackground = Color.Black
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-val CrimsonRed = Color(0xFFD32F2F)
-val CrimsonDarkRed = Color(0xFFB71C1C)
-val PureWhite = Color(0xFFFFFFFF)
-val PureBlack = Color(0xFF000000)
+// Dark theme colors
+val md_theme_dark_primary = Color(0xFFEF5350)  // Material Red 400
+val md_theme_dark_onPrimary = Color.Black
+val md_theme_dark_background = Color(0xFF121212)
+val md_theme_dark_onBackground = Color.White

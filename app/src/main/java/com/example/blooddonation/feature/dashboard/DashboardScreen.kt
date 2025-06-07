@@ -52,7 +52,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,7 +65,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -77,6 +75,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
+import com.example.blooddonation.feature.theme.md_theme_light_primary
+import com.example.blooddonation.feature.theme.md_theme_light_onBackground
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -88,30 +88,13 @@ fun DashboardScreen(
     uid: String,
     viewModel: DashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val redColor = Color(0xFFD32F2F)
-    val whiteColor = Color(0xFFFFFFFF)
-    val blackColor = Color(0xFF000000)
-
-    val customColors = lightColorScheme(
-        primary = redColor,
-        onPrimary = whiteColor,
-        secondary = blackColor,
-        onSecondary = whiteColor,
-        surface = whiteColor,
-        onSurface = blackColor,
-        background = whiteColor,
-        onBackground = blackColor
-    )
+    val colorScheme = MaterialTheme.colorScheme
 
     var showBotDialog by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(uid) {
-        viewModel.loadUser(uid)
-    }
 
     val botAnswers = mapOf(
         "how to request blood?" to "Go to the Dashboard and tap 'Request Blood'. Fill the form and submit.",
@@ -128,8 +111,7 @@ fun DashboardScreen(
         viewModel.loadUser(uid)
     }
 
-    MaterialTheme(colorScheme = customColors) {
-        ModalNavigationDrawer(
+    ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet {
@@ -181,25 +163,25 @@ fun DashboardScreen(
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text("CrimsonSync", color = whiteColor) },
+                        title = { Text("Donor Dashboard", color = colorScheme.onPrimary) },
                         navigationIcon = {
                             IconButton(onClick = {
                                 scope.launch {
                                     drawerState.open()
                                 }
                             }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = whiteColor)
+                                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorScheme.onPrimary)
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = redColor)
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.primary)
                     )
                 },
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = { showBotDialog = true },
-                        containerColor = redColor
+                        containerColor = colorScheme.primary
                     ) {
-                        Icon(imageVector = Icons.Default.Create, contentDescription = "Chatbot", tint = whiteColor)
+                        Icon(imageVector = Icons.Default.Create, contentDescription = "Chatbot", tint = colorScheme.onPrimary)
                     }
                 },
                 content = { innerPadding ->
@@ -211,7 +193,7 @@ fun DashboardScreen(
                         if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.align(Alignment.Center),
-                                color = redColor
+                                color = colorScheme.primary
                             )
                         } else if (uiState.errorMessage != null) {
                             Column(
@@ -223,7 +205,7 @@ fun DashboardScreen(
                             ) {
                                 Text(
                                     text = uiState.errorMessage ?: "An error occurred",
-                                    color = redColor,
+                                    color = colorScheme.primary,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
 
@@ -253,8 +235,8 @@ fun DashboardScreen(
                                         modifier = Modifier
                                             .size(80.dp)
                                             .clip(CircleShape)
-                                            .border(2.dp, redColor, CircleShape)
-                                            .background(whiteColor),
+                                    .border(2.dp, colorScheme.primary, CircleShape)
+                                            .background(colorScheme.background),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         if (!uiState.imageUri.isNullOrEmpty()) {
@@ -274,7 +256,7 @@ fun DashboardScreen(
                                                     imageVector = Icons.Default.Person,
                                                     contentDescription = "Default Profile Picture",
                                                     modifier = Modifier.size(50.dp),
-                                                    tint = blackColor
+                                                    tint = colorScheme.onBackground
                                                 )
                                             }
                                         } else {
@@ -282,7 +264,7 @@ fun DashboardScreen(
                                                 imageVector = Icons.Default.Person,
                                                 contentDescription = "Default Profile Picture",
                                                 modifier = Modifier.size(50.dp),
-                                                tint = blackColor
+                                                tint = colorScheme.onBackground
                                             )
                                         }
                                     }
@@ -291,14 +273,10 @@ fun DashboardScreen(
 
                                     Column {
                                         Text(
-                                            text = "Welcome,",
-                                            style = MaterialTheme.typography.titleMedium.copy(color = blackColor)
-                                        )
-                                        Text(
-                                            text = uiState.username,
+                                            text = "Welcome, ${uiState.username}",
                                             style = MaterialTheme.typography.titleLarge.copy(
                                                 fontWeight = FontWeight.Bold,
-                                                color = blackColor
+                                                color = colorScheme.onBackground
                                             )
                                         )
                                     }
@@ -316,8 +294,8 @@ fun DashboardScreen(
                                         DashboardCard(
                                             title = "View Donors",
                                             icon = Icons.Default.Face,
-                                            backgroundColor = redColor,
-                                            iconColor = whiteColor
+                                            backgroundColor = colorScheme.primary,
+                                            iconColor = colorScheme.onPrimary
                                         ) {
                                             navController.navigate("view_donors/$uid")
                                         }
@@ -326,8 +304,8 @@ fun DashboardScreen(
                                         DashboardCard(
                                             title = "Request Blood",
                                             icon = Icons.Default.Favorite,
-                                            backgroundColor = redColor,
-                                            iconColor = whiteColor
+                                            backgroundColor = colorScheme.primary,
+                                            iconColor = colorScheme.onPrimary
                                         ) {
                                             navController.navigate("request_blood/$uid")
                                         }
@@ -336,8 +314,8 @@ fun DashboardScreen(
                                         DashboardCard(
                                             title = "My Profile",
                                             icon = Icons.Default.Person,
-                                            backgroundColor = redColor,
-                                            iconColor = whiteColor
+                                            backgroundColor = colorScheme.primary,
+                                            iconColor = colorScheme.onPrimary
                                         ) {
                                             navController.navigate("my_profile/$uid")
                                         }
@@ -346,8 +324,8 @@ fun DashboardScreen(
                                         DashboardCard(
                                             title = "Events",
                                             icon = Icons.Default.Search,
-                                            backgroundColor = redColor,
-                                            iconColor = whiteColor
+                                            backgroundColor = colorScheme.primary,
+                                            iconColor = colorScheme.onPrimary
                                         ) {
                                             navController.navigate("blood_camp_list")
                                         }
@@ -362,10 +340,10 @@ fun DashboardScreen(
                             onDismissRequest = { showBotDialog = false },
                             confirmButton = {
                                 TextButton(onClick = { showBotDialog = false }) {
-                                    Text("Close", color = redColor)
+                                    Text("Close", color = colorScheme.primary)
                                 }
                             },
-                            title = { Text("CrimsonBot - FAQs", color = redColor) },
+                            title = { Text("CrimsonBot - FAQs", color = colorScheme.primary) },
                             text = {
                                 Column {
                                     var userQuestion by remember { mutableStateOf("") }
@@ -388,9 +366,9 @@ fun DashboardScreen(
                                             botReply = botAnswers.entries.firstOrNull { it.key.lowercase() == cleanedInput }?.value
                                                 ?: "Sorry, I didn't understand that. Try asking a different question."
                                         },
-                                        colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
                                     ) {
-                                        Text("Send", color = whiteColor)
+                                        Text("Send", color = colorScheme.onPrimary)
                                     }
 
                                     Spacer(modifier = Modifier.height(12.dp))
@@ -399,7 +377,7 @@ fun DashboardScreen(
                                         Text(
                                             text = botReply,
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = blackColor
+                                            color = colorScheme.onBackground
                                         )
                                     }
 
@@ -414,9 +392,9 @@ fun DashboardScreen(
 }
 
 /* ---------- shared palette ---------- */
-private val Crimson   = Color(0xFFF44336)
+private val Crimson   = md_theme_light_primary
 private val OnCrimson = Color.White
-private val JetBlack  = Color(0xFF000000)
+private val JetBlack  = md_theme_light_onBackground
 
 /* ---------- reusable template ---------- */
 @Composable

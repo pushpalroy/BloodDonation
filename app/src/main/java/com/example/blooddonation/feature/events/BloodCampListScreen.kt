@@ -158,9 +158,9 @@ fun BloodCampItem(
     isRegistered: Boolean,
     onRegisterClick: () -> Unit
 ) {
-    val redColor = Color(0xFFD32F2F)
-    val blackColor = Color.Black
-    val whiteColor = Color.White
+    val redColor = MaterialTheme.colorScheme.primary
+    val blackColor = MaterialTheme.colorScheme.onBackground
+    val whiteColor = MaterialTheme.colorScheme.onPrimary
 
     Card(
         modifier = modifier,

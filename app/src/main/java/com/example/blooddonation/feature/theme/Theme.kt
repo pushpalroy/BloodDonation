@@ -7,7 +7,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -16,29 +15,21 @@ import androidx.core.view.WindowCompat
 
 
 private val DarkColorScheme = darkColorScheme(
-    primary = CrimsonRed,
-    secondary = CrimsonDarkRed,
-    background = PureBlack,
-    surface = PureBlack,
-    onPrimary = PureWhite,
-    onSecondary = PureWhite,
-    onBackground = PureWhite,
-    onSurface = PureWhite,
-    error = Color.Red,
-    onError = PureWhite
+    primary = md_theme_dark_primary,
+    onPrimary = md_theme_dark_onPrimary,
+    background = md_theme_dark_background,
+    surface = md_theme_dark_background,
+    onBackground = md_theme_dark_onBackground,
+    onSurface = md_theme_dark_onBackground
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = CrimsonRed,
-    secondary = CrimsonDarkRed,
-    background = PureWhite,
-    surface = PureWhite,
-    onPrimary = PureWhite,
-    onSecondary = PureWhite,
-    onBackground = PureBlack,
-    onSurface = PureBlack,
-    error = Color.Red,
-    onError = PureWhite
+    primary = md_theme_light_primary,
+    onPrimary = md_theme_light_onPrimary,
+    background = md_theme_light_background,
+    surface = md_theme_light_background,
+    onBackground = md_theme_light_onBackground,
+    onSurface = md_theme_light_onBackground
 )
 
 @Composable
