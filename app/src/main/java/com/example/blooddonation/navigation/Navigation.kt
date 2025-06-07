@@ -1,34 +1,30 @@
 package com.example.blooddonation.navigation
 
 import android.net.Uri
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.blooddonation.chat.ChatScreen
-import com.example.blooddonation.ui.admin.AdminDashboardScreen
-import com.example.blooddonation.ui.admin.AdminViewModel
-import com.example.blooddonation.ui.dashboard.AboutUsScreen
-import com.example.blooddonation.ui.dashboard.DashboardScreen
-import com.example.blooddonation.ui.dashboard.HelpScreen
-import com.example.blooddonation.ui.dashboard.OurWorkScreen
-import com.example.blooddonation.ui.events.BloodCampListScreen
-import com.example.blooddonation.ui.profile.MyProfileScreen
-import com.example.blooddonation.ui.profile.ProfileCreationScreen
-
-import com.example.blooddonation.ui.registration.RegistrationScreen
-import com.example.blooddonation.ui.registration.UserViewModel
-import com.example.blooddonation.ui.requestblood.BloodRequestViewModel
-import com.example.blooddonation.ui.splashscreen.SplashScreen
-import com.example.blooddonation.ui.requestblood.RequestBloodScreen
-import com.example.blooddonation.ui.signin.SignInScreen
-import com.example.blooddonation.ui.viewdonors.ViewDonorsScreen
-
+import com.example.blooddonation.feature.chat.ChatScreen
+import com.example.blooddonation.feature.admin.AdminDashboardScreen
+import com.example.blooddonation.feature.admin.AdminViewModel
+import com.example.blooddonation.feature.dashboard.AboutUsScreen
+import com.example.blooddonation.feature.dashboard.DashboardScreen
+import com.example.blooddonation.feature.dashboard.HelpScreen
+import com.example.blooddonation.feature.dashboard.OurWorkScreen
+import com.example.blooddonation.feature.events.BloodCampListScreen
+import com.example.blooddonation.feature.profile.MyProfileScreen
+import com.example.blooddonation.feature.profile.ProfileCreationScreen
+import com.example.blooddonation.feature.signup.SignupScreen
+import com.example.blooddonation.feature.signup.UserViewModel
+import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
+import com.example.blooddonation.feature.splashscreen.SplashScreen
+import com.example.blooddonation.feature.requestblood.RequestBloodScreen
+import com.example.blooddonation.feature.signin.SignInScreen
+import com.example.blooddonation.feature.viewdonors.ViewDonorsScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
@@ -40,17 +36,17 @@ fun AppNavigation(navController: NavHostController) {
             SplashScreen(navController = navController)
         }
 
-        composable("registration") {
-            RegistrationScreen(
+        composable("signup") {
+            SignupScreen(
                 userViewModel = userViewModel,
                 onNavigateToProfile = { routeId ->
                     if (routeId == "admin_dashboard") {
                         navController.navigate("admin_dashboard") {
-                            popUpTo("registration") { inclusive = true }
+                            popUpTo("signup") { inclusive = true }
                         }
                     } else {
                         navController.navigate("profile/$routeId") {
-                            popUpTo("registration") { inclusive = true }
+                            popUpTo("signup") { inclusive = true }
                         }
                     }
                 },
@@ -137,8 +133,7 @@ fun AppNavigation(navController: NavHostController) {
         }
 
 
-
-// Other screens
+        // Other screens
         // Add NavType.StringType argument for currentUserId in both routes
         composable(
             route = "view_donors/{currentUserId}",
@@ -181,8 +176,6 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
-
-
         composable("chat/{chatId}/{currentUserId}/{otherUserId}") { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
             val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
@@ -194,8 +187,6 @@ fun AppNavigation(navController: NavHostController) {
                 otherUserId = otherUserId
             )
         }
-
-
     }
 }
 
