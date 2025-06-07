@@ -207,6 +207,7 @@ fun AppNavigation(navController: NavHostController) {
                 onNavigateToChat = { chatId, currentId, requesterId ->
                     navController.navigate("chat/$chatId/$currentId/$requesterId")
                 },
+                onBack = { navController.popBackStack() },
                 viewModel = bloodRequestViewModel,
                 currentUserId = currentUserId
             )
