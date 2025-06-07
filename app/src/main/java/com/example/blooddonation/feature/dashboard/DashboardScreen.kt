@@ -88,7 +88,7 @@ fun DashboardScreen(
     uid: String,
     viewModel: DashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val redColor = Color(0xFFB71C1C)
+    val redColor = Color(0xFFD32F2F)
     val whiteColor = Color(0xFFFFFFFF)
     val blackColor = Color(0xFF000000)
 
@@ -413,11 +413,8 @@ fun DashboardScreen(
     }
 }
 
-
-
-
 /* ---------- shared palette ---------- */
-private val Crimson   = Color(0xFFB71C1C)
+private val Crimson   = Color(0xFFF44336)
 private val OnCrimson = Color.White
 private val JetBlack  = Color(0xFF000000)
 
