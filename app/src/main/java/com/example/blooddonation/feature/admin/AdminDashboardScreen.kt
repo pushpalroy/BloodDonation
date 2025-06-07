@@ -72,6 +72,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -81,9 +82,9 @@ import java.util.Calendar
 import java.util.Locale
 
 
-private val RedColor get() = MaterialTheme.colorScheme.primary
-private val BlackColor get() = MaterialTheme.colorScheme.onBackground
-private val WhiteColor get() = MaterialTheme.colorScheme.onPrimary
+private val RedColor @Composable get() = MaterialTheme.colorScheme.primary
+private val BlackColor @Composable get() = MaterialTheme.colorScheme.onBackground
+private val WhiteColor @Composable get() = MaterialTheme.colorScheme.onPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -435,7 +436,11 @@ fun CampDialog(
                     singleLine = true
                 )
                 if (showValidationError && !isNameValid) {
-                    Text("Camp name is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "Camp name is required",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -465,7 +470,8 @@ fun CampDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .onFocusChanged { focusState ->
-                                showSuggestions = focusState.isFocused && filteredLocations.isNotEmpty()
+                                showSuggestions =
+                                    focusState.isFocused && filteredLocations.isNotEmpty()
                             }
                     )
                     if (showSuggestions && filteredLocations.isNotEmpty()) {
@@ -489,7 +495,11 @@ fun CampDialog(
                     }
                 }
                 if (showValidationError && !isLocationValid) {
-                    Text("Location is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "Location is required",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -525,7 +535,11 @@ fun CampDialog(
                         .clickable { showDatePicker = true }
                 )
                 if (showValidationError && !isDateValid) {
-                    Text("Date is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "Date is required",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 

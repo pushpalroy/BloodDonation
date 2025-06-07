@@ -65,6 +65,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -112,153 +113,153 @@ fun DashboardScreen(
     }
 
     ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "CrimsonSync",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    Divider()
-                    NavigationDrawerItem(
-                        label = { Text("About Us") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            navController.navigate("about_us")
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "CrimsonSync",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+                Divider()
+                NavigationDrawerItem(
+                    label = { Text("About Us") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("about_us")
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Our Work") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("our_work")
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Help") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("help")
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Logout") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate("signin") {
+                            popUpTo("dashboard") { inclusive = true }
                         }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Our Work") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            navController.navigate("our_work")
-                        }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Help") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            navController.navigate("help")
-                        }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Logout") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            FirebaseAuth.getInstance().signOut()
-                            navController.navigate("signin") {
-                                popUpTo("dashboard") { inclusive = true }
+                    }
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Donor Dashboard", color = colorScheme.onPrimary) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                drawerState.open()
                             }
+                        }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = colorScheme.onPrimary
+                            )
                         }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.primary)
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { showBotDialog = true },
+                    containerColor = colorScheme.primary
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Create,
+                        contentDescription = "Chatbot",
+                        tint = colorScheme.onPrimary
                     )
                 }
-            }
-        ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text("Donor Dashboard", color = colorScheme.onPrimary) },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.open()
+            },
+            content = { innerPadding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            color = colorScheme.primary
+                        )
+                    } else if (uiState.errorMessage != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = uiState.errorMessage ?: "An error occurred",
+                                color = colorScheme.primary,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Button(onClick = {
+                                navController.navigate("signin") {
+                                    popUpTo("dashboard") { inclusive = true }
                                 }
                             }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = colorScheme.onPrimary)
+                                Text("Go to Sign In")
                             }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.primary)
-                    )
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = { showBotDialog = true },
-                        containerColor = colorScheme.primary
-                    ) {
-                        Icon(imageVector = Icons.Default.Create, contentDescription = "Chatbot", tint = colorScheme.onPrimary)
-                    }
-                },
-                content = { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        if (uiState.isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center),
-                                color = colorScheme.primary
-                            )
-                        } else if (uiState.errorMessage != null) {
-                            Column(
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = uiState.errorMessage ?: "An error occurred",
-                                    color = colorScheme.primary,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Button(onClick = {
-                                    navController.navigate("signin") {
-                                        popUpTo("dashboard") { inclusive = true }
-                                    }
-                                }) {
-                                    Text("Go to Sign In")
-                                }
-                            }
-                        } else {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp)
-                            ) {
-                                Row(
+                                Box(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                        .border(2.dp, colorScheme.primary, CircleShape)
+                                        .background(colorScheme.background),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .clip(CircleShape)
-                                    .border(2.dp, colorScheme.primary, CircleShape)
-                                            .background(colorScheme.background),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        if (!uiState.imageUri.isNullOrEmpty()) {
-                                            val imageFile = File(uiState.imageUri!!)
-                                            if (imageFile.exists()) {
-                                                AsyncImage(
-                                                    model = Uri.fromFile(imageFile),
-                                                    contentDescription = "Profile Picture",
-                                                    modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .clip(CircleShape),
-                                                    contentScale = ContentScale.Crop,
-                                                    error = painterResource(id = android.R.drawable.ic_menu_gallery)
-                                                )
-                                            } else {
-                                                Icon(
-                                                    imageVector = Icons.Default.Person,
-                                                    contentDescription = "Default Profile Picture",
-                                                    modifier = Modifier.size(50.dp),
-                                                    tint = colorScheme.onBackground
-                                                )
-                                            }
+                                    if (!uiState.imageUri.isNullOrEmpty()) {
+                                        val imageFile = File(uiState.imageUri!!)
+                                        if (imageFile.exists()) {
+                                            AsyncImage(
+                                                model = Uri.fromFile(imageFile),
+                                                contentDescription = "Profile Picture",
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .clip(CircleShape),
+                                                contentScale = ContentScale.Crop,
+                                                error = painterResource(id = android.R.drawable.ic_menu_gallery)
+                                            )
                                         } else {
                                             Icon(
                                                 imageVector = Icons.Default.Person,
@@ -267,134 +268,142 @@ fun DashboardScreen(
                                                 tint = colorScheme.onBackground
                                             )
                                         }
-                                    }
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
-                                    Column {
-                                        Text(
-                                            text = "Welcome, ${uiState.username}",
-                                            style = MaterialTheme.typography.titleLarge.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                color = colorScheme.onBackground
-                                            )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = "Default Profile Picture",
+                                            modifier = Modifier.size(50.dp),
+                                            tint = colorScheme.onBackground
                                         )
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(48.dp))
+                                Spacer(modifier = Modifier.width(16.dp))
 
-                                LazyVerticalGrid(
-                                    columns = GridCells.Fixed(2),
-                                    contentPadding = PaddingValues(8.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    item {
-                                        DashboardCard(
-                                            title = "View Donors",
-                                            icon = Icons.Default.Face,
-                                            backgroundColor = colorScheme.primary,
-                                            iconColor = colorScheme.onPrimary
-                                        ) {
-                                            navController.navigate("view_donors/$uid")
-                                        }
+                                Column {
+                                    Text(
+                                        text = "Welcome, ${uiState.username}",
+                                        style = MaterialTheme.typography.titleLarge.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = colorScheme.onBackground
+                                        )
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(48.dp))
+
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                contentPadding = PaddingValues(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                item {
+                                    DashboardCard(
+                                        title = "View Donors",
+                                        icon = Icons.Default.Face,
+                                        backgroundColor = colorScheme.primary,
+                                        iconColor = colorScheme.onPrimary
+                                    ) {
+                                        navController.navigate("view_donors/$uid")
                                     }
-                                    item {
-                                        DashboardCard(
-                                            title = "Request Blood",
-                                            icon = Icons.Default.Favorite,
-                                            backgroundColor = colorScheme.primary,
-                                            iconColor = colorScheme.onPrimary
-                                        ) {
-                                            navController.navigate("request_blood/$uid")
-                                        }
+                                }
+                                item {
+                                    DashboardCard(
+                                        title = "Request Blood",
+                                        icon = Icons.Default.Favorite,
+                                        backgroundColor = colorScheme.primary,
+                                        iconColor = colorScheme.onPrimary
+                                    ) {
+                                        navController.navigate("request_blood/$uid")
                                     }
-                                    item {
-                                        DashboardCard(
-                                            title = "My Profile",
-                                            icon = Icons.Default.Person,
-                                            backgroundColor = colorScheme.primary,
-                                            iconColor = colorScheme.onPrimary
-                                        ) {
-                                            navController.navigate("my_profile/$uid")
-                                        }
+                                }
+                                item {
+                                    DashboardCard(
+                                        title = "My Profile",
+                                        icon = Icons.Default.Person,
+                                        backgroundColor = colorScheme.primary,
+                                        iconColor = colorScheme.onPrimary
+                                    ) {
+                                        navController.navigate("my_profile/$uid")
                                     }
-                                    item {
-                                        DashboardCard(
-                                            title = "Events",
-                                            icon = Icons.Default.Search,
-                                            backgroundColor = colorScheme.primary,
-                                            iconColor = colorScheme.onPrimary
-                                        ) {
-                                            navController.navigate("blood_camp_list")
-                                        }
+                                }
+                                item {
+                                    DashboardCard(
+                                        title = "Events",
+                                        icon = Icons.Default.Search,
+                                        backgroundColor = colorScheme.primary,
+                                        iconColor = colorScheme.onPrimary
+                                    ) {
+                                        navController.navigate("blood_camp_list")
                                     }
                                 }
                             }
                         }
                     }
-
-                    if (showBotDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showBotDialog = false },
-                            confirmButton = {
-                                TextButton(onClick = { showBotDialog = false }) {
-                                    Text("Close", color = colorScheme.primary)
-                                }
-                            },
-                            title = { Text("CrimsonBot - FAQs", color = colorScheme.primary) },
-                            text = {
-                                Column {
-                                    var userQuestion by remember { mutableStateOf("") }
-                                    var botReply by remember { mutableStateOf("") }
-
-                                    OutlinedTextField(
-                                        value = userQuestion,
-                                        onValueChange = {
-                                            userQuestion = it
-                                        },
-                                        label = { Text("Ask a question") },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    Button(
-                                        onClick = {
-                                            val cleanedInput = userQuestion.trim().lowercase()
-                                            botReply = botAnswers.entries.firstOrNull { it.key.lowercase() == cleanedInput }?.value
-                                                ?: "Sorry, I didn't understand that. Try asking a different question."
-                                        },
-                                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
-                                    ) {
-                                        Text("Send", color = colorScheme.onPrimary)
-                                    }
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-                                    if (botReply.isNotEmpty()) {
-                                        Text(
-                                            text = botReply,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = colorScheme.onBackground
-                                        )
-                                    }
-
-                                }
-                            }
-                        )
-                    }
                 }
-            )
-        }
+
+                if (showBotDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showBotDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { showBotDialog = false }) {
+                                Text("Close", color = colorScheme.primary)
+                            }
+                        },
+                        title = { Text("CrimsonBot - FAQs", color = colorScheme.primary) },
+                        text = {
+                            Column {
+                                var userQuestion by remember { mutableStateOf("") }
+                                var botReply by remember { mutableStateOf("") }
+
+                                OutlinedTextField(
+                                    value = userQuestion,
+                                    onValueChange = {
+                                        userQuestion = it
+                                    },
+                                    label = { Text("Ask a question") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Button(
+                                    onClick = {
+                                        val cleanedInput = userQuestion.trim().lowercase()
+                                        botReply =
+                                            botAnswers.entries.firstOrNull { it.key.lowercase() == cleanedInput }?.value
+                                                ?: "Sorry, I didn't understand that. Try asking a different question."
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                                ) {
+                                    Text("Send", color = colorScheme.onPrimary)
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                if (botReply.isNotEmpty()) {
+                                    Text(
+                                        text = botReply,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = colorScheme.onBackground
+                                    )
+                                }
+
+                            }
+                        }
+                    )
+                }
+            }
+        )
     }
 }
 
 /* ---------- shared palette ---------- */
-private val Crimson   = md_theme_light_primary
+private val Crimson = md_theme_light_primary
 private val OnCrimson = Color.White
-private val JetBlack  = md_theme_light_onBackground
+private val JetBlack = md_theme_light_onBackground
 
 /* ---------- reusable template ---------- */
 @Composable
@@ -411,7 +420,7 @@ private fun StaticInfoScreen(
                 Brush.verticalGradient(
                     colors = listOf(Crimson, JetBlack),
                     startY = 0f,
-                    endY   = Float.POSITIVE_INFINITY
+                    endY = Float.POSITIVE_INFINITY
                 )
             ),
         contentAlignment = Alignment.TopCenter
@@ -453,8 +462,8 @@ private fun StaticInfoScreen(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        color       = Crimson,
-                        fontWeight  = FontWeight.Bold
+                        color = Crimson,
+                        fontWeight = FontWeight.Bold
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -464,7 +473,7 @@ private fun StaticInfoScreen(
                 Text(
                     text = body,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color     = JetBlack,
+                        color = JetBlack,
                         lineHeight = 22.sp
                     ),
                     textAlign = TextAlign.Center
@@ -478,26 +487,26 @@ private fun StaticInfoScreen(
 
 @Composable
 fun AboutUsScreen() = StaticInfoScreen(
-    hero  = R.drawable.aboutus,
+    hero = R.drawable.aboutus,
     title = "About CrimsonSync",
-    body  = "CrimsonSync is a community-powered platform dedicated to connecting blood donors "
+    body = "CrimsonSync is a community-powered platform dedicated to connecting blood donors "
             + "with recipients quickly and efficiently. Our mission is to save lives by building "
             + "a trustworthy and fast blood-donation ecosystem."
 )
 
 @Composable
 fun OurWorkScreen() = StaticInfoScreen(
-    hero  = R.drawable.ourwork,
+    hero = R.drawable.ourwork,
     title = "What Drives Us",
-    body  = "“Every drop counts. We connect hearts to help save lives.”\n\n"
+    body = "“Every drop counts. We connect hearts to help save lives.”\n\n"
             + "CrimsonSync works to make blood donation seamless, reliable, and community-driven."
 )
 
 @Composable
 fun HelpScreen() = StaticInfoScreen(
-    hero  = R.drawable.helpus,
+    hero = R.drawable.helpus,
     title = "Need Help?",
-    body  = "For any queries or assistance, reach out to us at:\n\n"
+    body = "For any queries or assistance, reach out to us at:\n\n"
             + "crimsonsync@gmail.com\n\n"
             + "Our team is here to support you 24 × 7."
 )
