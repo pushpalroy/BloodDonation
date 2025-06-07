@@ -60,10 +60,10 @@ private val RedColor = Color(0xFFD32F2F)
 private val BlackColor = Color.Black
 private val WhiteColor = Color.White
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardScreen(viewModel: AdminViewModel = viewModel()) {
 
-    /* ---------- UI state ---------- */
     val camps = viewModel.camps
     var searchQuery by remember { mutableStateOf("") }
     var sortAsc by remember { mutableStateOf(true) }
