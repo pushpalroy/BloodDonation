@@ -54,6 +54,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.blooddonation.feature.theme.ThemeSwitch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +99,9 @@ fun ViewDonorsScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    ThemeSwitch()
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,

@@ -68,6 +68,7 @@ import coil.compose.rememberAsyncImagePainter
 import java.io.File
 import androidx.lifecycle.ViewModelProvider
 import coil.request.ImageRequest
+import com.example.blooddonation.feature.theme.ThemeSwitch
 import com.example.blooddonation.R
 
 
@@ -125,6 +126,9 @@ fun MyProfileScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    ThemeSwitch()
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
