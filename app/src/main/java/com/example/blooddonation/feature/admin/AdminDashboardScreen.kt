@@ -82,9 +82,7 @@ import java.util.Calendar
 import java.util.Locale
 
 
-private val RedColor @Composable get() = MaterialTheme.colorScheme.primary
-private val BlackColor @Composable get() = MaterialTheme.colorScheme.onBackground
-private val WhiteColor @Composable get() = MaterialTheme.colorScheme.onPrimary
+// Removed color aliases; use theme colors directly
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,8 +221,8 @@ fun AdminDashboardScreen(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            title = { Text("Confirm Logout", color = RedColor, fontWeight = FontWeight.Bold) },
-            text = { Text("Are you sure you want to logout?", color = BlackColor) },
+            title = { Text("Confirm Logout", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to logout?", color = MaterialTheme.colorScheme.onBackground) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -234,17 +232,17 @@ fun AdminDashboardScreen(
                         }
                         showLogoutDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = RedColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Logout", color = WhiteColor)
+                    Text("Logout", color = MaterialTheme.colorScheme.onPrimary)
                 }
             },
             dismissButton = {
                 Button(
                     onClick = { showLogoutDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = BlackColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
                 ) {
-                    Text("Cancel", color = WhiteColor)
+                    Text("Cancel", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         )
@@ -262,7 +260,7 @@ fun CampItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        colors = CardDefaults.cardColors(containerColor = WhiteColor),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation()
     ) {
         Column(
@@ -290,7 +288,7 @@ fun CampItem(
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = null,
-                        tint = RedColor,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(72.dp)
                             .clip(CircleShape)
@@ -304,27 +302,27 @@ fun CampItem(
                     Text(
                         text = camp.name,
                         style = MaterialTheme.typography.titleLarge,
-                        color = RedColor
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    Text(text = "Location: ${camp.location}", color = BlackColor)
-                    Text(text = "Date: ${camp.date}", color = BlackColor)
-                    Text(text = camp.description, color = BlackColor, maxLines = 2)
+                    Text(text = "Location: ${camp.location}", color = MaterialTheme.colorScheme.onBackground)
+                    Text(text = "Date: ${camp.date}", color = MaterialTheme.colorScheme.onBackground)
+                    Text(text = camp.description, color = MaterialTheme.colorScheme.onBackground, maxLines = 2)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row {
                 Button(
                     onClick = { onEdit(camp) },
-                    colors = ButtonDefaults.buttonColors(containerColor = RedColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Edit", color = WhiteColor)
+                    Text("Edit", color = MaterialTheme.colorScheme.onPrimary)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = { onDelete(camp) },
-                    colors = ButtonDefaults.buttonColors(containerColor = BlackColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
                 ) {
-                    Text("Delete", color = WhiteColor)
+                    Text("Delete", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }
@@ -404,11 +402,11 @@ fun CampDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = WhiteColor,
+        containerColor = MaterialTheme.colorScheme.onPrimary,
         title = {
             Text(
                 text = if (initialCamp == null) "Add Camp" else "Edit Camp",
-                color = RedColor
+                color = MaterialTheme.colorScheme.primary
             )
         },
         text = {
@@ -423,16 +421,16 @@ fun CampDialog(
                     label = { Text("Camp Name") },
                     isError = showValidationError && !isNameValid,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = WhiteColor,
-                        unfocusedContainerColor = WhiteColor,
-                        focusedIndicatorColor = RedColor,
-                        unfocusedIndicatorColor = RedColor,
-                        focusedLabelColor = RedColor,
-                        unfocusedLabelColor = BlackColor,
-                        cursorColor = RedColor,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.primary,
                         errorIndicatorColor = Color.Red
                     ),
-                    textStyle = TextStyle(color = BlackColor),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                     singleLine = true
                 )
                 if (showValidationError && !isNameValid) {
@@ -456,16 +454,16 @@ fun CampDialog(
                         label = { Text("Location") },
                         isError = showValidationError && !isLocationValid,
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = WhiteColor,
-                            unfocusedContainerColor = WhiteColor,
-                            focusedIndicatorColor = RedColor,
-                            unfocusedIndicatorColor = RedColor,
-                            focusedLabelColor = RedColor,
-                            unfocusedLabelColor = BlackColor,
-                            cursorColor = RedColor,
+                            focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            cursorColor = MaterialTheme.colorScheme.primary,
                             errorIndicatorColor = Color.Red
                         ),
-                        textStyle = TextStyle(color = BlackColor),
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -512,7 +510,7 @@ fun CampDialog(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_calendar), // Use your calendar icon here
                             contentDescription = "Pick Date",
-                            tint = RedColor,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.clickable { showDatePicker = true }
                         )
                     },
@@ -520,16 +518,16 @@ fun CampDialog(
                     enabled = true,
                     isError = showValidationError && !isDateValid,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = WhiteColor,
-                        unfocusedContainerColor = WhiteColor,
-                        focusedIndicatorColor = RedColor,
-                        unfocusedIndicatorColor = RedColor,
-                        focusedLabelColor = RedColor,
-                        unfocusedLabelColor = BlackColor,
-                        cursorColor = RedColor,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.primary,
                         errorIndicatorColor = Color.Red
                     ),
-                    textStyle = TextStyle(color = BlackColor),
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showDatePicker = true }
@@ -549,24 +547,24 @@ fun CampDialog(
                     onValueChange = { description = it },
                     label = { Text("Description") },
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = WhiteColor,
-                        unfocusedContainerColor = WhiteColor,
-                        focusedIndicatorColor = RedColor,
-                        unfocusedIndicatorColor = RedColor,
-                        focusedLabelColor = RedColor,
-                        unfocusedLabelColor = BlackColor,
-                        cursorColor = RedColor
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.primary
                     ),
-                    textStyle = TextStyle(color = BlackColor)
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
                     onClick = { launcher.launch("image/*") },
-                    colors = ButtonDefaults.buttonColors(containerColor = RedColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Choose Image", color = WhiteColor)
+                    Text("Choose Image", color = MaterialTheme.colorScheme.onPrimary)
                 }
 
                 if (savedImagePath.isNotEmpty()) {
@@ -600,17 +598,17 @@ fun CampDialog(
                     }
                 },
                 enabled = isFormValid,
-                colors = ButtonDefaults.buttonColors(containerColor = RedColor)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Save", color = WhiteColor)
+                Text("Save", color = MaterialTheme.colorScheme.onPrimary)
             }
         },
         dismissButton = {
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = BlackColor)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
             ) {
-                Text("Cancel", color = WhiteColor)
+                Text("Cancel", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     )

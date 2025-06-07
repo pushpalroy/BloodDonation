@@ -84,9 +84,6 @@ fun MyProfileScreen(
                 ProfileViewModel(uid) as T
         })
 ) {
-    val Crimson = MaterialTheme.colorScheme.primary
-    val Snow = MaterialTheme.colorScheme.onPrimary
-    val Jet = MaterialTheme.colorScheme.onBackground
 
     val profile by viewModel.profile.collectAsState()
     val ctx = LocalContext.current
@@ -103,7 +100,7 @@ fun MyProfileScreen(
 
     if (profile == null) {
         Box(Modifier.fillMaxSize(), Alignment.Center) {
-            CircularProgressIndicator(color = Crimson)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }
         return
     }
@@ -130,9 +127,9 @@ fun MyProfileScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Crimson,
-                    titleContentColor = Snow,
-                    navigationIconContentColor = Snow
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -141,7 +138,7 @@ fun MyProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Jet)
+                    .background(MaterialTheme.colorScheme.onBackground)
                     .padding(pad)
             ) {
                 Box(
@@ -166,7 +163,7 @@ fun MyProfileScreen(
                             .align(Alignment.BottomCenter)
                             .offset(y = 78.dp)
                             .clip(CircleShape)
-                            .border(4.dp, Snow, CircleShape)
+                            .border(4.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
                             .shadow(12.dp, CircleShape)
                     ) {
                         Image(
@@ -186,11 +183,11 @@ fun MyProfileScreen(
                         .padding(horizontal = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Username:", color = Snow.copy(alpha = 0.7f))
+                    Text("Username:", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f))
                     Text(
                         user.username,
                         style = MaterialTheme.typography.headlineMedium.copy(
-                            color = Snow,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
                         ),
                         textAlign = TextAlign.Center
@@ -198,11 +195,11 @@ fun MyProfileScreen(
 
                     Spacer(Modifier.height(12.dp))
 
-                    Text("Blood Group:", color = Snow.copy(alpha = 0.7f))
+                    Text("Blood Group:", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f))
                     Text(
                         user.bloodGroup,
                         style = MaterialTheme.typography.titleLarge.copy(
-                            color = Crimson,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
                         ),
                         textAlign = TextAlign.Center
@@ -211,7 +208,7 @@ fun MyProfileScreen(
                     Spacer(Modifier.height(24.dp))
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Snow.copy(alpha = 0.1f)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f)),
                         elevation = CardDefaults.cardElevation(0.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -219,7 +216,7 @@ fun MyProfileScreen(
                             user.bio.ifBlank { "No bio added yet." },
                             modifier = Modifier.padding(20.dp),
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge.copy(color = Snow)
+                            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onPrimary)
                         )
                     }
 
@@ -233,11 +230,11 @@ fun MyProfileScreen(
                             editMode = true
                         },
                         shape = RoundedCornerShape(32.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Crimson),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(54.dp)
-                    ) { Text("Edit Profile", color = Snow) }
+                    ) { Text("Edit Profile", color = MaterialTheme.colorScheme.onPrimary) }
                 }
             }
         }  else {
@@ -246,7 +243,7 @@ fun MyProfileScreen(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .fillMaxSize()
-                    .background(Jet)
+                    .background(MaterialTheme.colorScheme.onBackground)
                     .padding(pad)
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -270,7 +267,7 @@ fun MyProfileScreen(
                             .background(Color.Black.copy(alpha = 0.35f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Edit, null, tint = Snow)
+                        Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
 
@@ -278,7 +275,7 @@ fun MyProfileScreen(
 
                 fun Modifier.field() = this
                     .fillMaxWidth()
-                    .background(Snow.copy(alpha = 0.05f), RoundedCornerShape(18.dp))
+                    .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.05f), RoundedCornerShape(18.dp))
 
                 OutlinedTextField(
                     value = tmpName,
@@ -287,13 +284,13 @@ fun MyProfileScreen(
                     singleLine = true,
                     modifier = Modifier.field(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = Crimson,
-                        unfocusedBorderColor = Snow.copy(alpha = 0.3f),
-                        focusedLabelColor    = Crimson,
-                        unfocusedLabelColor  = Snow.copy(alpha = 0.5f),
-                        cursorColor          = Crimson,
-                        focusedTextColor     = Snow,
-                        unfocusedTextColor   = Snow
+                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f),
+                        focusedLabelColor    = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor  = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                        cursorColor          = MaterialTheme.colorScheme.primary,
+                        focusedTextColor     = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor   = MaterialTheme.colorScheme.onPrimary
                     )
                 )
 
@@ -308,13 +305,13 @@ fun MyProfileScreen(
                         .heightIn(min = 120.dp)
                         .field(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = Crimson,
-                        unfocusedBorderColor = Snow.copy(alpha = 0.3f),
-                        focusedLabelColor    = Crimson,
-                        unfocusedLabelColor  = Snow.copy(alpha = 0.5f),
-                        cursorColor          = Crimson,
-                        focusedTextColor     = Snow,
-                        unfocusedTextColor   = Snow
+                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f),
+                        focusedLabelColor    = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor  = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                        cursorColor          = MaterialTheme.colorScheme.primary,
+                        focusedTextColor     = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor   = MaterialTheme.colorScheme.onPrimary
                     )
                 )
 
@@ -327,13 +324,13 @@ fun MyProfileScreen(
                     singleLine = true,
                     modifier = Modifier.field(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor   = Crimson,
-                        unfocusedBorderColor = Snow.copy(alpha = 0.3f),
-                        focusedLabelColor    = Crimson,
-                        unfocusedLabelColor  = Snow.copy(alpha = 0.5f),
-                        cursorColor          = Crimson,
-                        focusedTextColor     = Snow,
-                        unfocusedTextColor   = Snow
+                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f),
+                        focusedLabelColor    = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor  = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                        cursorColor          = MaterialTheme.colorScheme.primary,
+                        focusedTextColor     = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor   = MaterialTheme.colorScheme.onPrimary
                     )
                 )
 
@@ -353,17 +350,17 @@ fun MyProfileScreen(
                             pickedImage = null
                             editMode = false
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Crimson),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape  = RoundedCornerShape(32.dp),
                         modifier = Modifier.weight(1f).height(52.dp)
-                    ) { Text("Save", color = Snow) }
+                    ) { Text("Save", color = MaterialTheme.colorScheme.onPrimary) }
 
                     OutlinedButton(
                         onClick = { editMode = false; pickedImage = null },
                         shape = RoundedCornerShape(32.dp),
-                        border = BorderStroke(2.dp, Crimson),
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         modifier = Modifier.weight(1f).height(52.dp)
-                    ) { Text("Cancel", color = Crimson) }
+                    ) { Text("Cancel", color = MaterialTheme.colorScheme.primary) }
                 }
             }
         }
