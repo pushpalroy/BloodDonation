@@ -1,7 +1,6 @@
 package com.example.blooddonation.feature.dashboard
 
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -77,7 +76,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
-import com.example.blooddonation.feature.dashboard.DashboardViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 

@@ -1,6 +1,5 @@
 import androidx.lifecycle.ViewModel
 import com.example.blooddonation.domain.BloodCamp
-import com.google.firebase.database.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +34,7 @@ class BloodCampViewModel : ViewModel() {
 
     fun registerForCamp(campId: String) {
         if (!_registeredCampIds.value.contains(campId)) {
-            _registeredCampIds.value = _registeredCampIds.value + campId
+            _registeredCampIds.value += campId
         }
     }
 }

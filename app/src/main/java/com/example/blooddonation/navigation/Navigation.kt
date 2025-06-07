@@ -22,7 +22,7 @@ import com.example.blooddonation.feature.signup.SignUpScreen
 import com.example.blooddonation.feature.signup.SignupViewModel
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import com.example.blooddonation.feature.splashscreen.SplashScreen
-import com.example.blooddonation.feature.requestblood.RequestBloodScreen
+import com.example.blooddonation.feature.requestblood.BloodRequestScreen
 import com.example.blooddonation.feature.signin.SignInScreen
 import com.example.blooddonation.feature.viewdonors.ViewDonorsScreen
 
@@ -154,7 +154,7 @@ fun AppNavigation(navController: NavHostController) {
         ) { backStackEntry ->
             val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
-            RequestBloodScreen(
+            BloodRequestScreen(
                 navController = navController,
                 viewModel = bloodRequestViewModel,
                 currentUserId = currentUserId

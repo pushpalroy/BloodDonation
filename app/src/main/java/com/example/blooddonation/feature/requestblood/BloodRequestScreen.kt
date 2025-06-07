@@ -51,7 +51,7 @@ import com.example.blooddonation.domain.BloodRequest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun RequestBloodScreen(
+fun BloodRequestScreen(
     navController: NavController,
     viewModel: BloodRequestViewModel = viewModel(),
     currentUserId: String

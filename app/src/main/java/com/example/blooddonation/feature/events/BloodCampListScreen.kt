@@ -21,12 +21,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,13 +39,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.domain.BloodCamp
-import androidx.compose.material3.TextFieldDefaults
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
     val camps by viewModel.camps.collectAsStateWithLifecycle()
@@ -77,7 +74,12 @@ fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search by location", color = Color.LightGray) }, // Set placeholder text color here
+                placeholder = {
+                    Text(
+                        "Search by location",
+                        color = Color.LightGray
+                    )
+                }, // Set placeholder text color here
                 modifier = Modifier.weight(1f),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.DarkGray,
@@ -93,7 +95,11 @@ fun BloodCampListScreen(viewModel: BloodCampViewModel = viewModel()) {
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = Color.White)
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = "Clear search",
+                                tint = Color.White
+                            )
                         }
                     }
                 }
