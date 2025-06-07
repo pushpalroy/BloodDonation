@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -102,7 +102,7 @@ fun AdminDashboardScreen(
                             popUpTo("admin_dashboard") { inclusive = true }
                         }
                     }) {
-                        Icon(Icons.Default.Logout, contentDescription = "Logout")
+                        Icon(Icons.Filled.AccountCircle, contentDescription = "Logout")
                     }
                 }
             )

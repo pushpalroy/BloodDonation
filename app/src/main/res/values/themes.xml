@@ -5,7 +5,6 @@
 
     <style name="Theme.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_crimson_sync_logo</item>
         <item name="postSplashScreenTheme">@style/Theme.MainActivity</item>
     </style>
 </resources>

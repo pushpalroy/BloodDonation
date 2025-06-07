@@ -1,7 +1,6 @@
 package com.example.blooddonation.feature.splashscreen
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,15 +19,20 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavController) {
-    val scale = remember { Animatable(0f) }
+    // Use Animatable for more control, but animateFloatAsState with spring for bounce
+    var startAnimation by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy, // bouncy drop!
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "Logo Bounce"
+    )
 
     LaunchedEffect(Unit) {
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 600)
-        )
-        delay(1000)
-
+        startAnimation = true
+        delay(1300)
         val auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -71,7 +75,10 @@ fun SplashScreen(navController: NavController) {
             contentDescription = "Crimson Sync Logo",
             modifier = Modifier
                 .size(120.dp)
-                .graphicsLayer(scaleX = scale.value, scaleY = scale.value)
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale
+                )
         )
     }
 }
