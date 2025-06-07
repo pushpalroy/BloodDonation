@@ -61,6 +61,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,14 +77,18 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.blooddonation.R
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.blooddonation.feature.dashboard.DashboardViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavController, uid: String) {
+fun DashboardScreen(
+    navController: NavController,
+    uid: String,
+    viewModel: DashboardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     val redColor = Color(0xFFB71C1C)
     val whiteColor = Color(0xFFFFFFFF)
     val blackColor = Color(0xFF000000)
@@ -99,16 +104,15 @@ fun DashboardScreen(navController: NavController, uid: String) {
         onBackground = blackColor
     )
 
-    var username by remember { mutableStateOf("") }
-    var imageUri by remember { mutableStateOf<String?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
     var showBotDialog by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val firestore = FirebaseFirestore.getInstance()
-    val userDocRef = firestore.collection("users").document(uid)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(uid) {
+        viewModel.loadUser(uid)
+    }
 
     val botAnswers = mapOf(
         "how to request blood?" to "Go to the Dashboard and tap 'Request Blood'. Fill the form and submit.",
@@ -122,22 +126,7 @@ fun DashboardScreen(navController: NavController, uid: String) {
     )
 
     LaunchedEffect(uid) {
-        userDocRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    username = document.getString("name") ?: ""
-                    imageUri = document.getString("profileImagePath")
-                    isLoading = false
-                } else {
-                    errorMessage = "User profile not found"
-                    isLoading = false
-                }
-            }
-            .addOnFailureListener { e ->
-                errorMessage = "Error loading profile: ${e.message}"
-                isLoading = false
-                Log.e("DashboardScreen", "Error fetching profile", e)
-            }
+        viewModel.loadUser(uid)
     }
 
     MaterialTheme(colorScheme = customColors) {
@@ -219,12 +208,12 @@ fun DashboardScreen(navController: NavController, uid: String) {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        if (isLoading) {
+                        if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.align(Alignment.Center),
                                 color = redColor
                             )
-                        } else if (errorMessage != null) {
+                        } else if (uiState.errorMessage != null) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -233,7 +222,7 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = errorMessage ?: "An error occurred",
+                                    text = uiState.errorMessage ?: "An error occurred",
                                     color = redColor,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
@@ -268,8 +257,8 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                             .background(whiteColor),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        if (!imageUri.isNullOrEmpty()) {
-                                            val imageFile = File(imageUri!!)
+                                        if (!uiState.imageUri.isNullOrEmpty()) {
+                                            val imageFile = File(uiState.imageUri!!)
                                             if (imageFile.exists()) {
                                                 AsyncImage(
                                                     model = Uri.fromFile(imageFile),
@@ -306,7 +295,7 @@ fun DashboardScreen(navController: NavController, uid: String) {
                                             style = MaterialTheme.typography.titleMedium.copy(color = blackColor)
                                         )
                                         Text(
-                                            text = username,
+                                            text = uiState.username,
                                             style = MaterialTheme.typography.titleLarge.copy(
                                                 fontWeight = FontWeight.Bold,
                                                 color = blackColor

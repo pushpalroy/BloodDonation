@@ -19,7 +19,7 @@ import com.example.blooddonation.feature.events.BloodCampListScreen
 import com.example.blooddonation.feature.profile.MyProfileScreen
 import com.example.blooddonation.feature.profile.ProfileCreationScreen
 import com.example.blooddonation.feature.signup.SignUpScreen
-import com.example.blooddonation.feature.signup.UserViewModel
+import com.example.blooddonation.feature.signup.SignupViewModel
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import com.example.blooddonation.feature.splashscreen.SplashScreen
 import com.example.blooddonation.feature.requestblood.RequestBloodScreen
@@ -28,7 +28,7 @@ import com.example.blooddonation.feature.viewdonors.ViewDonorsScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
-    val userViewModel: UserViewModel = viewModel()
+    val userViewModel: SignupViewModel = viewModel()
     val adminViewModel: AdminViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "splash") {
