@@ -38,7 +38,7 @@ fun AppNavigation(navController: NavHostController) {
 
         composable("signup") {
             SignUpScreen(
-                userViewModel = userViewModel,
+                viewModel = userViewModel,
                 onNavigateToProfile = { routeId ->
                     if (routeId == "admin_dashboard") {
                         navController.navigate("admin_dashboard") {
