@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import android.app.Activity
+import android.app.DatePickerDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
 
@@ -65,10 +69,17 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.blooddonation.R
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 
 private val RedColor = Color(0xFFD32F2F)
@@ -300,6 +311,7 @@ fun CampItem(
                     Text(text = camp.description, color = BlackColor, maxLines = 2)
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
             Row {
                 Button(
                     onClick = { onEdit(camp) },
@@ -319,16 +331,12 @@ fun CampItem(
     }
 }
 
-
 @Composable
 fun CampDialog(
     initialCamp: AdminBloodCamp?,
     onDismiss: () -> Unit,
     onSave: (AdminBloodCamp) -> Unit
 ) {
-
-    // TODO: Add rememberSaveable
-
     var name by remember { mutableStateOf(initialCamp?.name ?: "") }
     var location by remember { mutableStateOf(initialCamp?.location ?: "") }
     var date by remember { mutableStateOf(initialCamp?.date ?: "") }
@@ -336,8 +344,25 @@ fun CampDialog(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var savedImagePath by remember { mutableStateOf(initialCamp?.imageUrl ?: "") }
 
+    var showValidationError by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    // --- Date Picker State ---
+    val calendar = Calendar.getInstance()
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    // --- Location Suggestions (Mock Data) ---
+    val allLocations = listOf(
+        "Kolkata", "Bangalore", "Delhi", "Mumbai", "Chennai", "Hyderabad", "Pune", "Ahmedabad",
+        "Salt Lake", "Behala", "Park Street", "Howrah", "Dum Dum", "Garia"
+    )
+    val filteredLocations = remember(location) {
+        if (location.isBlank()) emptyList()
+        else allLocations.filter { it.contains(location, ignoreCase = true) }
+    }
+    var showSuggestions by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -353,6 +378,30 @@ fun CampDialog(
         }
     }
 
+    val isNameValid = name.isNotBlank()
+    val isLocationValid = location.isNotBlank()
+    val isDateValid = date.isNotBlank()
+    val isFormValid = isNameValid && isLocationValid && isDateValid
+
+    // DatePickerDialog launch logic
+    if (showDatePicker) {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val pickedCalendar = Calendar.getInstance()
+                pickedCalendar.set(year, month, dayOfMonth)
+                date = dateFormat.format(pickedCalendar.time)
+                showDatePicker = false
+            },
+            // Initial date selection
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            setOnDismissListener { showDatePicker = false }
+        }.show()
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = WhiteColor,
@@ -364,28 +413,137 @@ fun CampDialog(
         },
         text = {
             Column {
-                OutlinedTextField(
+                // Name field
+                TextField(
                     value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Camp Name", color = BlackColor) },
-                    textStyle = TextStyle(color = BlackColor)
+                    onValueChange = {
+                        name = it
+                        if (showValidationError) showValidationError = false
+                    },
+                    label = { Text("Camp Name") },
+                    isError = showValidationError && !isNameValid,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = WhiteColor,
+                        unfocusedContainerColor = WhiteColor,
+                        focusedIndicatorColor = RedColor,
+                        unfocusedIndicatorColor = RedColor,
+                        focusedLabelColor = RedColor,
+                        unfocusedLabelColor = BlackColor,
+                        cursorColor = RedColor,
+                        errorIndicatorColor = Color.Red
+                    ),
+                    textStyle = TextStyle(color = BlackColor),
+                    singleLine = true
                 )
-                OutlinedTextField(
-                    value = location,
-                    onValueChange = { location = it },
-                    label = { Text("Location", color = BlackColor) },
-                    textStyle = TextStyle(color = BlackColor)
-                )
-                OutlinedTextField(
+                if (showValidationError && !isNameValid) {
+                    Text("Camp name is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Location field with suggestions
+                Box {
+                    TextField(
+                        value = location,
+                        onValueChange = {
+                            location = it
+                            showSuggestions = it.isNotBlank() && filteredLocations.isNotEmpty()
+                            if (showValidationError) showValidationError = false
+                        },
+                        label = { Text("Location") },
+                        isError = showValidationError && !isLocationValid,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = WhiteColor,
+                            unfocusedContainerColor = WhiteColor,
+                            focusedIndicatorColor = RedColor,
+                            unfocusedIndicatorColor = RedColor,
+                            focusedLabelColor = RedColor,
+                            unfocusedLabelColor = BlackColor,
+                            cursorColor = RedColor,
+                            errorIndicatorColor = Color.Red
+                        ),
+                        textStyle = TextStyle(color = BlackColor),
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { focusState ->
+                                showSuggestions = focusState.isFocused && filteredLocations.isNotEmpty()
+                            }
+                    )
+                    if (showSuggestions && filteredLocations.isNotEmpty()) {
+                        DropdownMenu(
+                            expanded = showSuggestions,
+                            onDismissRequest = { showSuggestions = false },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White)
+                        ) {
+                            filteredLocations.forEach { suggestion ->
+                                DropdownMenuItem(
+                                    text = { Text(suggestion) },
+                                    onClick = {
+                                        location = suggestion
+                                        showSuggestions = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                if (showValidationError && !isLocationValid) {
+                    Text("Location is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Date picker field (read-only)
+                TextField(
                     value = date,
-                    onValueChange = { date = it },
-                    label = { Text("Date", color = BlackColor) },
-                    textStyle = TextStyle(color = BlackColor)
+                    onValueChange = {},
+                    label = { Text("Date") },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_calendar), // Use your calendar icon here
+                            contentDescription = "Pick Date",
+                            tint = RedColor,
+                            modifier = Modifier.clickable { showDatePicker = true }
+                        )
+                    },
+                    readOnly = true,
+                    enabled = true,
+                    isError = showValidationError && !isDateValid,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = WhiteColor,
+                        unfocusedContainerColor = WhiteColor,
+                        focusedIndicatorColor = RedColor,
+                        unfocusedIndicatorColor = RedColor,
+                        focusedLabelColor = RedColor,
+                        unfocusedLabelColor = BlackColor,
+                        cursorColor = RedColor,
+                        errorIndicatorColor = Color.Red
+                    ),
+                    textStyle = TextStyle(color = BlackColor),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDatePicker = true }
                 )
-                OutlinedTextField(
+                if (showValidationError && !isDateValid) {
+                    Text("Date is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Description field
+                TextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description", color = BlackColor) },
+                    label = { Text("Description") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = WhiteColor,
+                        unfocusedContainerColor = WhiteColor,
+                        focusedIndicatorColor = RedColor,
+                        unfocusedIndicatorColor = RedColor,
+                        focusedLabelColor = RedColor,
+                        unfocusedLabelColor = BlackColor,
+                        cursorColor = RedColor
+                    ),
                     textStyle = TextStyle(color = BlackColor)
                 )
 
@@ -414,16 +572,21 @@ fun CampDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val camp = AdminBloodCamp(
-                        id = initialCamp?.id ?: "",
-                        name = name,
-                        location = location,
-                        date = date,
-                        description = description,
-                        imageUrl = savedImagePath
-                    )
-                    onSave(camp)
+                    if (isFormValid) {
+                        val camp = AdminBloodCamp(
+                            id = initialCamp?.id ?: "",
+                            name = name,
+                            location = location,
+                            date = date,
+                            description = description,
+                            imageUrl = savedImagePath
+                        )
+                        onSave(camp)
+                    } else {
+                        showValidationError = true
+                    }
                 },
+                enabled = isFormValid,
                 colors = ButtonDefaults.buttonColors(containerColor = RedColor)
             ) {
                 Text("Save", color = WhiteColor)
@@ -439,7 +602,6 @@ fun CampDialog(
         }
     )
 }
-
 
 suspend fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
     return withContext(Dispatchers.IO) {
