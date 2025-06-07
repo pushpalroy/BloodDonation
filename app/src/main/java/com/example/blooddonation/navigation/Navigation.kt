@@ -18,7 +18,7 @@ import com.example.blooddonation.feature.dashboard.OurWorkScreen
 import com.example.blooddonation.feature.events.BloodCampListScreen
 import com.example.blooddonation.feature.profile.MyProfileScreen
 import com.example.blooddonation.feature.profile.ProfileCreationScreen
-import com.example.blooddonation.feature.signup.SignupScreen
+import com.example.blooddonation.feature.signup.SignUpScreen
 import com.example.blooddonation.feature.signup.UserViewModel
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import com.example.blooddonation.feature.splashscreen.SplashScreen
@@ -37,7 +37,7 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable("signup") {
-            SignupScreen(
+            SignUpScreen(
                 userViewModel = userViewModel,
                 onNavigateToProfile = { routeId ->
                     if (routeId == "admin_dashboard") {
