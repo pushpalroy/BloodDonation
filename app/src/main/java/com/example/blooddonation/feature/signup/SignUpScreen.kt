@@ -43,7 +43,7 @@ import com.example.blooddonation.domain.User
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
-    viewModel: UserViewModel,
+    viewModel: SignupViewModel,
     onNavigateToProfile: (String) -> Unit,
     onSignInClick: () -> Unit
 ) {

@@ -33,18 +33,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.blooddonation.feature.signin.SignInViewModel
 
 @Composable
 fun SignInScreen(
     navController: NavController,
-    onSignInSuccess: (uid: String, isAdmin: Boolean) -> Unit
+    onSignInSuccess: (uid: String, isAdmin: Boolean) -> Unit,
+    viewModel: SignInViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -91,35 +92,13 @@ fun SignInScreen(
             Button(
                 onClick = {
                     if (email.isNotBlank() && password.isNotBlank()) {
-                        isLoading = true
-                        errorMessage = null
-
-                        val auth = FirebaseAuth.getInstance()
-                        val firestore = FirebaseFirestore.getInstance()
-
-                        auth.signInWithEmailAndPassword(email, password)
-                            .addOnSuccessListener { result ->
-                                val uid = result.user?.uid.orEmpty()
-                                firestore.collection("users").document(uid).get()
-                                    .addOnSuccessListener { doc ->
-                                        isLoading = false
-                                        if (doc.exists()) {
-                                            val role = doc.getString("role") ?: ""
-                                            val isAdmin = role == "Admin"
-                                            onSignInSuccess(uid, isAdmin)
-                                        } else {
-                                            navController.navigate("profile/$uid")
-                                        }
-                                    }
-                                    .addOnFailureListener { e ->
-                                        errorMessage = "Failed to load profile: ${e.message}"
-                                        isLoading = false
-                                    }
+                        viewModel.signIn(email, password) { uid, isAdmin, profileExists ->
+                            if (profileExists) {
+                                onSignInSuccess(uid, isAdmin)
+                            } else {
+                                navController.navigate("profile/$uid")
                             }
-                            .addOnFailureListener { e ->
-                                errorMessage = "Authentication failed: ${e.message}"
-                                isLoading = false
-                            }
+                        }
                     } else {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }
