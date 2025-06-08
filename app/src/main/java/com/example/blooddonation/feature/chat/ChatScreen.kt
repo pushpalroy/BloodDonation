@@ -30,6 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.animateItemPlacement
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import android.media.AudioManager
+import android.media.ToneGenerator
+import com.google.firebase.firestore.FirebaseFirestore
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -48,6 +55,16 @@ fun ChatScreen(
 ) {
     val messages by viewModel.messages.collectAsState()
     var input by remember { mutableStateOf("") }
+    var otherName by remember { mutableStateOf("") }
+
+    LaunchedEffect(otherUserId) {
+        FirebaseFirestore.getInstance().collection("users")
+            .document(otherUserId)
+            .get()
+            .addOnSuccessListener { doc ->
+                otherName = doc.getString("username") ?: ""
+            }
+    }
 
     LaunchedEffect(chatId) {
         viewModel.loadMessages(chatId)
@@ -56,7 +73,7 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Chat with Donor/Requester") },
+                title = { Text(if (otherName.isBlank()) "Chat" else otherName) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -89,6 +106,7 @@ fun ChatScreen(
                 Button(onClick = {
                     if (input.isNotBlank()) {
                         viewModel.sendMessage(chatId, currentUserId, input.trim())
+                        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100).startTone(ToneGenerator.TONE_PROP_BEEP)
                         input = ""
                     }
                 }) {
@@ -103,24 +121,30 @@ fun ChatScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            items(messages) { message ->
+            items(messages, key = { it.timestamp }) { message ->
                 val isMe = message.senderId == currentUserId
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    contentAlignment = if (isMe) Alignment.CenterEnd else Alignment.CenterStart
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn() + slideInVertically()
                 ) {
-                    Surface(
-                        color = if (isMe) MaterialTheme.colorScheme.primary else Color.LightGray,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.padding(4.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .animateItemPlacement(),
+                        contentAlignment = if (isMe) Alignment.CenterEnd else Alignment.CenterStart
                     ) {
-                        Text(
-                            text = message.text,
-                            modifier = Modifier.padding(8.dp),
-                            color = if (isMe) Color.White else Color.Black
-                        )
+                        Surface(
+                            color = if (isMe) MaterialTheme.colorScheme.primary else Color.LightGray,
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text(
+                                text = message.text,
+                                modifier = Modifier.padding(8.dp),
+                                color = if (isMe) Color.White else Color.Black
+                            )
+                        }
                     }
                 }
             }
