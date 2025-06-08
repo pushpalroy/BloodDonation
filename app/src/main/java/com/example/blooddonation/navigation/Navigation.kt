@@ -229,7 +229,7 @@ fun AppNavigation(navController: NavHostController) {
                 currentUserId = currentUserId
             )
         }
-
+        
         composable(Screen.BloodCampList.route) {
             BloodCampListScreen()
         }

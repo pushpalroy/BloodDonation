@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowBack
@@ -48,7 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,16 +66,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.blooddonation.R
+import com.example.blooddonation.feature.events.CampCard
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -176,14 +173,33 @@ fun AdminDashboardScreen(
             // Camp List
             LazyColumn(state = listState) {
                 items(shownCamps, key = { it.id }) { camp ->
-                    CampItem(
-                        camp = camp,
-                        onEdit = {
-                            selectedCamp = it
-                            showDialog = true
-                        },
-                        onDelete = { viewModel.deleteCamp(it.id) }
-                    )
+                    CampCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        name = camp.name,
+                        location = camp.location,
+                        date = camp.date,
+                        description = camp.description,
+                        imagePath = camp.imageUrl
+                    ) {
+                        Button(
+                            onClick = {
+                                selectedCamp = camp
+                                showDialog = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        ) {
+                            Text("Edit", color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = { viewModel.deleteCamp(camp.id) },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
+                        ) {
+                            Text("Delete", color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
                 }
 
                 if (shownCamps.isEmpty()) {
@@ -245,85 +261,6 @@ fun AdminDashboardScreen(
     }
 }
 
-
-@Composable
-fun CampItem(
-    camp: AdminBloodCamp,
-    onEdit: (AdminBloodCamp) -> Unit,
-    onDelete: (AdminBloodCamp) -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            Row(
-                modifier = Modifier,
-                verticalAlignment = Alignment.Top
-            ) {
-                // Image on the left as a rounded image
-                if (camp.imageUrl.isNotEmpty()) {
-                    val imageFile = rememberSaveable { File(camp.imageUrl) }
-                    if (imageFile.exists()) {
-                        Image(
-                            painter = rememberAsyncImagePainter(imageFile),
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(72.dp)
-                                .clip(CircleShape)
-                        )
-                    }
-                } else {
-                    // Placeholder (optional)
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(CircleShape)
-                    )
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                // Details and buttons
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = camp.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(text = "Location: ${camp.location}", color = MaterialTheme.colorScheme.onBackground)
-                    Text(text = "Date: ${camp.date}", color = MaterialTheme.colorScheme.onBackground)
-                    Text(text = camp.description, color = MaterialTheme.colorScheme.onBackground, maxLines = 2)
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row {
-                Button(
-                    onClick = { onEdit(camp) },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Edit", color = MaterialTheme.colorScheme.onPrimary)
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { onDelete(camp) },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
-                ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.onPrimary)
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun CampDialog(
