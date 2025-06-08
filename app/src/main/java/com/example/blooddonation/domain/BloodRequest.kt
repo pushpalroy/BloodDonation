@@ -5,6 +5,8 @@ package com.example.blooddonation.domain
 data class BloodRequest(
     val id: String = "",
     val requesterId: String = "",
+    val requesterName: String = "",
+    val timestamp: Long = 0L,
     val bloodGroup: String = "",
     val location: String = "",
     val status: String = "pending",
