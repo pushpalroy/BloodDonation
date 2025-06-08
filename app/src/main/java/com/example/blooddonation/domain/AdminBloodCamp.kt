@@ -6,7 +6,7 @@ data class AdminBloodCamp(
     val location: String = "",
     val date: String = "",
     val description: String = "",
-    val imageUrl: String = "" // Stores the file path of the saved image
+    val imageUrl: String = "" // Firebase Storage download URL
 )
 
 
