@@ -8,10 +8,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.blooddonation.navigation.Screen
-import com.example.blooddonation.feature.chat.ChatScreen
 import com.example.blooddonation.feature.admin.AdminDashboardScreen
 import com.example.blooddonation.feature.admin.AdminViewModel
+import com.example.blooddonation.feature.chat.ChatScreen
 import com.example.blooddonation.feature.dashboard.AboutUsScreen
 import com.example.blooddonation.feature.dashboard.DashboardScreen
 import com.example.blooddonation.feature.dashboard.HelpScreen
@@ -19,12 +18,12 @@ import com.example.blooddonation.feature.dashboard.OurWorkScreen
 import com.example.blooddonation.feature.events.BloodCampListScreen
 import com.example.blooddonation.feature.profile.MyProfileScreen
 import com.example.blooddonation.feature.profile.ProfileCreationScreen
+import com.example.blooddonation.feature.requestblood.BloodRequestScreen
+import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
+import com.example.blooddonation.feature.signin.SignInScreen
 import com.example.blooddonation.feature.signup.SignUpScreen
 import com.example.blooddonation.feature.signup.SignupViewModel
-import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import com.example.blooddonation.feature.splashscreen.SplashScreen
-import com.example.blooddonation.feature.requestblood.BloodRequestScreen
-import com.example.blooddonation.feature.signin.SignInScreen
 import com.example.blooddonation.feature.viewdonors.ViewDonorsScreen
 
 @Composable
@@ -110,7 +109,13 @@ fun AppNavigation(navController: NavHostController) {
                 uid = uid,
                 onNavigateToDashboard = { username, imageUri, uid ->
                     val encodedUri = Uri.encode(imageUri)
-                    navController.navigate(Screen.Dashboard.createRoute(username, encodedUri, uid)) {
+                    navController.navigate(
+                        Screen.Dashboard.createRoute(
+                            username,
+                            encodedUri,
+                            uid
+                        )
+                    ) {
                         popUpTo(Screen.Profile.createRoute(uid)) { inclusive = true }
                     }
                 }
@@ -200,9 +205,12 @@ fun AppNavigation(navController: NavHostController) {
         // Add NavType.StringType argument for currentUserId in both routes
         composable(
             route = Screen.ViewDonors.routeWithArgs,
-            arguments = listOf(navArgument(Screen.ViewDonors.ARG_USER) { type = NavType.StringType })
+            arguments = listOf(navArgument(Screen.ViewDonors.ARG_USER) {
+                type = NavType.StringType
+            })
         ) { backStackEntry ->
-            val currentUserId = backStackEntry.arguments?.getString(Screen.ViewDonors.ARG_USER) ?: ""
+            val currentUserId =
+                backStackEntry.arguments?.getString(Screen.ViewDonors.ARG_USER) ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
             ViewDonorsScreen(
                 onNavigateToChat = { chatId, currentId, requesterId ->
@@ -216,9 +224,12 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(
             route = Screen.RequestBlood.routeWithArgs,
-            arguments = listOf(navArgument(Screen.RequestBlood.ARG_USER) { type = NavType.StringType })
+            arguments = listOf(navArgument(Screen.RequestBlood.ARG_USER) {
+                type = NavType.StringType
+            })
         ) { backStackEntry ->
-            val currentUserId = backStackEntry.arguments?.getString(Screen.RequestBlood.ARG_USER) ?: ""
+            val currentUserId =
+                backStackEntry.arguments?.getString(Screen.RequestBlood.ARG_USER) ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
             BloodRequestScreen(
                 onBack = { navController.popBackStack() },
@@ -229,9 +240,11 @@ fun AppNavigation(navController: NavHostController) {
                 currentUserId = currentUserId
             )
         }
-        
+
         composable(Screen.BloodCampList.route) {
-            BloodCampListScreen()
+            BloodCampListScreen(
+                onBack = { navController.popBackStack() },
+            )
         }
 
         composable(
@@ -247,7 +260,8 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(Screen.Chat.routeWithArgs) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString(Screen.Chat.ARG_CHAT_ID) ?: ""
-            val currentUserId = backStackEntry.arguments?.getString(Screen.Chat.ARG_CURRENT_ID) ?: ""
+            val currentUserId =
+                backStackEntry.arguments?.getString(Screen.Chat.ARG_CURRENT_ID) ?: ""
             val otherUserId = backStackEntry.arguments?.getString(Screen.Chat.ARG_OTHER_ID) ?: ""
 
             ChatScreen(

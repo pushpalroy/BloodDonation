@@ -337,7 +337,7 @@ fun DashboardScreen(
                             ) {
                                 item {
                                     DashboardCard(
-                                        title = "View Donors",
+                                        title = "View Requests",
                                         icon = Icons.Default.Face,
                                         onClick = onViewDonors
                                     )

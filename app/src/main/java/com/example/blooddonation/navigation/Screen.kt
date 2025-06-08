@@ -1,18 +1,18 @@
 package com.example.blooddonation.navigation
 
 sealed class Screen(val route: String) {
-    object Splash : Screen("splash")
-    object SignUp : Screen("signup")
-    object SignIn : Screen("signin")
-    object AdminDashboard : Screen("admin_dashboard")
+    data object Splash : Screen("splash")
+    data object SignUp : Screen("signup")
+    data object SignIn : Screen("signin")
+    data object AdminDashboard : Screen("admin_dashboard")
 
-    object Profile : Screen("profile") {
+    data object Profile : Screen("profile") {
         const val ARG_UID = "uid"
         const val routeWithArgs = "profile/{$ARG_UID}"
         fun createRoute(uid: String) = "profile/$uid"
     }
 
-    object Dashboard : Screen("dashboard") {
+    data object Dashboard : Screen("dashboard") {
         const val ARG_UID = "uid"
         const val ARG_USERNAME = "username"
         const val ARG_IMAGE_URI = "imageUriEncoded"
@@ -23,31 +23,31 @@ sealed class Screen(val route: String) {
             "dashboard/$username/$imageUriEncoded/$uid"
     }
 
-    object AboutUs : Screen("about_us")
-    object OurWork : Screen("our_work")
-    object Help : Screen("help")
+    data object AboutUs : Screen("about_us")
+    data object OurWork : Screen("our_work")
+    data object Help : Screen("help")
 
-    object ViewDonors : Screen("view_donors") {
+    data object ViewDonors : Screen("view_donors") {
         const val ARG_USER = "currentUserId"
         const val routeWithArgs = "view_donors/{$ARG_USER}"
         fun createRoute(uid: String) = "view_donors/$uid"
     }
 
-    object RequestBlood : Screen("request_blood") {
+    data object RequestBlood : Screen("request_blood") {
         const val ARG_USER = "currentUserId"
         const val routeWithArgs = "request_blood/{$ARG_USER}"
         fun createRoute(uid: String) = "request_blood/$uid"
     }
 
-    object MyProfile : Screen("my_profile") {
+    data object MyProfile : Screen("my_profile") {
         const val ARG_UID = "uid"
         const val routeWithArgs = "my_profile/{$ARG_UID}"
         fun createRoute(uid: String) = "my_profile/$uid"
     }
 
-    object BloodCampList : Screen("blood_camp_list")
+    data object BloodCampList : Screen("blood_camp_list")
 
-    object Chat : Screen("chat") {
+    data object Chat : Screen("chat") {
         const val ARG_CHAT_ID = "chatId"
         const val ARG_CURRENT_ID = "currentUserId"
         const val ARG_OTHER_ID = "otherUserId"
