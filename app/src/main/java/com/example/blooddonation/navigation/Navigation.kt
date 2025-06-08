@@ -77,7 +77,11 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(Screen.SignIn.route) {
             SignInScreen(
-                onNavigateToProfile = { uid -> navController.navigate(Screen.Profile.createRoute(uid)) },
+                onNavigateToProfile = { uid ->
+                    navController.navigate(Screen.Profile.createRoute(uid)) {
+                        popUpTo(Screen.SignIn.route) { inclusive = true }
+                    }
+                },
                 onNavigateToSignup = {
                     navController.navigate(Screen.SignUp.route) {
                         launchSingleTop = true
@@ -116,7 +120,7 @@ fun AppNavigation(navController: NavHostController) {
                             uid
                         )
                     ) {
-                        popUpTo(Screen.Profile.createRoute(uid)) { inclusive = true }
+                        popUpTo(Screen.Profile.routeWithArgs) { inclusive = true }
                     }
                 }
             )
@@ -135,7 +139,7 @@ fun AppNavigation(navController: NavHostController) {
                 onHelp = { navController.navigate(Screen.Help.route) },
                 onLogout = {
                     navController.navigate(Screen.SignIn.route) {
-                        popUpTo(Screen.Dashboard.createRoute(uid)) { inclusive = true }
+                        popUpTo(Screen.Dashboard.routeWithUid) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -162,7 +166,7 @@ fun AppNavigation(navController: NavHostController) {
                 onHelp = { navController.navigate(Screen.Help.route) },
                 onLogout = {
                     navController.navigate(Screen.SignIn.route) {
-                        popUpTo(Screen.Dashboard.createRoute(uid)) { inclusive = true }
+                        popUpTo(Screen.Dashboard.routeWithProfile) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
