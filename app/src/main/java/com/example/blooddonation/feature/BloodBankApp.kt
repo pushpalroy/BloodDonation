@@ -35,7 +35,8 @@ fun BloodBankApp(currentUser: FirebaseUser?) {
                     Log.d("BloodBankApp", "Navigating to dashboard with name: $name, imageUri: $imageUri")
                     if (name.isNotEmpty() && imageUri.isNotEmpty()) {
                         val uid = currentUser.uid
-                        navController.navigate(Screen.Dashboard.createRoute(name, imageUri, uid))
+                        val encodedUri = Uri.encode(imageUri)
+                        navController.navigate(Screen.Dashboard.createRoute(name, encodedUri, uid))
                     } else {
                         Log.e("BloodBankApp", "Navigation arguments are invalid: name='$name', imageUri='$imageUri'")
                     }
