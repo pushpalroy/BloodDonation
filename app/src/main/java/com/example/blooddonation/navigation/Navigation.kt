@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.blooddonation.navigation.Screen
 import com.example.blooddonation.feature.chat.ChatScreen
 import com.example.blooddonation.feature.admin.AdminDashboardScreen
 import com.example.blooddonation.feature.admin.AdminViewModel
@@ -31,68 +32,68 @@ fun AppNavigation(navController: NavHostController) {
     val userViewModel: SignupViewModel = viewModel()
     val adminViewModel: AdminViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "splash") {
-        composable("splash") {
+    NavHost(navController = navController, startDestination = Screen.Splash.route) {
+        composable(Screen.Splash.route) {
             SplashScreen(
                 onNavigateToAdminDashboard = {
-                    navController.navigate("admin_dashboard") {
-                        popUpTo("splash") { inclusive = true }
+                    navController.navigate(Screen.AdminDashboard.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 },
                 onNavigateToDashboard = { uid ->
-                    navController.navigate("dashboard/$uid") {
-                        popUpTo("splash") { inclusive = true }
+                    navController.navigate(Screen.Dashboard.createRoute(uid)) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 },
                 onNavigateToSignup = {
-                    navController.navigate("signup") {
-                        popUpTo("splash") { inclusive = true }
+                    navController.navigate(Screen.SignUp.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable("signup") {
+        composable(Screen.SignUp.route) {
             SignUpScreen(
                 viewModel = userViewModel,
                 onNavigateToProfile = { routeId ->
-                    if (routeId == "admin_dashboard") {
-                        navController.navigate("admin_dashboard") {
-                            popUpTo("signup") { inclusive = true }
+                    if (routeId == Screen.AdminDashboard.route) {
+                        navController.navigate(Screen.AdminDashboard.route) {
+                            popUpTo(Screen.SignUp.route) { inclusive = true }
                         }
                     } else {
-                        navController.navigate("profile/$routeId") {
-                            popUpTo("signup") { inclusive = true }
+                        navController.navigate(Screen.Profile.createRoute(routeId)) {
+                            popUpTo(Screen.SignUp.route) { inclusive = true }
                         }
                     }
                 },
                 onSignInClick = {
-                    navController.navigate("signin") {
+                    navController.navigate(Screen.SignIn.route) {
                         launchSingleTop = true
-                        popUpTo("splash") { inclusive = true }
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable("signin") {
+        composable(Screen.SignIn.route) {
             SignInScreen(
-                onNavigateToProfile = { uid -> navController.navigate("profile/$uid") },
+                onNavigateToProfile = { uid -> navController.navigate(Screen.Profile.createRoute(uid)) },
                 onNavigateToSignup = {
-                    navController.navigate("signup") {
+                    navController.navigate(Screen.SignUp.route) {
                         launchSingleTop = true
-                        popUpTo("splash") { inclusive = true }
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 },
                 onSignInSuccess = { uid, isAdmin ->
                     if (isAdmin) {
-                        navController.navigate("admin_dashboard") {
-                            popUpTo("signin") { inclusive = true }
+                        navController.navigate(Screen.AdminDashboard.route) {
+                            popUpTo(Screen.SignIn.route) { inclusive = true }
                             launchSingleTop = true
                         }
                     } else {
-                        navController.navigate("dashboard/$uid") {
-                            popUpTo("signin") { inclusive = true }
+                        navController.navigate(Screen.Dashboard.createRoute(uid)) {
+                            popUpTo(Screen.SignIn.route) { inclusive = true }
                             launchSingleTop = true
                         }
                     }
@@ -101,16 +102,16 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable(
-            route = "profile/{uid}",
-            arguments = listOf(navArgument("uid") { type = NavType.StringType })
+            route = Screen.Profile.routeWithArgs,
+            arguments = listOf(navArgument(Screen.Profile.ARG_UID) { type = NavType.StringType })
         ) { backStackEntry ->
-            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            val uid = backStackEntry.arguments?.getString(Screen.Profile.ARG_UID) ?: ""
             ProfileCreationScreen(
                 uid = uid,
                 onNavigateToDashboard = { username, imageUri, uid ->
                     val encodedUri = Uri.encode(imageUri)
-                    navController.navigate("dashboard/$username/$encodedUri/$uid") {
-                        popUpTo("profile/$uid") { inclusive = true }
+                    navController.navigate(Screen.Dashboard.createRoute(username, encodedUri, uid)) {
+                        popUpTo(Screen.Profile.createRoute(uid)) { inclusive = true }
                     }
                 }
             )
@@ -118,61 +119,61 @@ fun AppNavigation(navController: NavHostController) {
 
 
         composable(
-            route = "dashboard/{uid}",
-            arguments = listOf(navArgument("uid") { type = NavType.StringType })
+            route = Screen.Dashboard.routeWithUid,
+            arguments = listOf(navArgument(Screen.Dashboard.ARG_UID) { type = NavType.StringType })
         ) { backStackEntry ->
-            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            val uid = backStackEntry.arguments?.getString(Screen.Dashboard.ARG_UID) ?: ""
             DashboardScreen(
                 uid = uid,
-                onAboutUs = { navController.navigate("about_us") },
-                onOurWork = { navController.navigate("our_work") },
-                onHelp = { navController.navigate("help") },
+                onAboutUs = { navController.navigate(Screen.AboutUs.route) },
+                onOurWork = { navController.navigate(Screen.OurWork.route) },
+                onHelp = { navController.navigate(Screen.Help.route) },
                 onLogout = {
-                    navController.navigate("signin") {
-                        popUpTo("dashboard/$uid") { inclusive = true }
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(Screen.Dashboard.createRoute(uid)) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
-                onViewDonors = { navController.navigate("view_donors/$uid") },
-                onRequestBlood = { navController.navigate("request_blood/$uid") },
-                onMyProfile = { navController.navigate("my_profile/$uid") },
-                onBloodCampList = { navController.navigate("blood_camp_list") }
+                onViewDonors = { navController.navigate(Screen.ViewDonors.createRoute(uid)) },
+                onRequestBlood = { navController.navigate(Screen.RequestBlood.createRoute(uid)) },
+                onMyProfile = { navController.navigate(Screen.MyProfile.createRoute(uid)) },
+                onBloodCampList = { navController.navigate(Screen.BloodCampList.route) }
             )
         }
 
         composable(
-            route = "dashboard/{username}/{imageUriEncoded}/{uid}",
+            route = Screen.Dashboard.routeWithProfile,
             arguments = listOf(
-                navArgument("username") { type = NavType.StringType },
-                navArgument("imageUriEncoded") { type = NavType.StringType },
-                navArgument("uid") { type = NavType.StringType }
+                navArgument(Screen.Dashboard.ARG_USERNAME) { type = NavType.StringType },
+                navArgument(Screen.Dashboard.ARG_IMAGE_URI) { type = NavType.StringType },
+                navArgument(Screen.Dashboard.ARG_UID) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            val uid = backStackEntry.arguments?.getString(Screen.Dashboard.ARG_UID) ?: ""
             DashboardScreen(
                 uid = uid,
-                onAboutUs = { navController.navigate("about_us") },
-                onOurWork = { navController.navigate("our_work") },
-                onHelp = { navController.navigate("help") },
+                onAboutUs = { navController.navigate(Screen.AboutUs.route) },
+                onOurWork = { navController.navigate(Screen.OurWork.route) },
+                onHelp = { navController.navigate(Screen.Help.route) },
                 onLogout = {
-                    navController.navigate("signin") {
-                        popUpTo("dashboard/$uid") { inclusive = true }
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(Screen.Dashboard.createRoute(uid)) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
-                onViewDonors = { navController.navigate("view_donors/$uid") },
-                onRequestBlood = { navController.navigate("request_blood/$uid") },
-                onMyProfile = { navController.navigate("my_profile/$uid") },
-                onBloodCampList = { navController.navigate("blood_camp_list") }
+                onViewDonors = { navController.navigate(Screen.ViewDonors.createRoute(uid)) },
+                onRequestBlood = { navController.navigate(Screen.RequestBlood.createRoute(uid)) },
+                onMyProfile = { navController.navigate(Screen.MyProfile.createRoute(uid)) },
+                onBloodCampList = { navController.navigate(Screen.BloodCampList.route) }
             )
         }
 
-        composable("admin_dashboard") {
+        composable(Screen.AdminDashboard.route) {
             AdminDashboardScreen(
                 onBack = { navController.popBackStack() },
                 onLogout = {
-                    navController.navigate("signin") {
-                        popUpTo("splash") { inclusive = true }
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -182,15 +183,15 @@ fun AppNavigation(navController: NavHostController) {
 
 
         // Static Screens
-        composable("about_us") {
+        composable(Screen.AboutUs.route) {
             AboutUsScreen()
         }
 
-        composable("our_work") {
+        composable(Screen.OurWork.route) {
             OurWorkScreen()
         }
 
-        composable("help") {
+        composable(Screen.Help.route) {
             HelpScreen()
         }
 
@@ -198,14 +199,14 @@ fun AppNavigation(navController: NavHostController) {
         // Other screens
         // Add NavType.StringType argument for currentUserId in both routes
         composable(
-            route = "view_donors/{currentUserId}",
-            arguments = listOf(navArgument("currentUserId") { type = NavType.StringType })
+            route = Screen.ViewDonors.routeWithArgs,
+            arguments = listOf(navArgument(Screen.ViewDonors.ARG_USER) { type = NavType.StringType })
         ) { backStackEntry ->
-            val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
+            val currentUserId = backStackEntry.arguments?.getString(Screen.ViewDonors.ARG_USER) ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
             ViewDonorsScreen(
                 onNavigateToChat = { chatId, currentId, requesterId ->
-                    navController.navigate("chat/$chatId/$currentId/$requesterId")
+                    navController.navigate(Screen.Chat.createRoute(chatId, currentId, requesterId))
                 },
                 onBack = { navController.popBackStack() },
                 viewModel = bloodRequestViewModel,
@@ -214,40 +215,40 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable(
-            route = "request_blood/{currentUserId}",
-            arguments = listOf(navArgument("currentUserId") { type = NavType.StringType })
+            route = Screen.RequestBlood.routeWithArgs,
+            arguments = listOf(navArgument(Screen.RequestBlood.ARG_USER) { type = NavType.StringType })
         ) { backStackEntry ->
-            val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
+            val currentUserId = backStackEntry.arguments?.getString(Screen.RequestBlood.ARG_USER) ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
             BloodRequestScreen(
                 onBack = { navController.popBackStack() },
                 onNavigateToChat = { chatId, currentId, donorId ->
-                    navController.navigate("chat/$chatId/$currentId/$donorId")
+                    navController.navigate(Screen.Chat.createRoute(chatId, currentId, donorId))
                 },
                 viewModel = bloodRequestViewModel,
                 currentUserId = currentUserId
             )
         }
-
-        composable("blood_camp_list") {
-            BloodCampListScreen(onBack = { navController.popBackStack() })
+        
+        composable(Screen.BloodCampList.route) {
+            BloodCampListScreen()
         }
 
         composable(
-            route = "my_profile/{uid}",
-            arguments = listOf(navArgument("uid") { type = NavType.StringType })
+            route = Screen.MyProfile.routeWithArgs,
+            arguments = listOf(navArgument(Screen.MyProfile.ARG_UID) { type = NavType.StringType })
         ) { backStackEntry ->
-            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            val uid = backStackEntry.arguments?.getString(Screen.MyProfile.ARG_UID) ?: ""
             MyProfileScreen(
                 onBack = { navController.popBackStack() },
                 uid = uid
             )
         }
 
-        composable("chat/{chatId}/{currentUserId}/{otherUserId}") { backStackEntry ->
-            val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
-            val currentUserId = backStackEntry.arguments?.getString("currentUserId") ?: ""
-            val otherUserId = backStackEntry.arguments?.getString("otherUserId") ?: ""
+        composable(Screen.Chat.routeWithArgs) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString(Screen.Chat.ARG_CHAT_ID) ?: ""
+            val currentUserId = backStackEntry.arguments?.getString(Screen.Chat.ARG_CURRENT_ID) ?: ""
+            val otherUserId = backStackEntry.arguments?.getString(Screen.Chat.ARG_OTHER_ID) ?: ""
 
             ChatScreen(
                 chatId = chatId,
