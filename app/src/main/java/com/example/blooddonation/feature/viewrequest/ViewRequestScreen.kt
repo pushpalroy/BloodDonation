@@ -203,7 +203,7 @@ private fun AcceptedTab(
                         if (request.requesterId == currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "Raised by you",
+                                text = "Raised by me",
                                 color = MaterialTheme.colorScheme.tertiaryContainer,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
@@ -279,7 +279,7 @@ private fun RejectedTab(requests: List<BloodRequest>, currentUserId: String) {
                         if (request.requesterId == currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "Raised by you",
+                                text = "Raised by me",
                                 color = MaterialTheme.colorScheme.tertiaryContainer,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
@@ -324,7 +324,7 @@ fun RequestCard(
             if (isRaisedByMe) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Raised by you",
+                    text = "Raised by me",
                     color = MaterialTheme.colorScheme.tertiaryContainer,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
