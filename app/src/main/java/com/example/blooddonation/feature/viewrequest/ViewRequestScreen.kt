@@ -212,21 +212,41 @@ private fun AcceptedTab(
                                     )
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             )
-                        }
-                        if (!request.chatId.isNullOrEmpty() && request.requesterId != currentUserId) {
+                        } else if (request.acceptedBy == currentUserId) {
                             Spacer(Modifier.height(8.dp))
-                            Button(
-                                onClick = {
-                                    onNavigateToChat(
-                                        request.chatId,
-                                        currentUserId,
-                                        request.requesterId
+                            Text(
+                                text = "Accepted by me",
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                                        shape = RoundedCornerShape(8.dp)
                                     )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-                            ) {
-                                Text("Go to Chat", color = MaterialTheme.colorScheme.onTertiaryContainer)
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                        if (!request.chatId.isNullOrEmpty()) {
+                            val otherUserId = if (request.requesterId == currentUserId) {
+                                request.acceptedBy
+                            } else {
+                                request.requesterId
+                            }
+                            if (!otherUserId.isNullOrEmpty()) {
+                                Spacer(Modifier.height(8.dp))
+                                Button(
+                                    onClick = {
+                                        onNavigateToChat(
+                                            request.chatId,
+                                            currentUserId,
+                                            otherUserId
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                                ) {
+                                    Text("Go to Chat", color = MaterialTheme.colorScheme.onTertiaryContainer)
+                                }
                             }
                         }
                     }
