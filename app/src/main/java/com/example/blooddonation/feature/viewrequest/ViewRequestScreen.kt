@@ -1,4 +1,4 @@
-package com.example.blooddonation.feature.viewdonors
+package com.example.blooddonation.feature.viewrequest
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -58,7 +58,7 @@ import com.example.blooddonation.feature.theme.ThemeSwitch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewDonorsScreen(
+fun ViewRequestScreen(
     onNavigateToChat: (chatId: String, currentUserId: String, requesterId: String) -> Unit,
     onBack: () -> Unit,
     viewModel: BloodRequestViewModel = viewModel(),

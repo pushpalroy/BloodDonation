@@ -27,10 +27,10 @@ sealed class Screen(val route: String) {
     data object OurWork : Screen("our_work")
     data object Help : Screen("help")
 
-    data object ViewDonors : Screen("view_donors") {
+    data object ViewRequests : Screen("view_requests") {
         const val ARG_USER = "currentUserId"
-        const val routeWithArgs = "view_donors/{$ARG_USER}"
-        fun createRoute(uid: String) = "view_donors/$uid"
+        const val routeWithArgs = "view_requests/{$ARG_USER}"
+        fun createRoute(uid: String) = "view_requests/$uid"
     }
 
     data object RequestBlood : Screen("request_blood") {

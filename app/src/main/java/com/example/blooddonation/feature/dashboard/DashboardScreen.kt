@@ -83,7 +83,7 @@ fun DashboardScreen(
     onOurWork: () -> Unit,
     onHelp: () -> Unit,
     onLogout: () -> Unit,
-    onViewDonors: () -> Unit,
+    onViewRequest: () -> Unit,
     onRequestBlood: () -> Unit,
     onMyProfile: () -> Unit,
     onBloodCampList: () -> Unit,
@@ -339,7 +339,7 @@ fun DashboardScreen(
                                     DashboardCard(
                                         title = "View Requests",
                                         icon = Icons.Default.Face,
-                                        onClick = onViewDonors
+                                        onClick = onViewRequest
                                     )
                                 }
                                 item {
