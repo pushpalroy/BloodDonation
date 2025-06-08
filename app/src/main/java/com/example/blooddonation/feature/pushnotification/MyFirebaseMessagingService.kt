@@ -1,11 +1,14 @@
 package com.example.blooddonation.feature.pushnotification
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.blooddonation.R
@@ -17,7 +20,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // If you have a server, send the FCM token to it
+        // Send token to your server if needed
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -35,7 +38,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 "Blood Requests",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            NotificationManagerCompat.from(this).createNotificationChannel(channel)
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
 
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -55,6 +60,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
+        // Only show the notification if permission is granted (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Permission not granted, do not show notification
+                return
+            }
+        }
         NotificationManagerCompat.from(this).notify(0, builder.build())
     }
 }
