@@ -230,7 +230,7 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable("blood_camp_list") {
-            BloodCampListScreen()
+            BloodCampListScreen(onBack = { navController.popBackStack() })
         }
 
         composable(
