@@ -69,7 +69,7 @@ fun AppNavigation(navController: NavHostController) {
                 onSignInClick = {
                     navController.navigate(Screen.SignIn.route) {
                         launchSingleTop = true
-                        popUpTo(Screen.Splash.route) { inclusive = true }
+                        popUpTo(Screen.SignUp.route) { inclusive = true }
                     }
                 }
             )
@@ -85,7 +85,7 @@ fun AppNavigation(navController: NavHostController) {
                 onNavigateToSignup = {
                     navController.navigate(Screen.SignUp.route) {
                         launchSingleTop = true
-                        popUpTo(Screen.Splash.route) { inclusive = true }
+                        popUpTo(Screen.SignIn.route) { inclusive = true }
                     }
                 },
                 onSignInSuccess = { uid, isAdmin ->
