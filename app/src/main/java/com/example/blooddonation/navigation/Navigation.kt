@@ -24,7 +24,7 @@ import com.example.blooddonation.feature.signin.SignInScreen
 import com.example.blooddonation.feature.signup.SignUpScreen
 import com.example.blooddonation.feature.signup.SignupViewModel
 import com.example.blooddonation.feature.splashscreen.SplashScreen
-import com.example.blooddonation.feature.viewdonors.ViewDonorsScreen
+import com.example.blooddonation.feature.viewrequest.ViewRequestScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
@@ -143,7 +143,7 @@ fun AppNavigation(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
-                onViewDonors = { navController.navigate(Screen.ViewDonors.createRoute(uid)) },
+                onViewRequest = { navController.navigate(Screen.ViewRequests.createRoute(uid)) },
                 onRequestBlood = { navController.navigate(Screen.RequestBlood.createRoute(uid)) },
                 onMyProfile = { navController.navigate(Screen.MyProfile.createRoute(uid)) },
                 onBloodCampList = { navController.navigate(Screen.BloodCampList.route) }
@@ -170,7 +170,7 @@ fun AppNavigation(navController: NavHostController) {
                         launchSingleTop = true
                     }
                 },
-                onViewDonors = { navController.navigate(Screen.ViewDonors.createRoute(uid)) },
+                onViewRequest = { navController.navigate(Screen.ViewRequests.createRoute(uid)) },
                 onRequestBlood = { navController.navigate(Screen.RequestBlood.createRoute(uid)) },
                 onMyProfile = { navController.navigate(Screen.MyProfile.createRoute(uid)) },
                 onBloodCampList = { navController.navigate(Screen.BloodCampList.route) }
@@ -210,15 +210,15 @@ fun AppNavigation(navController: NavHostController) {
         // Other screens
         // Add NavType.StringType argument for currentUserId in both routes
         composable(
-            route = Screen.ViewDonors.routeWithArgs,
-            arguments = listOf(navArgument(Screen.ViewDonors.ARG_USER) {
+            route = Screen.ViewRequests.routeWithArgs,
+            arguments = listOf(navArgument(Screen.ViewRequests.ARG_USER) {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
             val currentUserId =
-                backStackEntry.arguments?.getString(Screen.ViewDonors.ARG_USER) ?: ""
+                backStackEntry.arguments?.getString(Screen.ViewRequests.ARG_USER) ?: ""
             val bloodRequestViewModel: BloodRequestViewModel = viewModel()
-            ViewDonorsScreen(
+            ViewRequestScreen(
                 onNavigateToChat = { chatId, currentId, requesterId ->
                     navController.navigate(Screen.Chat.createRoute(chatId, currentId, requesterId))
                 },
