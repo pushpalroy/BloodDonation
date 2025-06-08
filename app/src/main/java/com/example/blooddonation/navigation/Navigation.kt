@@ -179,7 +179,9 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(Screen.AdminDashboard.route) {
             AdminDashboardScreen(
-                onBack = { navController.popBackStack() },
+                onAboutUs = { navController.navigate(Screen.AboutUs.route) },
+                onOurWork = { navController.navigate(Screen.OurWork.route) },
+                onHelp = { navController.navigate(Screen.Help.route) },
                 onLogout = {
                     navController.navigate(Screen.SignIn.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
