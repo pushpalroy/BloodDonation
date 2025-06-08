@@ -55,6 +55,7 @@ import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.blooddonation.feature.theme.ThemeSwitch
+import com.example.blooddonation.feature.theme.acceptedLabelYellow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -216,11 +217,11 @@ private fun AcceptedTab(
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 text = "Accepted by me",
-                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                color = acceptedLabelYellow,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .background(
-                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                                        color = acceptedLabelYellow.copy(alpha = 0.08f),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
