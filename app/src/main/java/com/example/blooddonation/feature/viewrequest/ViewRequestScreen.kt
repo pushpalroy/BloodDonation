@@ -70,10 +70,12 @@ fun ViewRequestScreen(
 
     val tabTitles = listOf("Pending", "Accepted", "Rejected")
 
-    // --- Tab filtering logic ---
-    val pendingRequests = requests.filter { it.status == "pending" }
-    val acceptedRequests = requests.filter { it.status == "accepted" }
-    val rejectedRequests = requests.filter { it.status == "rejected" }
+    val pendingRequests =
+        requests.filter { it.status == "pending" }.sortedByDescending { it.timestamp }
+    val acceptedRequests =
+        requests.filter { it.status == "accepted" }.sortedByDescending { it.timestamp }
+    val rejectedRequests =
+        requests.filter { it.status == "rejected" }.sortedByDescending { it.timestamp }
 
     // Show medical dialog if needed
     showMedicalFormForRequest?.let { request ->
@@ -196,6 +198,7 @@ private fun AcceptedTab(
                     Column(Modifier.padding(16.dp)) {
                         Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
                         Text("Location: ${request.location}")
+                        Text("Requester: ${request.requesterName ?: "Anonymous"}")
                         if (request.requesterId == currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Text(
@@ -251,6 +254,7 @@ private fun RejectedTab(requests: List<BloodRequest>, currentUserId: String) {
                     Column(Modifier.padding(16.dp)) {
                         Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
                         Text("Location: ${request.location}")
+                        Text("Requester: ${request.requesterName ?: "Anonymous"}")
                         if (request.requesterId == currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Text(
@@ -294,6 +298,7 @@ fun RequestCard(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(text = "Location: ${bloodRequest.location}")
+            Text("Requester: ${bloodRequest.requesterName ?: "Anonymous"}")
 
             if (isRaisedByMe) {
                 Spacer(Modifier.height(8.dp))
