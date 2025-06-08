@@ -21,12 +21,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,9 +39,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,7 +82,9 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardScreen(
-    onBack: () -> Unit,
+    onAboutUs: () -> Unit,
+    onOurWork: () -> Unit,
+    onHelp: () -> Unit,
     onLogout: () -> Unit,
     viewModel: AdminViewModel = viewModel()
 ) {
@@ -87,7 +96,8 @@ fun AdminDashboardScreen(
     var selectedCamp by remember { mutableStateOf<AdminBloodCamp?>(null) }
 
     val listState = rememberLazyListState()
-    rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     val shownCamps = camps.filter {
         it.name.contains(searchQuery, ignoreCase = true) ||
@@ -103,33 +113,74 @@ fun AdminDashboardScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Admin Dashboard") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "CrimsonSync",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+                HorizontalDivider()
+                NavigationDrawerItem(
+                    label = { Text("About Us") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onAboutUs()
                     }
-                },
-                actions = {
-                    ThemeSwitch()
-                    IconButton(onClick = { showLogoutDialog = true }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_logout),
-                            contentDescription = "Logout"
-                        )
+                )
+                NavigationDrawerItem(
+                    label = { Text("Our Work") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onOurWork()
                     }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {
-                selectedCamp = null
-                showDialog = true
-            }) { Icon(Icons.Default.Add, contentDescription = "Add Camp") }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Help") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onHelp()
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text("Logout") },
+                    selected = false,
+                    onClick = {
+                        showLogoutDialog = true
+                        scope.launch { drawerState.close() }
+                    }
+                )
+            }
         }
-    ) { padding ->
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Admin Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    },
+                    actions = {
+                        ThemeSwitch()
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = {
+                    selectedCamp = null
+                    showDialog = true
+                }) { Icon(Icons.Default.Add, contentDescription = "Add Camp") }
+            }
+        ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             // Search and Sort Row
             Row(
