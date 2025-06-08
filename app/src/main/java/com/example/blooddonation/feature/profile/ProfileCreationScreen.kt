@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.feature.theme.BloodBankTheme
 import com.google.firebase.firestore.FirebaseFirestore
-import java.io.File
-import java.io.FileOutputStream
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.tasks.await
 
 
 @Composable
@@ -157,26 +157,25 @@ fun ProfileCreationScreen(
         Button(
             onClick = {
                 if (imageUri != null && username.isNotBlank() && bloodGroup.isNotBlank()) {
-                    // Save the image locally in the app's cache directory
-                    val imageFile = File(context.cacheDir, "$uid.jpg")
-                    try {
-                        context.contentResolver.openInputStream(imageUri!!)?.use { inputStream ->
-                            FileOutputStream(imageFile).use { outputStream ->
-                                inputStream.copyTo(outputStream)
-                            }
+                    val storage = com.google.firebase.storage.ktx.storage
+                    val fileName = "profile_images/${'$'}uid_${'$'}{System.currentTimeMillis()}.jpg"
+                    val ref = storage.reference.child(fileName)
+                    val downloadUrl = try {
+                        context.contentResolver.openInputStream(imageUri!!)?.use { stream ->
+                            ref.putStream(stream).await()
                         }
+                        ref.downloadUrl.await().toString()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
-                    // Save the profile info to Firestore along with the local image path
                     val userProfile = mapOf(
                         "username" to username,
                         "bio" to bio,
                         "bloodGroup" to bloodGroup,
-                        "profileImagePath" to imageFile.absolutePath
+                        "profileImagePath" to downloadUrl
                     )
 
                     FirebaseFirestore.getInstance()
@@ -185,7 +184,7 @@ fun ProfileCreationScreen(
                         .set(userProfile)
                         .addOnSuccessListener {
                             Toast.makeText(context, "Profile Created!", Toast.LENGTH_SHORT).show()
-                            onNavigateToDashboard(username, imageFile.absolutePath, uid)
+                            onNavigateToDashboard(username, downloadUrl, uid)
                         }
                         .addOnFailureListener {
                             Toast.makeText(context, "Failed to save profile", Toast.LENGTH_SHORT)

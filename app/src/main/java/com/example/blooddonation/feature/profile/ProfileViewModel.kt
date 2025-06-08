@@ -6,21 +6,25 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.io.File
+import kotlinx.coroutines.tasks.await
 
 class ProfileViewModel(private val uid: String) : ViewModel() {
 
     private val _profile = MutableStateFlow<UserProfile?>(null)
     val profile: StateFlow<UserProfile?> = _profile
+    private var listener: ListenerRegistration? = null
 
     init { fetchProfile() }
 
     private fun fetchProfile() {
-        FirebaseFirestore.getInstance()
+        listener?.remove()
+        listener = FirebaseFirestore.getInstance()
             .collection("users").document(uid)
             .addSnapshotListener { snap, error ->
                 if (error != null) {
@@ -37,16 +41,25 @@ class ProfileViewModel(private val uid: String) : ViewModel() {
 
     fun updateProfile(updated: UserProfile, newImageUri: Uri?, ctx: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val imagePath = newImageUri?.let { uri ->
-                val file = File(ctx.cacheDir, "$uid.jpg")
-                ctx.contentResolver.openInputStream(uri)?.use { it.copyTo(file.outputStream()) }
-                file.absolutePath
+            val imageUrl = newImageUri?.let { uri ->
+                val storage = com.google.firebase.storage.ktx.storage
+                val fileName = "profile_images/${'$'}uid_${'$'}{System.currentTimeMillis()}.jpg"
+                val ref = storage.reference.child(fileName)
+                ctx.contentResolver.openInputStream(uri)?.use { stream ->
+                    ref.putStream(stream).await()
+                }
+                ref.downloadUrl.await().toString()
             } ?: updated.profileImagePath
 
             FirebaseFirestore.getInstance()
                 .collection("users").document(uid)
-                .set(updated.copy(profileImagePath = imagePath))
+                .set(updated.copy(profileImagePath = imageUrl))
         }
+    }
+
+    override fun onCleared() {
+        listener?.remove()
+        super.onCleared()
     }
 }
 

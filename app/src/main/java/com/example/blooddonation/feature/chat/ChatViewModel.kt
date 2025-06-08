@@ -2,18 +2,21 @@ package com.example.blooddonation.feature.chat
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class ChatViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
+    private var listener: ListenerRegistration? = null
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages
 
     fun loadMessages(chatId: String) {
-        db.collection("chats")
+        listener?.remove()
+        listener = db.collection("chats")
             .document(chatId)
             .collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
@@ -32,5 +35,10 @@ class ChatViewModel : ViewModel() {
             .document(chatId)
             .collection("messages")
             .add(msg)
+    }
+
+    override fun onCleared() {
+        listener?.remove()
+        super.onCleared()
     }
 }

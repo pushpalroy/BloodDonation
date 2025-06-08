@@ -73,8 +73,8 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -319,23 +319,24 @@ fun AdminDashboardScreen(
     }
 }
 
-suspend fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
+
+suspend fun uploadImageToFirebaseStorage(context: Context, uri: Uri): String? {
     return withContext(Dispatchers.IO) {
         try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val fileName = "camp_image_${System.currentTimeMillis()}.jpg"
-            val file = File(context.filesDir, fileName)
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
-            outputStream.close()
-            file.absolutePath
+            val storage = com.google.firebase.storage.ktx.storage
+            val fileName = "camp_images/${System.currentTimeMillis()}.jpg"
+            val ref = storage.reference.child(fileName)
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                ref.putStream(stream).await()
+            }
+            ref.downloadUrl.await().toString()
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
 }
+
 
 @Composable
 fun CampDialog(
@@ -348,7 +349,7 @@ fun CampDialog(
     var date by remember { mutableStateOf(initialCamp?.date ?: "") }
     var description by remember { mutableStateOf(initialCamp?.description ?: "") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var savedImagePath by remember { mutableStateOf(initialCamp?.imageUrl ?: "") }
+    var savedImageUrl by remember { mutableStateOf(initialCamp?.imageUrl ?: "") }
 
     var showValidationError by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -376,9 +377,9 @@ fun CampDialog(
         uri?.let {
             imageUri = it
             scope.launch {
-                val path = saveImageToInternalStorage(context, it)
-                if (path != null) {
-                    savedImagePath = path
+                val url = uploadImageToFirebaseStorage(context, it)
+                if (url != null) {
+                    savedImageUrl = url
                 }
             }
         }
@@ -575,10 +576,10 @@ fun CampDialog(
                     Text("Choose Image", color = MaterialTheme.colorScheme.onPrimary)
                 }
 
-                if (savedImagePath.isNotEmpty()) {
+                if (savedImageUrl.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Image(
-                        painter = rememberAsyncImagePainter(File(savedImagePath)),
+                        painter = rememberAsyncImagePainter(savedImageUrl),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -598,7 +599,7 @@ fun CampDialog(
                             location = location,
                             date = date,
                             description = description,
-                            imageUrl = savedImagePath
+                            imageUrl = savedImageUrl
                         )
                         onSave(camp)
                     } else {

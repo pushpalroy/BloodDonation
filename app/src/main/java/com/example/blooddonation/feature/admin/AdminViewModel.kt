@@ -3,12 +3,14 @@ package com.example.blooddonation.feature.admin
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.blooddonation.domain.AdminBloodCamp
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
 class AdminViewModel : ViewModel() {
     private val db = Firebase.firestore
+    private var listener: ListenerRegistration? = null
     private val _camps = mutableStateListOf<AdminBloodCamp>()
     val camps: List<AdminBloodCamp> get() = _camps
 
@@ -17,7 +19,8 @@ class AdminViewModel : ViewModel() {
     }
 
     private fun fetchCamps() {
-        db.collection("blood_camps")
+        listener?.remove()
+        listener = db.collection("blood_camps")
             .addSnapshotListener { snapshot, _ ->
                 snapshot?.let {
                     _camps.clear()
@@ -42,5 +45,10 @@ class AdminViewModel : ViewModel() {
     fun deleteCamp(campId: String) {
         db.collection("blood_camps").document(campId)
             .delete()
+    }
+
+    override fun onCleared() {
+        listener?.remove()
+        super.onCleared()
     }
 }

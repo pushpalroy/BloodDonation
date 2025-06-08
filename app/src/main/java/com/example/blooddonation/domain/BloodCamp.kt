@@ -6,6 +6,6 @@ data class BloodCamp(
     val location: String = "",
     val date: String = "",
     val description: String = "",
-    val imageUrl: String = ""
+    val imageUrl: String = "" // Firebase Storage download URL
 )
 
