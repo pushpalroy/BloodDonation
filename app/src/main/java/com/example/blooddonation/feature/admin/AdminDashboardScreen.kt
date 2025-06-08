@@ -162,10 +162,19 @@ fun AdminDashboardScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Admin Dashboard", color = MaterialTheme.colorScheme.onPrimary) },
+                    title = {
+                        Text(
+                            "Admin Dashboard",
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.onPrimary)
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
                     },
                     actions = {
@@ -181,134 +190,152 @@ fun AdminDashboardScreen(
                 }) { Icon(Icons.Default.Add, contentDescription = "Add Camp") }
             }
         ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            // Search and Sort Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by camp or location") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-                Spacer(Modifier.width(8.dp))
-                IconButton(onClick = {
-                    sortAsc = !sortAsc
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Sort by date"
+            Column(modifier = Modifier.padding(padding)) {
+                // Search and Sort Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = { Text("Search by camp or location") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
                     )
-                }
-            }
-
-            // Camp List
-            LazyColumn(state = listState) {
-                items(shownCamps, key = { it.id }) { camp ->
-                    CampCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        name = camp.name,
-                        location = camp.location,
-                        date = camp.date,
-                        description = camp.description,
-                        imagePath = camp.imageUrl
-                    ) {
-                        Button(
-                            onClick = {
-                                selectedCamp = camp
-                                showDialog = true
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                        ) {
-                            Text("Edit", color = MaterialTheme.colorScheme.onPrimary)
-                        }
-                        Spacer(Modifier.width(8.dp))
-                        Button(
-                            onClick = { viewModel.deleteCamp(camp.id) },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
-                        ) {
-                            Text("Delete", color = MaterialTheme.colorScheme.onPrimary)
-                        }
+                    Spacer(Modifier.width(8.dp))
+                    IconButton(onClick = {
+                        sortAsc = !sortAsc
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Sort by date"
+                        )
                     }
                 }
 
-                if (shownCamps.isEmpty()) {
-                    item {
-                        Text(
-                            text = "No camps found for “$searchQuery”",
+                // Camp List
+                LazyColumn(state = listState) {
+                    items(shownCamps, key = { it.id }) { camp ->
+                        CampCard(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(32.dp),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                                .padding(8.dp),
+                            name = camp.name,
+                            location = camp.location,
+                            date = camp.date,
+                            description = camp.description,
+                            imagePath = camp.imageUrl
+                        ) {
+                            Button(
+                                onClick = {
+                                    selectedCamp = camp
+                                    showDialog = true
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
+                                Text("Edit", color = MaterialTheme.colorScheme.onPrimary)
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            Button(
+                                onClick = { viewModel.deleteCamp(camp.id) },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
+                            ) {
+                                Text("Delete", color = MaterialTheme.colorScheme.onPrimary)
+                            }
+                        }
+                    }
+
+                    if (shownCamps.isEmpty()) {
+                        item {
+                            Text(
+                                text = "No camps found for “$searchQuery”",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 }
             }
         }
-    }
 
-    // Add/Edit Camp Dialog
-    if (showDialog) {
-        CampDialog(
-            initialCamp = selectedCamp,
-            onDismiss = { showDialog = false },
-            onSave = { camp ->
-                if (camp.id.isEmpty()) viewModel.addCamp(camp)
-                else viewModel.updateCamp(camp)
-                showDialog = false
-            }
-        )
-    }
+        // Add/Edit Camp Dialog
+        if (showDialog) {
+            CampDialog(
+                initialCamp = selectedCamp,
+                onDismiss = { showDialog = false },
+                onSave = { camp ->
+                    if (camp.id.isEmpty()) viewModel.addCamp(camp)
+                    else viewModel.updateCamp(camp)
+                    showDialog = false
+                }
+            )
+        }
 
-    // Logout Confirmation Dialog
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = {
-                Text(
-                    "Confirm Logout",
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Text(
-                    "Are you sure you want to logout?",
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        FirebaseAuth.getInstance().signOut()
-                        onLogout()
-                        showLogoutDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Logout", color = MaterialTheme.colorScheme.onPrimary)
+        // Logout Confirmation Dialog
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = {
+                    Text(
+                        "Confirm Logout",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        "Are you sure you want to logout?",
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            FirebaseAuth.getInstance().signOut()
+                            onLogout()
+                            showLogoutDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("Logout", color = MaterialTheme.colorScheme.onPrimary)
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showLogoutDialog = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
+                    ) {
+                        Text("Cancel", color = MaterialTheme.colorScheme.onPrimary)
+                    }
                 }
-            },
-            dismissButton = {
-                Button(
-                    onClick = { showLogoutDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
-                ) {
-                    Text("Cancel", color = MaterialTheme.colorScheme.onPrimary)
-                }
-            }
-        )
+            )
+        }
     }
 }
 
+suspend fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val fileName = "camp_image_${System.currentTimeMillis()}.jpg"
+            val file = File(context.filesDir, fileName)
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
 
 @Composable
 fun CampDialog(
@@ -593,22 +620,4 @@ fun CampDialog(
             }
         }
     )
-}
-
-suspend fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
-    return withContext(Dispatchers.IO) {
-        try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val fileName = "camp_image_${System.currentTimeMillis()}.jpg"
-            val file = File(context.filesDir, fileName)
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
-            outputStream.close()
-            file.absolutePath
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
 }
