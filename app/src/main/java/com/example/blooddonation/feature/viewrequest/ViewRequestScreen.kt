@@ -66,10 +66,10 @@ import com.example.blooddonation.feature.theme.acceptedLabelYellow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewRequestScreen(
-    onNavigateToChat: (chatId: String, currentUserId: String, requesterId: String) -> Unit,
+    onNavigateToChat: (chatId: String, currentUserId: String, friendId: String) -> Unit,
     onBack: () -> Unit,
     viewModel: BloodRequestViewModel = viewModel(),
-    currentUserId: String
+    currentUserId: String,
 ) {
     val uiEvent by viewModel.uiEvent.collectAsStateWithLifecycle()
     val requests by viewModel.requests.collectAsStateWithLifecycle()
@@ -227,7 +227,7 @@ private fun PendingTab(
 private fun AcceptedTab(
     requests: List<BloodRequest>,
     currentUserId: String,
-    onNavigateToChat: (chatId: String, currentUserId: String, requesterId: String) -> Unit
+    onNavigateToChat: (chatId: String, currentUserId: String, friendId: String) -> Unit
 ) {
     if (requests.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -275,19 +275,33 @@ private fun AcceptedTab(
                             )
                         }
                         if (!request.chatId.isNullOrEmpty()) {
-                            val otherUserId = if (request.requesterId == currentUserId) {
-                                request.acceptedId
-                            } else {
-                                request.requesterId
-                            }
-                            if (!otherUserId.isNullOrEmpty()) {
+                            // if the current user have accepted
+                            if (request.acceptedId == currentUserId) {
                                 Spacer(Modifier.height(8.dp))
                                 Button(
                                     onClick = {
                                         onNavigateToChat(
                                             request.chatId,
-                                            currentUserId,
-                                            otherUserId
+                                            request.acceptedId,
+                                            request.requesterId,
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                                ) {
+                                    Text(
+                                        "Go to Chat",
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                }
+                            } else if (request.requesterId == currentUserId && request.acceptedId != null) {
+                                Spacer(Modifier.height(8.dp))
+                                Button(
+                                    onClick = {
+                                        onNavigateToChat(
+                                            request.chatId,
+                                            request.requesterId,
+                                            request.acceptedId,
                                         )
                                     },
                                     modifier = Modifier.fillMaxWidth(),

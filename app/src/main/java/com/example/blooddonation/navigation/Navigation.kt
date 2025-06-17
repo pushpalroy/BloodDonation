@@ -266,14 +266,13 @@ fun AppNavigation(navController: NavHostController) {
 
         composable(Screen.Chat.routeWithArgs) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString(Screen.Chat.ARG_CHAT_ID) ?: ""
-            val currentUserId =
-                backStackEntry.arguments?.getString(Screen.Chat.ARG_CURRENT_ID) ?: ""
-            val otherUserId = backStackEntry.arguments?.getString(Screen.Chat.ARG_OTHER_ID) ?: ""
+            val currentUserId = backStackEntry.arguments?.getString(Screen.Chat.ARG_CURRENT_ID) ?: ""
+            val friendId = backStackEntry.arguments?.getString(Screen.Chat.ARG_FRIEND_ID) ?: ""
 
             ChatScreen(
                 chatId = chatId,
                 currentUserId = currentUserId,
-                otherUserId = otherUserId,
+                friendId = friendId,
                 onBack = { navController.popBackStack() },
             )
         }

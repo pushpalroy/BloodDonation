@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 fun ChatScreen(
     chatId: String,
     currentUserId: String,
-    otherUserId: String,
+    friendId: String,
     onBack: () -> Unit,
     viewModel: ChatViewModel = viewModel()
 ) {
@@ -68,9 +68,9 @@ fun ChatScreen(
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(otherUserId) {
+    LaunchedEffect(friendId) {
         FirebaseFirestore.getInstance().collection("users")
-            .document(otherUserId)
+            .document(friendId)
             .get()
             .addOnSuccessListener { doc ->
                 otherName = doc.getString("username") ?: ""

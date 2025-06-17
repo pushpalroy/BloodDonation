@@ -180,7 +180,7 @@ class BloodRequestViewModel : ViewModel() {
                 // update the blood-request with every piece the requester will need
                 val updateMap = mapOf(
                     "status" to "accepted",
-                    "acceptedBy" to donorId,
+                    "acceptedId" to donorId,
                     "chatId" to chatId,
                 )
                 db.collection("bloodRequests").document(requestId)

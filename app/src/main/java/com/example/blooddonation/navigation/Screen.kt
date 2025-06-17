@@ -50,8 +50,8 @@ sealed class Screen(val route: String) {
     data object Chat : Screen("chat") {
         const val ARG_CHAT_ID = "chatId"
         const val ARG_CURRENT_ID = "currentUserId"
-        const val ARG_OTHER_ID = "otherUserId"
-        const val routeWithArgs = "chat/{$ARG_CHAT_ID}/{$ARG_CURRENT_ID}/{$ARG_OTHER_ID}"
+        const val ARG_FRIEND_ID = "friendId"
+        const val routeWithArgs = "chat/{$ARG_CHAT_ID}/{$ARG_CURRENT_ID}/{$ARG_FRIEND_ID}"
         fun createRoute(chatId: String, currentId: String, otherId: String) =
             "chat/$chatId/$currentId/$otherId"
     }
