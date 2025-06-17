@@ -13,8 +13,7 @@ data class BloodRequest(
     val chatId: String? = null
 )
 
-data class Acceptance(
-    val id: String = "",
+data class RequestAcceptance(
     val requestId: String = "",
     val donorId: String = "",
     val medicalInfo: String = ""

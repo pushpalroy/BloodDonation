@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -40,6 +41,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,9 +55,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.requestblood.BloodRequestViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.blooddonation.feature.requestblood.UiEvent
 import com.example.blooddonation.feature.theme.ThemeSwitch
 import com.example.blooddonation.feature.theme.acceptedLabelYellow
 
@@ -67,7 +71,11 @@ fun ViewRequestScreen(
     viewModel: BloodRequestViewModel = viewModel(),
     currentUserId: String
 ) {
-    val requests by viewModel.requests.collectAsState()
+    val uiEvent by viewModel.uiEvent.collectAsStateWithLifecycle()
+    val requests by viewModel.requests.collectAsStateWithLifecycle()
+    val openDialog = remember { mutableStateOf(false) }
+    var pendingChatId by remember { mutableStateOf<String?>(null) }
+    var pendingRequesterId by remember { mutableStateOf<String?>(null) }
     var showMedicalFormForRequest by remember { mutableStateOf<BloodRequest?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -87,12 +95,24 @@ fun ViewRequestScreen(
             donorId = currentUserId,
             onDismiss = { showMedicalFormForRequest = null },
             onSubmit = { requestId, donorId, medicalInfo ->
-                viewModel.acceptRequest(requestId, donorId, medicalInfo) { chatId, requesterId ->
-                    showMedicalFormForRequest = null
-                    onNavigateToChat(chatId, currentUserId, requesterId)
-                }
+                viewModel.acceptRequest(requestId, donorId, medicalInfo)
             }
         )
+    }
+
+    // Observe UiEvent and trigger dialog
+    LaunchedEffect(uiEvent) {
+        when (val event = uiEvent) {
+            is UiEvent.ShowAcceptedDialog -> {
+                openDialog.value = true
+                pendingChatId = event.chatId
+                pendingRequesterId = event.requesterId
+                // After consuming, reset event so it's one-shot
+                viewModel.consumeUiEvent()
+            }
+
+            else -> {}
+        }
     }
 
     Scaffold(
@@ -157,6 +177,22 @@ fun ViewRequestScreen(
                     currentUserId = currentUserId
                 )
             }
+        }
+        if (openDialog.value && pendingChatId != null && pendingRequesterId != null) {
+            AlertDialog(
+                onDismissRequest = { openDialog.value = false },
+                title = { Text("Blood Request Accepted") },
+                text = { Text("Your request has been accepted. Proceed to chat with the donor?") },
+                confirmButton = {
+                    Button(onClick = {
+                        openDialog.value = false
+                        onNavigateToChat(pendingChatId!!, currentUserId, pendingRequesterId!!)
+                    }) { Text("Go to Chat") }
+                },
+                dismissButton = {
+                    Button(onClick = { openDialog.value = false }) { Text("Cancel") }
+                }
+            )
         }
     }
 }
@@ -389,14 +425,14 @@ fun MedicalFormDialog(
         ) {
             val context = LocalContext.current
             val scrollState = rememberScrollState()
-            var age by remember { mutableStateOf("") }
-            var weight by remember { mutableStateOf("") }
-            var hadIllness by remember { mutableStateOf("") }
-            var medications by remember { mutableStateOf("") }
-            var surgery by remember { mutableStateOf("") }
-            var alcohol by remember { mutableStateOf("") }
-            var chronicDiseases by remember { mutableStateOf("") }
-            var exposedCovid by remember { mutableStateOf("") }
+            var age by remember { mutableStateOf("35") }
+            var weight by remember { mutableStateOf("65") }
+            var hadIllness by remember { mutableStateOf("No") }
+            var medications by remember { mutableStateOf("No") }
+            var surgery by remember { mutableStateOf("No") }
+            var alcohol by remember { mutableStateOf("No") }
+            var chronicDiseases by remember { mutableStateOf("No") }
+            var exposedCovid by remember { mutableStateOf("No") }
 
             Column(
                 modifier = Modifier
@@ -504,6 +540,7 @@ fun MedicalFormDialog(
                                     append("exposedCovid=$exposedCovid")
                                 }
                                 onSubmit(request.id, donorId, info)
+                                onDismiss()
                             }
                         }
 

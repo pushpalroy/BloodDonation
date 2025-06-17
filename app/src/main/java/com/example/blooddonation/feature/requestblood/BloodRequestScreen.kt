@@ -29,13 +29,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.blooddonation.feature.theme.ThemeSwitch
 
@@ -49,12 +49,13 @@ fun BloodRequestScreen(
     currentUserId: String
 ) {
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
-    val selectedBloodGroup by viewModel.selectedBloodGroup.collectAsState()
-    val location by viewModel.location.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val userName by viewModel.userName.collectAsState()
-    val requests by viewModel.requests.collectAsState()
-    val errorMessage by viewModel.error.collectAsState()
+    val selectedBloodGroup by viewModel.selectedBloodGroup.collectAsStateWithLifecycle()
+    val location by viewModel.location.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
+    val requests by viewModel.requests.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.error.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
 
     // Fetch user name when screen is shown

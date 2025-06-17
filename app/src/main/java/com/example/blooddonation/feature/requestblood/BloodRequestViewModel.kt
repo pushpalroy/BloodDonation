@@ -3,6 +3,7 @@ package com.example.blooddonation.feature.requestblood
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.blooddonation.domain.BloodRequest
+import com.example.blooddonation.domain.RequestAcceptance
 import com.example.blooddonation.feature.chat.generateChatId
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -27,6 +28,9 @@ class BloodRequestViewModel : ViewModel() {
 
     private val _userName = MutableStateFlow("Anonymous")
     val userName: StateFlow<String> = _userName
+
+    private val _uiEvent = MutableStateFlow<UiEvent?>(null)
+    val uiEvent: StateFlow<UiEvent?> = _uiEvent
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
@@ -147,29 +151,25 @@ class BloodRequestViewModel : ViewModel() {
             }
     }
 
-    fun getAcceptedRequestForDonor(donorId: String): BloodRequest? {
-        return _requests.value.find {
-            it.acceptedId == donorId && it.status == "accepted"
-        }
+    fun consumeUiEvent() {
+        _uiEvent.value = null
     }
 
     fun acceptRequest(
         requestId: String,
         donorId: String,
         medicalInfo: String,
-        onChatReady: (chatId: String, requesterId: String) -> Unit
     ) {
         db.collection("bloodRequests").document(requestId).get()
             .addOnSuccessListener { doc ->
                 val requesterId = doc.getString("requesterId") ?: return@addOnSuccessListener
                 val chatId = generateChatId(donorId, requesterId)
 
-                // 1️⃣ store donor’s medical info (optional)
                 db.collection("acceptances").add(
-                    com.example.blooddonation.domain.Acceptance(requestId, donorId, medicalInfo)
+                    RequestAcceptance(requestId, donorId, medicalInfo)
                 )
 
-                // 2️⃣ ensure chat document exists
+                // ensure chat document exists
                 val chatData = mapOf(
                     "donorId" to donorId,
                     "requesterId" to requesterId,
@@ -177,17 +177,18 @@ class BloodRequestViewModel : ViewModel() {
                 )
                 db.collection("chats").document(chatId).set(chatData, SetOptions.merge())
 
-                // 3️⃣ update the blood-request with every piece the requester will need
+                // update the blood-request with every piece the requester will need
                 val updateMap = mapOf(
                     "status" to "accepted",
                     "acceptedBy" to donorId,
-                    "chatId" to chatId          // 🔹 the key field
+                    "chatId" to chatId,
                 )
                 db.collection("bloodRequests").document(requestId)
                     .update(updateMap)
                     .addOnSuccessListener {
                         // Listener will update requests automatically
-                        onChatReady(chatId, requesterId)   // donor navigates now
+                        // onChatReady(chatId, requesterId)
+                        _uiEvent.value = UiEvent.ShowAcceptedDialog(chatId, requesterId)
                     }
                     .addOnFailureListener { e ->
                         _error.value = "Failed to accept request: ${e.localizedMessage}"
@@ -199,4 +200,11 @@ class BloodRequestViewModel : ViewModel() {
                 Log.e("BloodRequestViewModel", "Error in acceptRequest", e)
             }
     }
+}
+
+sealed class UiEvent {
+    data class ShowAcceptedDialog(
+        val chatId: String,
+        val requesterId: String
+    ) : UiEvent()
 }
