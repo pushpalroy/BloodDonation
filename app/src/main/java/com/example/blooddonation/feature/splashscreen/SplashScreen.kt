@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
 import com.example.blooddonation.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
 import androidx.compose.material3.Text
@@ -36,29 +37,46 @@ fun SplashScreen(
         label = "Logo Bounce"
     )
 
+    var authChecked by remember { mutableStateOf(false) }
+    var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
+    val auth = remember { FirebaseAuth.getInstance() }
+
+    DisposableEffect(Unit) {
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            currentUser = firebaseAuth.currentUser
+        }
+        auth.addAuthStateListener(listener)
+        onDispose { auth.removeAuthStateListener(listener) }
+    }
+
     LaunchedEffect(Unit) {
         startAnimation = true
         delay(1300)
-        val auth = FirebaseAuth.getInstance()
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(currentUser.uid)
-                .get()
-                .addOnSuccessListener { doc ->
-                    val role = doc.getString("role") ?: ""
-                    if (role == "Admin") {
-                        onNavigateToAdminDashboard()
-                    } else {
-                        onNavigateToDashboard(currentUser.uid)
+        authChecked = true
+    }
+
+    LaunchedEffect(authChecked, currentUser) {
+        if (authChecked) {
+            val user = currentUser
+            if (user != null) {
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.uid)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        val role = doc.getString("role") ?: ""
+                        if (role == "Admin") {
+                            onNavigateToAdminDashboard()
+                        } else {
+                            onNavigateToDashboard(user.uid)
+                        }
                     }
-                }
-                .addOnFailureListener {
-                    onNavigateToSignup()
-                }
-        } else {
-            onNavigateToSignup()
+                    .addOnFailureListener {
+                        onNavigateToSignup()
+                    }
+            } else {
+                onNavigateToSignup()
+            }
         }
     }
 
