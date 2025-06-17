@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +44,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.blooddonation.feature.theme.BloodBankTheme
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
@@ -59,6 +62,7 @@ fun ProfileCreationScreen(
     var bloodGroup by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+    val coroutineScope = rememberCoroutineScope()
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -153,43 +157,58 @@ fun ProfileCreationScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
         Button(
             onClick = {
                 if (imageUri != null && username.isNotBlank() && bloodGroup.isNotBlank()) {
-                    val storage = com.google.firebase.storage.ktx.storage
-                    val fileName = "profile_images/${'$'}uid_${'$'}{System.currentTimeMillis()}.jpg"
-                    val ref = storage.reference.child(fileName)
-                    val downloadUrl = try {
-                        context.contentResolver.openInputStream(imageUri!!)?.use { stream ->
-                            ref.putStream(stream).await()
-                        }
-                        ref.downloadUrl.await().toString()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
+                    coroutineScope.launch {
+                        val storage = Firebase.storage("gs://registeractivity-202dd.firebasestorage.app")
+                        val fileName = "profile_images/${uid}_${System.currentTimeMillis()}.jpg"
+                        val ref = storage.reference.child(fileName)
 
-                    val userProfile = mapOf(
-                        "username" to username,
-                        "bio" to bio,
-                        "bloodGroup" to bloodGroup,
-                        "profileImagePath" to downloadUrl
-                    )
-
-                    FirebaseFirestore.getInstance()
-                        .collection("users")
-                        .document(uid)
-                        .set(userProfile)
-                        .addOnSuccessListener {
-                            Toast.makeText(context, "Profile Created!", Toast.LENGTH_SHORT).show()
-                            onNavigateToDashboard(username, downloadUrl, uid)
+                        val downloadUrl = try {
+                            context.contentResolver.openInputStream(imageUri!!)?.use { stream ->
+                                val result = ref.putStream(stream).await()
+                                if (result.task.isSuccessful) {
+                                    ref.downloadUrl.await().toString()
+                                } else {
+                                    null
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
                         }
-                        .addOnFailureListener {
-                            Toast.makeText(context, "Failed to save profile", Toast.LENGTH_SHORT)
+
+                        if (downloadUrl == null) {
+                            Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT)
                                 .show()
+                            return@launch
                         }
+
+                        val userProfile = mapOf(
+                            "username" to username,
+                            "bio" to bio,
+                            "bloodGroup" to bloodGroup,
+                            "profileImagePath" to downloadUrl
+                        )
+
+                        FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(uid)
+                            .set(userProfile)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Profile Created!", Toast.LENGTH_SHORT)
+                                    .show()
+                                onNavigateToDashboard(username, downloadUrl, uid)
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(
+                                    context,
+                                    "Failed to save profile",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    }
                 } else {
                     Toast.makeText(
                         context,

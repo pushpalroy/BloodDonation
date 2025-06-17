@@ -70,6 +70,8 @@ import com.example.blooddonation.domain.AdminBloodCamp
 import com.example.blooddonation.feature.events.CampCard
 import com.example.blooddonation.feature.theme.ThemeSwitch
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -320,20 +322,29 @@ fun AdminDashboardScreen(
 }
 
 
-suspend fun uploadImageToFirebaseStorage(context: Context, uri: Uri): String? {
-    return withContext(Dispatchers.IO) {
-        try {
-            val storage = com.google.firebase.storage.ktx.storage
-            val fileName = "camp_images/${System.currentTimeMillis()}.jpg"
-            val ref = storage.reference.child(fileName)
-            context.contentResolver.openInputStream(uri)?.use { stream ->
-                ref.putStream(stream).await()
+suspend fun uploadImageToFirebaseStorage(
+    context: Context,
+    uri: Uri,
+    storage: FirebaseStorage = Firebase.storage("gs://registeractivity-202dd.firebasestorage.app"),
+): String? = withContext(Dispatchers.IO) {
+    try {
+        val fileName = "camp_images/${System.currentTimeMillis()}.jpg"
+        val ref = storage.reference.child(fileName)
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            // Await upload and throw if unsuccessful
+            val result = ref.putStream(stream).await()
+            if (result.task.isSuccessful) {
+                // Only get download URL if upload succeeded
+                return@withContext ref.downloadUrl.await().toString()
+            } else {
+                return@withContext null
             }
-            ref.downloadUrl.await().toString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
+        // Return null if stream could not be opened
+        null
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }
 

@@ -54,9 +54,9 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-auth = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuth" }
-firebase-storage = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebaseStorage" }
-firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx", version.ref = "firebaseMessaging" }
+firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics", version = "22.4.0" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }

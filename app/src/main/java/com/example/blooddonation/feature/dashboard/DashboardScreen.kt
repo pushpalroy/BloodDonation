@@ -62,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.blooddonation.R
 import com.example.blooddonation.feature.theme.ThemeSwitch
 import com.google.firebase.auth.FirebaseAuth
@@ -281,25 +283,19 @@ fun DashboardScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (!uiState.imageUri.isNullOrEmpty()) {
-                                        val imageFile = File(uiState.imageUri!!)
-                                        if (imageFile.exists()) {
-                                            AsyncImage(
-                                                model = Uri.fromFile(imageFile),
-                                                contentDescription = "Profile Picture",
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .clip(CircleShape),
-                                                contentScale = ContentScale.Crop,
-                                                error = painterResource(id = android.R.drawable.ic_menu_gallery)
-                                            )
-                                        } else {
-                                            Icon(
-                                                imageVector = Icons.Default.Person,
-                                                contentDescription = "Default Profile Picture",
-                                                modifier = Modifier.size(50.dp),
-                                                tint = colorScheme.onSurface
-                                            )
-                                        }
+                                        AsyncImage(
+                                            model = ImageRequest.Builder(LocalContext.current)
+                                                .data(uiState.imageUri)
+                                                .crossfade(true)
+                                                .build(),
+                                            contentDescription = "Profile Picture",
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop,
+                                            error = painterResource(id = R.drawable.img_person),
+                                            placeholder = painterResource(id = R.drawable.img_person)
+                                        )
                                     } else {
                                         Icon(
                                             imageVector = Icons.Default.Person,
