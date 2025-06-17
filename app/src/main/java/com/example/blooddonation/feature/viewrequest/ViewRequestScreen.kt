@@ -145,17 +145,18 @@ fun ViewRequestScreen(
                     onAccept = { showMedicalFormForRequest = it },
                     onReject = { viewModel.rejectRequest(it.id) }
                 )
+
                 1 -> AcceptedTab(
                     requests = acceptedRequests,
                     currentUserId = currentUserId,
                     onNavigateToChat = onNavigateToChat
                 )
+
                 2 -> RejectedTab(
                     requests = rejectedRequests,
                     currentUserId = currentUserId
                 )
             }
-
         }
     }
 }
@@ -167,15 +168,21 @@ private fun PendingTab(
     onAccept: (BloodRequest) -> Unit,
     onReject: (BloodRequest) -> Unit
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(requests, key = { it.id }) { request ->
-            RequestCard(
-                bloodRequest = request,
-                currentUserId = currentUserId,
-                onAccept = { onAccept(request) },
-                onReject = { onReject(request) }
-            )
-            Spacer(Modifier.height(12.dp))
+    if (requests.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No pending requests.")
+        }
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(requests, key = { it.id }) { request ->
+                RequestCard(
+                    bloodRequest = request,
+                    currentUserId = currentUserId,
+                    onAccept = { onAccept(request) },
+                    onReject = { onReject(request) }
+                )
+                Spacer(Modifier.height(12.dp))
+            }
         }
     }
 }
@@ -210,12 +217,14 @@ private fun AcceptedTab(
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .background(
-                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(
+                                            alpha = 0.08f
+                                        ),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             )
-                        } else if (request.acceptedBy == currentUserId) {
+                        } else if (request.acceptedId == currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 text = "Accepted by me",
@@ -231,7 +240,7 @@ private fun AcceptedTab(
                         }
                         if (!request.chatId.isNullOrEmpty()) {
                             val otherUserId = if (request.requesterId == currentUserId) {
-                                request.acceptedBy
+                                request.acceptedId
                             } else {
                                 request.requesterId
                             }
@@ -248,7 +257,10 @@ private fun AcceptedTab(
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                                 ) {
-                                    Text("Go to Chat", color = MaterialTheme.colorScheme.onTertiaryContainer)
+                                    Text(
+                                        "Go to Chat",
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
                                 }
                             }
                         }
@@ -286,7 +298,9 @@ private fun RejectedTab(requests: List<BloodRequest>, currentUserId: String) {
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .background(
-                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f),
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(
+                                            alpha = 0.08f
+                                        ),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .padding(horizontal = 10.dp, vertical = 4.dp)

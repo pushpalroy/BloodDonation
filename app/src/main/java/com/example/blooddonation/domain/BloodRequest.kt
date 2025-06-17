@@ -1,7 +1,5 @@
 package com.example.blooddonation.domain
 
-
-
 data class BloodRequest(
     val id: String = "",
     val requesterId: String = "",
@@ -10,7 +8,8 @@ data class BloodRequest(
     val bloodGroup: String = "",
     val location: String = "",
     val status: String = "pending",
-    val acceptedBy: String? = null,
+    val acceptedId: String? = null,
+    val acceptedName: String? = null,
     val chatId: String? = null
 )
 

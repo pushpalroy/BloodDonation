@@ -31,18 +31,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.blooddonation.domain.BloodRequest
 import com.example.blooddonation.feature.theme.ThemeSwitch
-import com.google.firebase.firestore.FirebaseFirestore
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,30 +49,30 @@ fun BloodRequestScreen(
     currentUserId: String
 ) {
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
-    var selectedBloodGroup by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var userName by remember { mutableStateOf("Anonymous") }
-    val context = LocalContext.current
+    val selectedBloodGroup by viewModel.selectedBloodGroup.collectAsState()
+    val location by viewModel.location.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val userName by viewModel.userName.collectAsState()
     val requests by viewModel.requests.collectAsState()
+    val errorMessage by viewModel.error.collectAsState()
+    val context = LocalContext.current
 
-    // Load the current user's name
+    // Fetch user name when screen is shown
     LaunchedEffect(currentUserId) {
-        FirebaseFirestore.getInstance().collection("users")
-            .document(currentUserId)
-            .get()
-            .addOnSuccessListener { doc ->
-                userName = doc.getString("username") ?: ""
-            }
+        viewModel.fetchUserName(currentUserId)
     }
 
-    // Get the accepted request (if any) for this user
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
+
     val acceptedRequest = requests.find {
         it.requesterId == currentUserId && it.status == "accepted"
     }
-
     val chatId = acceptedRequest?.chatId
-    val donorId = acceptedRequest?.acceptedBy
+    val donorId = acceptedRequest?.acceptedId
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -89,9 +84,7 @@ fun BloodRequestScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                actions = {
-                    ThemeSwitch()
-                },
+                actions = { ThemeSwitch() },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -127,7 +120,7 @@ fun BloodRequestScreen(
                     bloodGroups.forEach { group ->
                         val isSelected = selectedBloodGroup == group
                         Button(
-                            onClick = { selectedBloodGroup = group },
+                            onClick = { viewModel.onBloodGroupSelected(group) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
@@ -154,7 +147,7 @@ fun BloodRequestScreen(
 
                 OutlinedTextField(
                     value = location,
-                    onValueChange = { location = it },
+                    onValueChange = { viewModel.onLocationChanged(it) },
                     placeholder = { Text("Enter the Location") },
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -163,42 +156,18 @@ fun BloodRequestScreen(
 
                 Button(
                     onClick = {
-                        if (selectedBloodGroup.isNotBlank() && location.isNotBlank() && !isLoading) {
-                            isLoading = true
-
-                            val newRequest = BloodRequest(
-                                requesterId = currentUserId,
-                                bloodGroup = selectedBloodGroup,
-                                requesterName = userName,
-                                timestamp = System.currentTimeMillis(),
-                                location = location,
-                                status = "pending"
-                            )
-
-                            viewModel.addRequest(newRequest) { success ->
-                                isLoading = false
-                                if (success) {
-                                    selectedBloodGroup = ""
-                                    location = ""
-                                    Toast.makeText(context, "Request added", Toast.LENGTH_SHORT)
-                                        .show()
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Failed to add request. Try again.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        } else if (isLoading) {
-                            Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Please select blood group and location",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        viewModel.addRequest(
+                            currentUserId = currentUserId,
+                            onSuccess = {
+                                Toast.makeText(
+                                    context,
+                                    "Blood request has been raised by $userName!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                onBack()
+                            },
+                            onFailure = { /* Error message will be shown by LaunchedEffect */ }
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -237,6 +206,3 @@ fun BloodRequestScreen(
         }
     }
 }
-
-
-
