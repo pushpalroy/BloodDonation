@@ -1,9 +1,11 @@
 package com.example.blooddonation.feature.splashscreen
 
+import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun SplashScreen(
@@ -27,7 +30,7 @@ fun SplashScreen(
     onNavigateToDashboard: (String) -> Unit,
     onNavigateToSignup: () -> Unit
 ) {
-    var startAnimation by remember { mutableStateOf(false) }
+    val startAnimation by remember { mutableStateOf(true) }
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
         animationSpec = spring(
@@ -36,50 +39,48 @@ fun SplashScreen(
         ),
         label = "Logo Bounce"
     )
-
-    var authChecked by remember { mutableStateOf(false) }
     var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
-    val auth = remember { FirebaseAuth.getInstance() }
+    var authStateChecked by remember { mutableStateOf(false) }
+    var navigationTriggered by remember { mutableStateOf(false) }
 
+    val auth = remember { FirebaseAuth.getInstance() }
     DisposableEffect(Unit) {
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             currentUser = firebaseAuth.currentUser
+            authStateChecked = true
+            Log.d("SplashScreen", "currentUser: ${firebaseAuth.currentUser}")
         }
         auth.addAuthStateListener(listener)
         onDispose { auth.removeAuthStateListener(listener) }
     }
 
-    LaunchedEffect(Unit) {
-        startAnimation = true
-        delay(1300)
-        authChecked = true
-    }
-
-    LaunchedEffect(authChecked, currentUser) {
-        if (authChecked) {
+    LaunchedEffect(authStateChecked, currentUser) {
+        if (authStateChecked && !navigationTriggered) {
+            navigationTriggered = true
             val user = currentUser
             if (user != null) {
-                FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(user.uid)
-                    .get()
-                    .addOnSuccessListener { doc ->
-                        val role = doc.getString("role") ?: ""
-                        if (role == "Admin") {
-                            onNavigateToAdminDashboard()
-                        } else {
-                            onNavigateToDashboard(user.uid)
-                        }
+                try {
+                    val doc = FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(user.uid)
+                        .get()
+                        .await()
+                    val role = doc.getString("role") ?: ""
+                    if (role == "Admin") {
+                        onNavigateToAdminDashboard()
+                    } else {
+                        onNavigateToDashboard(user.uid)
                     }
-                    .addOnFailureListener {
-                        onNavigateToSignup()
-                    }
+                } catch (e: Exception) {
+                    onNavigateToSignup()
+                }
             } else {
                 onNavigateToSignup()
             }
         }
     }
 
+    // UI
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -108,6 +109,11 @@ fun SplashScreen(
                 ),
                 textAlign = TextAlign.Center,
                 fontSize = 28.sp
+            )
+            // Add progress bar so user always knows something is happening
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 32.dp)
             )
         }
     }

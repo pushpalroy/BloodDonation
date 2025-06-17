@@ -111,13 +111,13 @@ fun AppNavigation(navController: NavHostController) {
             val uid = backStackEntry.arguments?.getString(Screen.Profile.ARG_UID) ?: ""
             ProfileCreationScreen(
                 uid = uid,
-                onNavigateToDashboard = { username, imageUri, uid ->
+                onNavigateToDashboard = { username, imageUri, userId ->
                     val encodedUri = Uri.encode(imageUri)
                     navController.navigate(
                         Screen.Dashboard.createRoute(
                             username,
                             encodedUri,
-                            uid
+                            userId
                         )
                     ) {
                         popUpTo(Screen.Profile.routeWithArgs) { inclusive = true }

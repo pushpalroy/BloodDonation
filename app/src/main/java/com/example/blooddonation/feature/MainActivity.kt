@@ -1,46 +1,34 @@
 package com.example.blooddonation.feature
 
+import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.messaging.FirebaseMessaging
-import android.Manifest
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-
-
-    /**
-     * TODO: MVVM Pattern
-     *
-     * data, domain, ui/presentation
-     *
-     * data -
-     *
-     * domain -
-     *
-     * ui -
-     *
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        auth = FirebaseAuth.getInstance()
         FirebaseMessaging.getInstance().subscribeToTopic("blood_requests")
         setContent {
             RequestNotificationPermissionIfNeeded()
-            BloodBankApp(auth.currentUser)
+            BloodBankApp()
         }
     }
 }

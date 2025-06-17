@@ -30,6 +30,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            // Optional: Add debug-specific config here
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
     }
 
     compileOptions {
