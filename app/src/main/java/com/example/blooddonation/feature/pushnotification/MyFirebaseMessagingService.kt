@@ -73,6 +73,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 return
             }
         }
-        NotificationManagerCompat.from(this).notify(0, builder.build())
+        NotificationManagerCompat.from(this).notify(System.currentTimeMillis().toInt(), builder.build())
     }
 }

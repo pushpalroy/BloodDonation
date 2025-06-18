@@ -244,74 +244,59 @@ private fun AcceptedTab(
                     Column(Modifier.padding(16.dp)) {
                         Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
                         Text("Location: ${request.location}")
-                        Text("Requester: ${request.requesterName ?: "Anonymous"}")
-                        if (request.requesterId == currentUserId) {
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = "Raised by me",
-                                color = MaterialTheme.colorScheme.tertiaryContainer,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .background(
-                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(
-                                            alpha = 0.08f
-                                        ),
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                        Text("Requested by: ${request.requesterName ?: "Anonymous"}")
+
+                        val labelInfo = when {
+                            request.requesterId == currentUserId -> Triple(
+                                "Raised by me",
+                                MaterialTheme.colorScheme.tertiaryContainer,
+                                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.08f)
                             )
-                        } else if (request.acceptedId == currentUserId) {
+
+                            request.acceptedId == currentUserId -> Triple(
+                                "Accepted by me",
+                                acceptedLabelYellow,
+                                acceptedLabelYellow.copy(alpha = 0.08f)
+                            )
+
+                            else -> null
+                        }
+
+                        labelInfo?.let { (label, labelColor, labelBg) ->
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "Accepted by me",
-                                color = acceptedLabelYellow,
+                                text = label,
+                                color = labelColor,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .background(
-                                        color = acceptedLabelYellow.copy(alpha = 0.08f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
+                                    .background(color = labelBg, shape = RoundedCornerShape(8.dp))
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             )
                         }
-                        if (!request.chatId.isNullOrEmpty()) {
-                            // if the current user have accepted
-                            if (request.acceptedId == currentUserId) {
-                                Spacer(Modifier.height(8.dp))
-                                Button(
-                                    onClick = {
-                                        onNavigateToChat(
-                                            request.chatId,
-                                            request.acceptedId,
-                                            request.requesterId,
-                                        )
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-                                ) {
-                                    Text(
-                                        "Go to Chat",
-                                        color = MaterialTheme.colorScheme.onTertiaryContainer
-                                    )
-                                }
-                            } else if (request.requesterId == currentUserId && request.acceptedId != null) {
-                                Spacer(Modifier.height(8.dp))
-                                Button(
-                                    onClick = {
-                                        onNavigateToChat(
-                                            request.chatId,
-                                            request.requesterId,
-                                            request.acceptedId,
-                                        )
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-                                ) {
-                                    Text(
-                                        "Go to Chat",
-                                        color = MaterialTheme.colorScheme.onTertiaryContainer
-                                    )
-                                }
+
+                        val (canChat, chatCurrentId, chatFriendId) = when {
+                            !request.chatId.isNullOrEmpty() && request.acceptedId == currentUserId ->
+                                Triple(true, request.acceptedId, request.requesterId)
+
+                            !request.chatId.isNullOrEmpty() && request.requesterId == currentUserId && request.acceptedId != null ->
+                                Triple(true, request.requesterId, request.acceptedId)
+
+                            else -> Triple(false, null, null)
+                        }
+
+                        if (canChat && chatCurrentId != null && chatFriendId != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Button(
+                                onClick = {
+                                    onNavigateToChat(request.chatId!!, chatCurrentId, chatFriendId)
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                            ) {
+                                Text(
+                                    "Go to Chat",
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
                             }
                         }
                     }
@@ -339,7 +324,7 @@ private fun RejectedTab(requests: List<BloodRequest>, currentUserId: String) {
                     Column(Modifier.padding(16.dp)) {
                         Text("Blood Group: ${request.bloodGroup}", fontWeight = FontWeight.Bold)
                         Text("Location: ${request.location}")
-                        Text("Requester: ${request.requesterName ?: "Anonymous"}")
+                        Text("Requested by: ${request.requesterName ?: "Anonymous"}")
                         if (request.requesterId == currentUserId) {
                             Spacer(Modifier.height(8.dp))
                             Text(
