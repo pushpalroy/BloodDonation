@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
 @Composable
@@ -65,6 +66,10 @@ fun SplashScreen(
                         .document(user.uid)
                         .get()
                         .await()
+                    val userDoc =
+                        FirebaseFirestore.getInstance().collection("users")
+                            .document(user.uid)
+                    userDoc.update("fcmToken", FirebaseMessaging.getInstance().token)
                     val role = doc.getString("role") ?: ""
                     if (role == "Admin") {
                         onNavigateToAdminDashboard()
