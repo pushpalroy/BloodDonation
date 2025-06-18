@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -39,16 +41,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.blooddonation.feature.theme.BloodBankTheme
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
 
 @Composable
 fun ProfileCreationScreen(
@@ -61,6 +60,7 @@ fun ProfileCreationScreen(
     var bio by remember { mutableStateOf("") }
     var bloodGroup by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
+    var isUploading by remember { mutableStateOf(false) }
     val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
     val coroutineScope = rememberCoroutineScope()
 
@@ -157,11 +157,14 @@ fun ProfileCreationScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = {
                 if (imageUri != null && username.isNotBlank() && bloodGroup.isNotBlank()) {
                     coroutineScope.launch {
-                        val storage = Firebase.storage("gs://registeractivity-202dd.firebasestorage.app")
+                        isUploading = true
+                        val storage =
+                            Firebase.storage("gs://registeractivity-202dd.firebasestorage.app")
                         val fileName = "profile_images/${uid}_${System.currentTimeMillis()}.jpg"
                         val ref = storage.reference.child(fileName)
 
@@ -178,6 +181,8 @@ fun ProfileCreationScreen(
                             e.printStackTrace()
                             null
                         }
+
+                        isUploading = false
 
                         if (downloadUrl == null) {
                             Toast.makeText(context, "Failed to upload image", Toast.LENGTH_SHORT)
@@ -220,20 +225,19 @@ fun ProfileCreationScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
+            enabled = !isUploading,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Text("Create Profile", color = MaterialTheme.colorScheme.onPrimary)
+            if (isUploading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Uploading...", color = MaterialTheme.colorScheme.onPrimary)
+            } else {
+                Text("Create Profile", color = MaterialTheme.colorScheme.onPrimary)
+            }
         }
-    }
-}
-
-@Preview()
-@Composable
-fun PreviewProfileCreationScreen() {
-    BloodBankTheme(dynamicColor = false) {
-        ProfileCreationScreen(
-            uid = "sample_uid",
-            onNavigateToDashboard = { _, _, _ -> /* No-op for preview */ }
-        )
     }
 }
