@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.blooddonation.R
 import com.example.blooddonation.feature.theme.ThemeSwitch
@@ -287,6 +288,8 @@ fun DashboardScreen(
                                             model = ImageRequest.Builder(LocalContext.current)
                                                 .data(uiState.imageUri)
                                                 .crossfade(true)
+                                                .diskCachePolicy(CachePolicy.ENABLED)
+                                                .memoryCachePolicy(CachePolicy.ENABLED)
                                                 .build(),
                                             contentDescription = "Profile Picture",
                                             modifier = Modifier

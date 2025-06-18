@@ -67,6 +67,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import java.io.File
 import androidx.lifecycle.ViewModelProvider
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.blooddonation.feature.theme.ThemeSwitch
 import com.example.blooddonation.R
@@ -106,17 +108,6 @@ fun MyProfileScreen(
     }
     val user = profile!!
 
-    @Composable
-    fun avatarPainter(): Painter {
-        pickedImage?.let { return rememberAsyncImagePainter(it) }
-        val f = File(user.profileImagePath)
-        return rememberAsyncImagePainter(
-            ImageRequest.Builder(LocalContext.current)
-                .data(if (f.exists()) f else R.drawable.ic_launcher_foreground)
-                .build()
-        )
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         topBar = {
@@ -147,36 +138,27 @@ fun MyProfileScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
+                        .size(156.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .offset(y = 78.dp)
+                        .clip(CircleShape)
+                        .border(4.dp, MaterialTheme.colorScheme.onPrimaryContainer, CircleShape)
+                        .shadow(12.dp, CircleShape)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.blood_background),
-                        contentDescription = null,
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(pickedImage ?: user.profileImagePath.takeIf { it.isNotBlank() }
+                            ?: R.drawable.img_person)
+                            .crossfade(true)
+                            .diskCachePolicy(CachePolicy.ENABLED)
+                            .memoryCachePolicy(CachePolicy.ENABLED)
+                            .build(),
+                        contentDescription = "Profile Picture",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.matchParentSize()
+                        modifier = Modifier.matchParentSize(),
+                        placeholder = painterResource(id = R.drawable.img_person),
+                        error = painterResource(id = R.drawable.img_person)
                     )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(Color.Black.copy(alpha = 0.45f))
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(156.dp)
-                            .align(Alignment.BottomCenter)
-                            .offset(y = 78.dp)
-                            .clip(CircleShape)
-                            .border(4.dp, MaterialTheme.colorScheme.onPrimaryContainer, CircleShape)
-                            .shadow(12.dp, CircleShape)
-                    ) {
-                        Image(
-                            painter = avatarPainter(),
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null,
-                            modifier = Modifier.matchParentSize()
-                        )
-                    }
                 }
 
                 Spacer(Modifier.height(90.dp))
@@ -265,11 +247,19 @@ fun MyProfileScreen(
                         .clickable { pickImg.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = avatarPainter(),
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(pickedImage ?: user.profileImagePath.takeIf { it.isNotBlank() }
+                            ?: R.drawable.img_person)
+                            .crossfade(true)
+                            .diskCachePolicy(CachePolicy.ENABLED)
+                            .memoryCachePolicy(CachePolicy.ENABLED)
+                            .build(),
+                        contentDescription = "Profile Picture",
                         contentScale = ContentScale.Crop,
-                        contentDescription = null,
-                        modifier = Modifier.matchParentSize()
+                        modifier = Modifier.matchParentSize(),
+                        placeholder = painterResource(id = R.drawable.img_person),
+                        error = painterResource(id = R.drawable.img_person)
                     )
                     Box(
                         Modifier

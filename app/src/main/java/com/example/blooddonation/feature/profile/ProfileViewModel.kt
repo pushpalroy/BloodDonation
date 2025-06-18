@@ -46,34 +46,46 @@ class ProfileViewModel(private val uid: String) : ViewModel() {
 
     fun updateProfile(updated: UserProfile, newImageUri: Uri?, ctx: Context) {
         viewModelScope.launch(Dispatchers.IO) {
+            // 1. Fix Storage bucket URL
             val storage = Firebase.storage("gs://registeractivity-202dd.firebasestorage.app")
-            val imageUrl = try {
-                newImageUri?.let { uri ->
+            var imageUrl = updated.profileImagePath
+
+            // 2. If there's a new image, upload and get download URL
+            if (newImageUri != null) {
+                try {
                     val fileName = "profile_images/${uid}_${System.currentTimeMillis()}.jpg"
                     val ref = storage.reference.child(fileName)
-                    ctx.contentResolver.openInputStream(uri)?.use { stream ->
+                    ctx.contentResolver.openInputStream(newImageUri)?.use { stream ->
                         val result = ref.putStream(stream).await()
                         if (result.task.isSuccessful) {
-                            ref.downloadUrl.await().toString()
-                        } else {
-                            updated.profileImagePath // fallback to old image if upload failed
+                            imageUrl = ref.downloadUrl.await().toString()
                         }
-                    } ?: updated.profileImagePath // fallback if stream couldn't be opened
-                } ?: updated.profileImagePath
-            } catch (e: Exception) {
-                e.printStackTrace()
-                updated.profileImagePath // fallback if exception occurs
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(ctx, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    }
+                    // continue to update text fields
+                }
             }
 
+            // 3. Update the Firestore profile (all fields)
             try {
                 FirebaseFirestore.getInstance()
-                    .collection("users").document(uid)
+                    .collection("users")
+                    .document(uid)
                     .set(updated.copy(profileImagePath = imageUrl))
                     .addOnSuccessListener {
-                        Toast.makeText(ctx, "Profile updated", Toast.LENGTH_SHORT).show()
+                        // Must run Toast on main thread
+                        viewModelScope.launch(Dispatchers.Main) {
+                            Toast.makeText(ctx, "Profile updated", Toast.LENGTH_SHORT).show()
+                        }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(ctx, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                        viewModelScope.launch(Dispatchers.Main) {
+                            Toast.makeText(ctx, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                        }
                     }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -83,6 +95,7 @@ class ProfileViewModel(private val uid: String) : ViewModel() {
             }
         }
     }
+
 
 
     override fun onCleared() {
